@@ -7,7 +7,7 @@
 
 A production-grade microservices architecture demonstrating Event Sourcing, CQRS, and SAGA patterns using Spring Cloud ecosystem with enterprise-level security and observability.
 
-> 📚 **New to this project?** Check the [Documentation Index](DOCS_INDEX.md) for guided navigation through all documentation.
+> 📚 **New to this project?** Check the [Documentation Index](docs/DOCS_INDEX.md) for guided navigation through all documentation.
 
 ## Table of Contents
 
@@ -164,7 +164,7 @@ Manages distributed transactions across microservices:
 
 ### Quick Start
 
-For a rapid setup, see [QUICKSTART.md](QUICKSTART.md) for a 5-minute guide.
+For a rapid setup, see [QUICKSTART.md](docs/QUICKSTART.md) for a 5-minute guide.
 
 ### Detailed Setup
 
@@ -540,6 +540,11 @@ docker-compose up -d
 
 ```
 poc-microservices/
+├── docs/                       # Documentation
+│   ├── DOCS_INDEX.md          # Documentation index
+│   ├── QUICKSTART.md          # Quick start guide
+│   ├── ARCHITECTURE.md        # Detailed architecture
+│   └── DOCKER.md              # Infrastructure setup
 ├── eureka-server/              # Service discovery
 ├── api-gateway/                # API gateway and routing
 ├── products/                   # Products microservice
@@ -563,8 +568,6 @@ poc-microservices/
 │       ├── enums/             # Enum definitions
 │       └── model/             # Generated API models
 ├── docker-compose.yml          # Infrastructure services
-├── QUICKSTART.md              # Quick start guide
-├── ARCHITECTURE.md            # Detailed architecture
 ├── README.md                  # This file
 └── gradle/                    # Gradle wrapper
 ```
@@ -603,9 +606,9 @@ poc-microservices/
 
 ## Additional Resources
 
-- [Quick Start Guide](QUICKSTART.md) - Get running in 5 minutes
-- [Architecture Documentation](ARCHITECTURE.md) - Detailed technical architecture
-- [Docker Setup](DOCKER.md) - Infrastructure configuration
+- [Quick Start Guide](docs/QUICKSTART.md) - Get running in 5 minutes
+- [Architecture Documentation](docs/ARCHITECTURE.md) - Detailed technical architecture
+- [Docker Setup](docs/DOCKER.md) - Infrastructure configuration
 - [Spring Cloud Documentation](https://spring.io/projects/spring-cloud)
 - [Event Sourcing Pattern](https://martinfowler.com/eaaDev/EventSourcing.html)
 - [CQRS Pattern](https://martinfowler.com/bliki/CQRS.html)

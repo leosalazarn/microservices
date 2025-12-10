@@ -6,7 +6,7 @@ Welcome to the Enterprise Microservices Architecture documentation. This guide w
 
 ### For New Users
 
-1. **[README.md](README.md)** - Start here!
+1. **[README.md](../README.md)** - Start here!
    - Project overview and key features
    - Complete setup instructions
    - API documentation
@@ -51,11 +51,11 @@ Welcome to the Enterprise Microservices Architecture documentation. This guide w
 - **Get started quickly** → [QUICKSTART.md](QUICKSTART.md)
 - **Understand the architecture** → [ARCHITECTURE.md](ARCHITECTURE.md)
 - **Set up infrastructure** → [DOCKER.md](DOCKER.md)
-- **Troubleshoot issues** → [README.md#troubleshooting](README.md#troubleshooting)
-- **View API documentation** → [README.md#api-documentation](README.md#api-documentation)
+- **Troubleshoot issues** → [README.md#troubleshooting](../README.md#troubleshooting)
+- **View API documentation** → [README.md#api-documentation](../README.md#api-documentation)
 - **Learn about patterns** → [ARCHITECTURE.md#core-patterns](ARCHITECTURE.md#core-patterns)
-- **Configure security** → [README.md#security](README.md#security)
-- **Monitor services** → [README.md#monitoring--observability](README.md#monitoring--observability)
+- **Configure security** → [README.md#security](../README.md#security)
+- **Monitor services** → [README.md#monitoring--observability](../README.md#monitoring--observability)
 
 ## 📖 Reading Order
 
@@ -86,14 +86,14 @@ Welcome to the Enterprise Microservices Architecture documentation. This guide w
 
 ## 📝 Additional Files
 
-- **[LICENSE](LICENSE)** - MIT License
-- **[.gitignore](.gitignore)** - Git ignore rules
-- **[docker-compose.yml](docker-compose.yml)** - Infrastructure configuration
-- **[settings.gradle](settings.gradle)** - Gradle multi-project setup
+- **[LICENSE](../LICENSE)** - MIT License
+- **[.gitignore](../.gitignore)** - Git ignore rules
+- **[docker-compose.yml](../docker-compose.yml)** - Infrastructure configuration
+- **[settings.gradle](../settings.gradle)** - Gradle multi-project setup
 
 ## 🆘 Need Help?
 
-1. Check [Troubleshooting](README.md#troubleshooting) section
+1. Check [Troubleshooting](../README.md#troubleshooting) section
 2. Review [QUICKSTART.md](QUICKSTART.md) for common setup issues
 3. Verify infrastructure with `docker-compose ps`
 4. Check service logs with `docker-compose logs -f`
