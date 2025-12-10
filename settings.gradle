@@ -1,0 +1,2 @@
+rootProject.name = 'poc-microservices'
+include 'eureka-server', 'products', 'billing', 'api-gateway'

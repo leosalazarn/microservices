@@ -1,0 +1,93 @@
+openapi: 3.0.3
+info:
+  title: Products API
+  description: API for product management with CQRS pattern
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/products
+tags:
+  - name: Products Query
+    description: Read operations (CQRS Query side)
+  - name: Products Command
+    description: Write operations (CQRS Command side)
+paths:
+  /:
+    get:
+      tags:
+        - Products Query
+      summary: Get service info
+      description: Returns basic service information
+      operationId: getServiceInfo
+      responses:
+        '200':
+          description: Service information
+          content:
+            text/plain:
+              schema:
+                type: string
+  /health:
+    get:
+      tags:
+        - Products Query
+      summary: Health check
+      description: Returns service health status
+      operationId: getHealth
+      responses:
+        '200':
+          description: Health status
+          content:
+            text/plain:
+              schema:
+                type: string
+  /products:
+    get:
+      tags:
+        - Products Query
+      summary: Get all products
+      description: Returns list of all products
+      operationId: getAllProducts
+      responses:
+        '200':
+          description: List of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+    post:
+      tags:
+        - Products Command
+      summary: Create product
+      description: Creates a new product
+      operationId: createProduct
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '201':
+          description: Product created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        price:
+          type: number
+          format: double
+        description:
+          type: string
+        category:
+          type: string

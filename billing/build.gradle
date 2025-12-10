@@ -1,0 +1,62 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.4.0'
+    id 'io.spring.dependency-management' version '1.1.6'
+    id 'org.openapi.generator' version '7.2.0'
+}
+
+group = 'com.example'
+version = '0.0.1'
+java.sourceCompatibility = '21'
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    springCloudVersion = '2024.0.0'
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.openapitools:jackson-databind-nullable:0.2.6'
+    implementation 'jakarta.servlet:jakarta.servlet-api'
+    implementation 'jakarta.annotation:jakarta.annotation-api'
+    implementation 'org.springframework.kafka:spring-kafka'
+    implementation 'org.springframework.cloud:spring-cloud-starter-vault-config'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+openApiGenerate {
+    generatorName = "spring"
+    inputSpec = "$projectDir/src/main/resources/openapi/billing-api.yaml"
+    outputDir = "$buildDir/generated"
+    apiPackage = "com.example.billing.api"
+    modelPackage = "com.example.billing.model"
+    configOptions = [
+        interfaceOnly: "true",
+        useTags: "true",
+        useJakartaEe: "true"
+    ]
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir "$buildDir/generated/src/main/java"
+        }
+    }
+}
+
+compileJava.dependsOn tasks.openApiGenerate

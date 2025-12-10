@@ -1,0 +1,330 @@
+{
+	"info": {
+		"_postman_id": "12345678-1234-1234-1234-123456789012",
+		"name": "POC Microservices - CQRS/SAGA/Event Sourcing",
+		"description": "API collection for Spring Cloud microservices with CQRS, SAGA, and Event Sourcing patterns",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Service Discovery",
+			"item": [
+				{
+					"name": "Eureka Dashboard",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8761",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8761"
+						},
+						"description": "Access Eureka service discovery dashboard"
+					}
+				}
+			]
+		},
+		{
+			"name": "API Gateway",
+			"item": [
+				{
+					"name": "Gateway Health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/actuator/health",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["actuator", "health"]
+						},
+						"description": "Check API Gateway health status"
+					}
+				},
+				{
+					"name": "Gateway Routes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/actuator/gateway/routes",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["actuator", "gateway", "routes"]
+						},
+						"description": "List all configured gateway routes"
+					}
+				}
+			]
+		},
+		{
+			"name": "Products Service - CQRS/Aggregate",
+			"item": [
+				{
+					"name": "Create Product (Command Bus → Aggregate)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Aggregate Product\",\n  \"price\": 599.99\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/products/products",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["products", "products"]
+						},
+						"description": "Create product using Command Bus → Command Handler → Aggregate → Event Store → Kafka"
+					}
+				},
+				{
+					"name": "Create Product with Description",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Premium Product\",\n  \"price\": 999.99\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/products/products",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["products", "products"]
+						},
+						"description": "Create product with full aggregate state"
+					}
+				},
+				{
+					"name": "Get All Products (Query)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/products/products",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["products", "products"]
+						},
+						"description": "Query all products (CQRS Read side)"
+					}
+				},
+				{
+					"name": "Products Health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/products/actuator/health",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["products", "actuator", "health"]
+						},
+						"description": "Check Products service health"
+					}
+				}
+			]
+		},
+		{
+			"name": "Billing Service - SAGA Consumer",
+			"item": [
+				{
+					"name": "Get All Invoices",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/billing/invoices",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["billing", "invoices"]
+						},
+						"description": "Retrieve all invoices (receives events from Products via SAGA)"
+					}
+				},
+				{
+					"name": "Create Invoice",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"customerId\": 123,\n  \"amount\": 299.99,\n  \"status\": \"PENDING\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/billing/invoices",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["billing", "invoices"]
+						},
+						"description": "Create a new invoice"
+					}
+				},
+				{
+					"name": "Billing Health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/billing/actuator/health",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["billing", "actuator", "health"]
+						},
+						"description": "Check Billing service health"
+					}
+				}
+			]
+		},
+		{
+			"name": "Event Sourcing Tests",
+			"item": [
+				{
+					"name": "Create Product 1 (Event Sourced)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Event Sourced Product 1\",\n  \"price\": 199.99\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/products/products",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["products", "products"]
+						},
+						"description": "Create product - Event stored in MongoDB event_store collection"
+					}
+				},
+				{
+					"name": "Create Product 2 (Event Sourced)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Event Sourced Product 2\",\n  \"price\": 299.99\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/products/products",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["products", "products"]
+						},
+						"description": "Create another product - Check event_store for ProductCreatedEvent"
+					}
+				},
+				{
+					"name": "Create Product 3 (SAGA Test)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"SAGA Test Product\",\n  \"price\": 499.99\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/products/products",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["products", "products"]
+						},
+						"description": "Create product - Event published to Kafka → Billing service receives it"
+					}
+				}
+			]
+		},
+		{
+			"name": "API Documentation",
+			"item": [
+				{
+					"name": "Products Swagger UI",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/products/swagger-ui.html",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["products", "swagger-ui.html"]
+						},
+						"description": "Access Products service Swagger UI"
+					}
+				},
+				{
+					"name": "Billing Swagger UI",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/billing/swagger-ui.html",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["billing", "swagger-ui.html"]
+						},
+						"description": "Access Billing service Swagger UI"
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "gateway_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "eureka_url",
+			"value": "http://localhost:8761",
+			"type": "string"
+		}
+	]
+}

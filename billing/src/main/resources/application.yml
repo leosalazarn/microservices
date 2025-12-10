@@ -1,0 +1,52 @@
+server:
+  port: 0
+  forward-headers-strategy: framework
+
+spring:
+  application:
+    name: billing
+  config:
+    import: vault://
+  cloud:
+    vault:
+      uri: http://localhost:8200
+      token: myroot
+      kv:
+        enabled: true
+        backend: secret
+        default-context: billing
+  kafka:
+    bootstrap-servers: ${kafka.bootstrap-servers}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    instance-id: ${spring.application.name}:${random.uuid}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: Billing Service
+    description: Microservice for billing management
+    version: 1.0.0
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    config-url: /billing/v3/api-docs/swagger-config
+    url: /billing/v3/api-docs

@@ -1,0 +1,60 @@
+server:
+  port: 0
+  forward-headers-strategy: framework
+
+spring:
+  application:
+    name: products
+  config:
+    import: vault://
+  cloud:
+    vault:
+      uri: http://localhost:8200
+      token: myroot
+      kv:
+        enabled: true
+        backend: secret
+        default-context: products
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: products
+      username: admin
+      password: password
+      authentication-database: admin
+  kafka:
+    bootstrap-servers: ${kafka.bootstrap-servers}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    instance-id: ${spring.application.name}:${random.uuid}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: Products Service
+    description: Microservice for product management
+    version: 1.0.0
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    config-url: /products/v3/api-docs/swagger-config
+    url: /products/v3/api-docs

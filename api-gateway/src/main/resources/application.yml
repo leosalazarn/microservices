@@ -1,0 +1,71 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: products-swagger-ui
+          uri: lb://products
+          predicates:
+            - Path=/products/swagger-ui.html,/products/swagger-ui/**
+          filters:
+            - RewritePath=/products/(?<segment>.*), /$\{segment}
+        - id: products-api-docs
+          uri: lb://products
+          predicates:
+            - Path=/products/v3/api-docs/**
+          filters:
+            - RewritePath=/products/(?<segment>.*), /$\{segment}
+        - id: billing-swagger-ui
+          uri: lb://billing
+          predicates:
+            - Path=/billing/swagger-ui.html,/billing/swagger-ui/**
+          filters:
+            - RewritePath=/billing/(?<segment>.*), /$\{segment}
+        - id: billing-api-docs
+          uri: lb://billing
+          predicates:
+            - Path=/billing/v3/api-docs/**
+          filters:
+            - RewritePath=/billing/(?<segment>.*), /$\{segment}
+        - id: products-actuator
+          uri: lb://products
+          predicates:
+            - Path=/products/actuator/**
+          filters:
+            - RewritePath=/products/(?<segment>.*), /$\{segment}
+        - id: billing-actuator
+          uri: lb://billing
+          predicates:
+            - Path=/billing/actuator/**
+          filters:
+            - RewritePath=/billing/(?<segment>.*), /$\{segment}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
+  endpoint:
+    health:
+      show-details: always
+    gateway:
+      enabled: true
+
+info:
+  app:
+    name: API Gateway
+    description: Spring Cloud Gateway for microservices routing
+    version: 1.0.0
