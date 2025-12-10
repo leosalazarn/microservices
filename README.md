@@ -7,6 +7,8 @@
 
 A production-grade microservices architecture demonstrating Event Sourcing, CQRS, and SAGA patterns using Spring Cloud ecosystem with enterprise-level security and observability.
 
+> 📚 **New to this project?** Check the [Documentation Index](DOCS_INDEX.md) for guided navigation through all documentation.
+
 ## Table of Contents
 
 - [Overview](#overview)
@@ -169,8 +171,8 @@ For a rapid setup, see [QUICKSTART.md](QUICKSTART.md) for a 5-minute guide.
 #### 1. Clone Repository
 
 ```bash
-git clone <repository-url>
-cd poc-microservices
+git clone https://github.com/leosalazarn/microservices.git
+cd microservices
 ```
 
 #### 2. Start Infrastructure Services
