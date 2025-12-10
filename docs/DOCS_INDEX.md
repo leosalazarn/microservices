@@ -32,14 +32,26 @@ Welcome to the Enterprise Microservices Architecture documentation. This guide w
    - Connection details
    - Data persistence
 
+5. **[VALIDATION_STRATEGY.md](VALIDATION_STRATEGY.md)** - Validation architecture
+   - CQRS validation layers
+   - Why NOT validate entities
+   - Command validation
+   - Business rule validation
+
+6. **[BEAN_VALIDATION.md](BEAN_VALIDATION.md)** - Implementation details
+   - OpenAPI validation constraints
+   - Generated code examples
+   - Testing validation
+   - Build commands
+
 ### For Project Review
 
-5. **[PROJECT_REVIEW.md](PROJECT_REVIEW.md)** - Architecture assessment
+7. **[PROJECT_REVIEW.md](PROJECT_REVIEW.md)** - Architecture assessment
    - Implementation checklist
    - Pattern maturity
    - Best practices validation
 
-6. **[DOCUMENTATION_UPDATES.md](DOCUMENTATION_UPDATES.md)** - Change log
+8. **[DOCUMENTATION_UPDATES.md](DOCUMENTATION_UPDATES.md)** - Change log
    - Documentation improvements
    - File structure
    - Update history

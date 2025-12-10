@@ -78,16 +78,24 @@ components:
   schemas:
     Invoice:
       type: object
+      required:
+        - customerId
+        - amount
+        - status
       properties:
         id:
           type: integer
           format: int64
+          readOnly: true
         customerId:
           type: integer
           format: int64
+          minimum: 1
         amount:
           type: number
           format: double
+          minimum: 0.01
+          exclusiveMinimum: false
         status:
           type: string
           enum: [PENDING, PAID, CANCELLED]

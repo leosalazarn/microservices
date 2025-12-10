@@ -48,7 +48,8 @@ openApiGenerate {
     configOptions = [
         interfaceOnly: "true",
         useTags: "true",
-        useJakartaEe: "true"
+        useJakartaEe: "true",
+        useBeanValidation: "true"
     ]
 }
 

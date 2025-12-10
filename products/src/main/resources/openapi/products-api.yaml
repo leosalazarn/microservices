@@ -78,16 +78,26 @@ components:
   schemas:
     Product:
       type: object
+      required:
+        - name
+        - price
       properties:
         id:
           type: integer
           format: int64
+          readOnly: true
         name:
           type: string
+          minLength: 1
+          maxLength: 100
         price:
           type: number
           format: double
+          minimum: 0.01
+          exclusiveMinimum: false
         description:
           type: string
+          maxLength: 500
         category:
           type: string
+          maxLength: 50
