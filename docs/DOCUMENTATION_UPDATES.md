@@ -1,5 +1,19 @@
 # Documentation Updates Summary
 
+## Recent Updates (December 2025)
+
+### CQRS Controller Separation
+- ✅ Separated Query and Command controllers in Products and Billing services
+- ✅ Updated OpenAPI specifications with "Query" and "Command" tags
+- ✅ Generated separate API interfaces: `ProductsQueryApi` and `ProductsCommandApi`
+- ✅ Updated all documentation to reflect controller separation
+
+### Documentation Organization
+- ✅ Moved all documentation to `docs/` folder
+- ✅ Created `DOCS_INDEX.md` for navigation
+- ✅ Added MIT LICENSE file
+- ✅ Updated all cross-references and links
+
 ## Files Updated
 
 ### 1. README.md

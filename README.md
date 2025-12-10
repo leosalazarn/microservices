@@ -37,6 +37,8 @@ This project implements a distributed microservices architecture following indus
 ### Key Features
 
 - ✅ Contract-first API development with OpenAPI 3.0
+- ✅ CQRS pattern with separate Query and Command controllers
+- ✅ OpenAPI tags for Query/Command separation in Swagger UI
 - ✅ Horizontal scalability with dynamic port allocation
 - ✅ Centralized configuration and secret management
 - ✅ Comprehensive health monitoring and metrics
@@ -126,7 +128,10 @@ Separates read and write operations for optimal performance:
 - **Queries**: Optimized read operations without side effects
 - Independent scaling of read/write workloads
 
-**Implementation**: Separate handlers for commands and queries in all services
+**Implementation**: 
+- Separate controllers: `ProductQueryController` (GET) and `ProductCommandController` (POST)
+- OpenAPI-generated interfaces: `ProductsQueryApi` and `ProductsCommandApi`
+- Separate handlers for commands and queries in all services
 
 ### SAGA Pattern
 
@@ -551,7 +556,9 @@ poc-microservices/
 │   ├── src/main/resources/openapi/
 │   │   └── products-api.yaml   # API specification
 │   └── src/main/java/com/example/products/
-│       ├── controller/         # REST controllers
+│       ├── controller/         # REST controllers (Query & Command)
+│       │   ├── ProductQueryController.java
+│       │   └── ProductCommandController.java
 │       ├── query/             # Query handlers (CQRS)
 │       ├── command/           # Command handlers (CQRS)
 │       ├── domain/            # Domain entities & repositories
@@ -561,7 +568,9 @@ poc-microservices/
 │   ├── src/main/resources/openapi/
 │   │   └── billing-api.yaml    # API specification
 │   └── src/main/java/com/example/billing/
-│       ├── controller/         # REST controllers
+│       ├── controller/         # REST controllers (Query & Command)
+│       │   ├── InvoiceQueryController.java
+│       │   └── InvoiceCommandController.java
 │       ├── query/             # Query handlers (CQRS)
 │       ├── command/           # Command handlers (CQRS)
 │       ├── domain/            # Domain entities

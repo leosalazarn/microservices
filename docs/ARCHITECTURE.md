@@ -165,9 +165,11 @@ Manages distributed transactions across microservices using event choreography.
 ┌─────────────────────────────────────────────────────────┐
 │                    Products Service                      │
 ├─────────────────────────────────────────────────────────┤
-│  Controller Layer                                        │
-│  ├─ ProductsController (REST endpoints)                 │
-│  └─ Implements ProductsApi (OpenAPI generated)          │
+│  Controller Layer (CQRS Separation)                     │
+│  ├─ ProductQueryController (GET endpoints)              │
+│  │  └─ Implements ProductsQueryApi (OpenAPI)           │
+│  └─ ProductCommandController (POST endpoints)           │
+│     └─ Implements ProductsCommandApi (OpenAPI)          │
 ├─────────────────────────────────────────────────────────┤
 │  Command Layer (CQRS Write)                             │
 │  ├─ CommandBus (routes commands)                        │
