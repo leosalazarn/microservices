@@ -3,12 +3,11 @@ package com.example.products.command;
 import com.example.products.domain.aggregate.ProductAggregate;
 import com.example.products.domain.entity.ProductEntity;
 import com.example.products.domain.event.DomainEvent;
-import com.example.products.domain.event.ProductCreatedEvent;
 import com.example.products.domain.repository.ProductRepository;
 import com.example.products.infrastructure.eventstore.EventStore;
 import com.example.products.infrastructure.mapper.ProductAggregateMapper;
 import com.example.products.infrastructure.mapper.ProductMapper;
-import com.example.products.infrastructure.messaging.EventPublisher;
+import com.example.products.infrastructure.messaging.DomainEventPublisher;
 import com.example.products.model.Product;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -23,56 +22,55 @@ public class CreateProductCommandHandler implements CommandHandler<CreateProduct
     
     private final ProductRepository repository;
     private final EventStore eventStore;
-    private final EventPublisher eventPublisher;
+    private final DomainEventPublisher domainEventPublisher;
     private final ProductMapper productMapper;
     private final ProductAggregateMapper aggregateMapper;
     
     @Override
     @Transactional
     public Product handle(CreateProductCommand command) {
-        // Validate
-        validateCommand(command);
+        // Create and process aggregate
+        ProductAggregate aggregate = createAggregate(command);
         
-        // Create aggregate using BeanUtils (default values set in aggregate)
+        // Persist entity
+        ProductEntity savedEntity = persistEntity(aggregate);
+        
+        // Update aggregate with generated data
+        updateAggregateFromEntity(aggregate, savedEntity);
+        
+        // Process domain events
+        processDomainEvents(aggregate);
+        
+        return productMapper.toModel(savedEntity);
+    }
+    
+    private ProductAggregate createAggregate(CreateProductCommand command) {
         ProductAggregate aggregate = new ProductAggregate();
         BeanUtils.copyProperties(command, aggregate);
-        
-        // Convert to entity and save
-        ProductEntity entity = aggregateMapper.toEntity(aggregate);
-        ProductEntity savedEntity = repository.save(entity);
-        
-        // Update aggregate with generated ID and version
-        aggregate.setId(savedEntity.getId());
-        aggregate.setVersion(savedEntity.getVersion());
-        
-        // Apply domain event
         aggregate.applyProductCreated();
-        
-        // Get uncommitted events
+        return aggregate;
+    }
+    
+    private ProductEntity persistEntity(ProductAggregate aggregate) {
+        ProductEntity entity = aggregateMapper.toEntity(aggregate);
+        return repository.save(entity);
+    }
+    
+    private void updateAggregateFromEntity(ProductAggregate aggregate, ProductEntity entity) {
+        aggregate.setId(entity.getId());
+        aggregate.setVersion(entity.getVersion());
+    }
+    
+    private void processDomainEvents(ProductAggregate aggregate) {
         List<DomainEvent> events = aggregate.getUncommittedEvents();
         
         // Save to event store
         eventStore.saveAll(events);
         
-        // Publish to Kafka for SAGA
-        events.forEach(event -> {
-            if (event instanceof ProductCreatedEvent) {
-                eventPublisher.publishProductCreatedEvent((ProductCreatedEvent) event);
-            }
-        });
+        // Publish events for SAGA
+        domainEventPublisher.publishAll(events);
         
         // Mark events as committed
         aggregate.markEventsAsCommitted();
-        
-        return productMapper.toModel(savedEntity);
-    }
-    
-    private void validateCommand(CreateProductCommand command) {
-        if (command.getName() == null || command.getName().trim().isEmpty()) {
-            throw new IllegalArgumentException("Product name is required");
-        }
-        if (command.getPrice() == null || command.getPrice() <= 0) {
-            throw new IllegalArgumentException("Product price must be positive");
-        }
     }
 }

@@ -1,8 +1,5 @@
 package com.example.billing.infrastructure.messaging;
 
-import com.example.billing.domain.event.ProductEvent;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,81 +8,70 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ProductEventConsumerTest {
 
     @Mock
-    private ObjectMapper objectMapper;
+    private EventDispatcher eventDispatcher;
 
     @InjectMocks
     private ProductEventConsumer consumer;
 
     private String validEventJson;
-    private ProductEvent productEvent;
+    private String eventType;
 
     @BeforeEach
     void setUp() {
         validEventJson = "{\"id\":\"test-id\",\"name\":\"Test Product\",\"price\":100.0}";
-        
-        productEvent = new ProductEvent();
-        productEvent.setId("test-id");
-        productEvent.setName("Test Product");
-        productEvent.setPrice(100.0);
+        eventType = "ProductCreatedEvent";
     }
 
     @Test
-    void handleProductCreated_ValidJson_ShouldProcessSuccessfully() throws JsonProcessingException {
-        when(objectMapper.readValue(validEventJson, ProductEvent.class)).thenReturn(productEvent);
+    void handleEvent_ValidEvent_ShouldDispatchSuccessfully() {
+        doNothing().when(eventDispatcher).dispatch(eventType, validEventJson);
 
-        assertDoesNotThrow(() -> consumer.handleProductCreated(validEventJson));
+        assertDoesNotThrow(() -> consumer.handleEvent(eventType, validEventJson));
 
-        verify(objectMapper).readValue(validEventJson, ProductEvent.class);
+        verify(eventDispatcher).dispatch(eventType, validEventJson);
     }
 
     @Test
-    void handleProductCreated_InvalidJson_ShouldHandleGracefully() throws JsonProcessingException {
+    void handleEvent_InvalidJson_ShouldHandleGracefully() {
         String invalidJson = "invalid-json";
-        
-        when(objectMapper.readValue(invalidJson, ProductEvent.class))
-                .thenThrow(new JsonProcessingException("Invalid JSON") {});
+        doNothing().when(eventDispatcher).dispatch(eventType, invalidJson);
 
-        assertDoesNotThrow(() -> consumer.handleProductCreated(invalidJson));
+        assertDoesNotThrow(() -> consumer.handleEvent(eventType, invalidJson));
 
-        verify(objectMapper).readValue(invalidJson, ProductEvent.class);
+        verify(eventDispatcher).dispatch(eventType, invalidJson);
     }
 
     @Test
-    void handleProductCreated_NullMessage_ShouldHandleGracefully() throws JsonProcessingException {
-        when(objectMapper.readValue((String) null, ProductEvent.class)).thenReturn(null);
+    void handleEvent_NullMessage_ShouldHandleGracefully() {
+        doNothing().when(eventDispatcher).dispatch(eventType, null);
 
-        assertDoesNotThrow(() -> consumer.handleProductCreated(null));
+        assertDoesNotThrow(() -> consumer.handleEvent(eventType, null));
 
-        verify(objectMapper).readValue((String) null, ProductEvent.class);
+        verify(eventDispatcher).dispatch(eventType, null);
     }
 
     @Test
-    void handleProductCreated_EmptyMessage_ShouldHandleGracefully() throws JsonProcessingException {
+    void handleEvent_EmptyMessage_ShouldHandleGracefully() {
         String emptyJson = "";
-        
-        when(objectMapper.readValue(emptyJson, ProductEvent.class))
-                .thenThrow(new JsonProcessingException("Empty JSON") {});
+        doNothing().when(eventDispatcher).dispatch(eventType, emptyJson);
 
-        assertDoesNotThrow(() -> consumer.handleProductCreated(emptyJson));
+        assertDoesNotThrow(() -> consumer.handleEvent(eventType, emptyJson));
 
-        verify(objectMapper).readValue(emptyJson, ProductEvent.class);
+        verify(eventDispatcher).dispatch(eventType, emptyJson);
     }
 
     @Test
-    void handleProductCreated_ObjectMapperThrowsRuntimeException_ShouldHandleGracefully() throws JsonProcessingException {
-        when(objectMapper.readValue(anyString(), any(Class.class)))
-                .thenThrow(new RuntimeException("Unexpected error"));
+    void handleEvent_DispatcherThrowsException_ShouldHandleGracefully() {
+        doThrow(new RuntimeException("Dispatcher error")).when(eventDispatcher).dispatch(eventType, validEventJson);
 
-        assertDoesNotThrow(() -> consumer.handleProductCreated(validEventJson));
+        assertDoesNotThrow(() -> consumer.handleEvent(eventType, validEventJson));
 
-        verify(objectMapper).readValue(validEventJson, ProductEvent.class);
+        verify(eventDispatcher).dispatch(eventType, validEventJson);
     }
 }

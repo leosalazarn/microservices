@@ -120,6 +120,83 @@ Manages distributed transactions across microservices using event choreography.
 - Loose coupling
 - Resilience to failures
 
+### 6. Command Gateway Pattern
+
+**Implementation**: `CommandBus` class
+
+Provides a single entry point for all commands with validation, routing, and error handling.
+
+**Components**:
+- `CommandBus`: Central dispatcher with handler registry
+- `Command` interface: Marker for all commands
+- `CommandHandler<T, R>`: Generic handler contract
+- Bean Validation: Command validation pipeline
+
+**Flow**:
+```
+Controller → CommandBus.dispatch(command) → Validation → Handler.handle(command) → Result
+```
+
+**Features**:
+- Type-safe command routing
+- Automatic validation using Bean Validation annotations
+- Dynamic handler registration at startup
+- Centralized error handling and logging
+- Decoupled command processing
+
+**Example**:
+```java
+@Component
+public class CommandBus {
+    public <C extends Command, R> R dispatch(C command) {
+        // 1. Validate command
+        Set<ConstraintViolation<C>> violations = validator.validate(command);
+        if (!violations.isEmpty()) {
+            throw new IllegalArgumentException("Validation failed");
+        }
+        
+        // 2. Find and execute handler
+        CommandHandler<C, R> handler = handlers.get(command.getClass());
+        return handler.handle(command);
+    }
+}
+```
+
+### 7. Message Dispatcher Pattern
+
+**Implementation**: Event-driven message routing system
+
+Handles both outbound event publishing and inbound event consumption with proper routing.
+
+**Outbound Dispatcher** (`EventPublisher`):
+- Publishes domain events to Kafka topics
+- Handles serialization and topic routing
+- Error handling for failed publications
+
+**Inbound Dispatcher** (`ProductEventConsumer`):
+- Consumes events from Kafka topics using `@KafkaListener`
+- Deserializes and routes messages to appropriate handlers
+- Implements SAGA pattern coordination
+
+**Flow**:
+```
+Domain Event → EventPublisher → Kafka Topic → EventConsumer → Business Handler
+```
+
+**Features**:
+- Asynchronous message processing
+- Topic-based message routing
+- Automatic deserialization
+- Error handling and logging
+- SAGA pattern implementation
+
+**Integration with Command Gateway**:
+```
+CommandBus → CommandHandler → Domain Logic → EventPublisher → Kafka
+                                                    ↓
+                                            Other Services (EventConsumer)
+```
+
 ## Technology Stack
 
 ### Core Framework

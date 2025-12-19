@@ -151,7 +151,8 @@ Manages distributed transactions across microservices:
 
 ### Additional Patterns
 
-- **Command Bus**: Decoupled command routing
+- **Command Gateway**: Single entry point for commands with validation pipeline
+- **Message Dispatcher**: Event-driven message routing for SAGA coordination
 - **Repository Pattern**: Data access abstraction
 - **API Gateway Pattern**: Single entry point
 - **Service Registry**: Dynamic service discovery
