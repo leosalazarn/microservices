@@ -2,7 +2,6 @@ package com.example.products.command;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
-import lombok.Getter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -105,13 +104,7 @@ class CommandBusTest {
     }
 
     // Test command for testing purposes
-    @Getter
-    private static class TestCommand implements Command {
-        private final String value;
-
-        public TestCommand(String value) {
-            this.value = value;
-        }
+        private record TestCommand(String value) implements Command {
 
     }
 }
