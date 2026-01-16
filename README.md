@@ -33,6 +33,7 @@ This project implements a distributed microservices architecture following indus
 - **API Gateway** for centralized routing and security
 - **Secret Management** with HashiCorp Vault
 - **Event Streaming** with Apache Kafka
+- **Distributed Caching** with Redis
 
 ### Key Features
 
@@ -46,6 +47,7 @@ This project implements a distributed microservices architecture following indus
 - ✅ Event-driven architecture with eventual consistency
 - ✅ Domain-Driven Design with rich aggregates
 - ✅ Zero-downtime deployments support
+- ✅ Redis caching for optimized query performance
 
 ## Architecture
 
@@ -68,7 +70,18 @@ This project implements a distributed microservices architecture following indus
 │ • CQRS          │    │   Consumer      │    │ • Event Store   │    │ • Configuration │
 │ • Command Bus   │    │ • SAGA Pattern  │    │                 │    │                 │
 │ • Aggregates    │    │                 │    │                 │    │                 │
+│ • Redis Cache   │    │                 │    │                 │    │                 │
 └─────────────────┘    └─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                                                                      
+         └──────────────────────────────────┐                                  
+                                            ▼                                  
+                                   ┌─────────────────┐                        
+                                   │     Redis       │                        
+                                   │  (Port 6379)    │                        
+                                   │                 │                        
+                                   │ • Query Cache   │                        
+                                   │ • Session Store │                        
+                                   └─────────────────┘                        
 ```
 
 ### Service Catalog
@@ -82,6 +95,7 @@ This project implements a distributed microservices architecture following indus
 | **MongoDB** | Document database and event store | 27017 | MongoDB 8.0 |
 | **Kafka** | Event streaming platform | 9092 | Apache Kafka 4.0 |
 | **Vault** | Secret and configuration management | 8200 | HashiCorp Vault |
+| **Redis** | Distributed cache and session store | 6379 | Redis 7 |
 
 ## Technology Stack
 
@@ -208,7 +222,10 @@ export VAULT_TOKEN='myroot'
 vault kv put secret/products \
   mongodb.username=admin \
   mongodb.password=password \
-  kafka.bootstrap-servers=localhost:9092
+  kafka.bootstrap-servers=localhost:9092 \
+  redis.host=localhost \
+  redis.port=6379 \
+  redis.password=redispassword
 
 # Configure Billing Service secrets
 vault kv put secret/billing \
@@ -418,6 +435,39 @@ docker exec -it kafka-poc kafka-console-consumer \
   --from-beginning
 ```
 
+### Redis Cache Monitoring
+
+**Connect to Redis CLI:**
+```bash
+docker exec -it redis-poc redis-cli -a redispassword
+```
+
+**Monitor Cache Operations:**
+```bash
+# View all keys
+docker exec -it redis-poc redis-cli -a redispassword KEYS "*"
+
+# Monitor real-time commands
+docker exec -it redis-poc redis-cli -a redispassword MONITOR
+
+# Get cache statistics
+docker exec -it redis-poc redis-cli -a redispassword INFO stats
+
+# Check specific cache entry
+docker exec -it redis-poc redis-cli -a redispassword GET "products::all"
+
+# View cache TTL
+docker exec -it redis-poc redis-cli -a redispassword TTL "products::all"
+
+# Clear all cache
+docker exec -it redis-poc redis-cli -a redispassword FLUSHALL
+```
+
+**Cache Behavior:**
+- First GET request: Cache miss → Database query → Cache stored (10 min TTL)
+- Subsequent GET requests: Cache hit → Instant response
+- POST request: Cache evicted → Next GET rebuilds cache
+
 ## Security
 
 ### Secret Management
@@ -619,6 +669,7 @@ poc-microservices/
 - [Quick Start Guide](docs/QUICKSTART.md) - Get running in 5 minutes
 - [Architecture Documentation](docs/ARCHITECTURE.md) - Detailed technical architecture
 - [Docker Setup](docs/DOCKER.md) - Infrastructure configuration
+- [Redis Integration](docs/REDIS_INTEGRATION.md) - Caching implementation and usage
 - [Spring Cloud Documentation](https://spring.io/projects/spring-cloud)
 - [Event Sourcing Pattern](https://martinfowler.com/eaaDev/EventSourcing.html)
 - [CQRS Pattern](https://martinfowler.com/bliki/CQRS.html)

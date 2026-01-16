@@ -23,6 +23,10 @@ spring:
       username: admin
       password: password
       authentication-database: admin
+    redis:
+      host: ${redis.host:localhost}
+      port: ${redis.port:6379}
+      password: ${redis.password}
   kafka:
     bootstrap-servers: ${kafka.bootstrap-servers}
 
