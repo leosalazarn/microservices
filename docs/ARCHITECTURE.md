@@ -130,37 +130,67 @@ Provides a single entry point for all commands with validation, routing, and err
 - `CommandBus`: Central dispatcher with handler registry
 - `Command` interface: Marker for all commands
 - `CommandHandler<T, R>`: Generic handler contract
+- `CommandInterceptor`: Pre/post processing hooks
 - Bean Validation: Command validation pipeline
 
 **Flow**:
 ```
-Controller → CommandBus.dispatch(command) → Validation → Handler.handle(command) → Result
+Command → preProcess interceptors → Validation → Handler.handle() → postProcess interceptors → Result
+           │                                              │                    │
+           │                                              │                    └─► onError (if exception)
+           └─► LoggingCommandInterceptor                  └─► Business Logic
 ```
 
 **Features**:
 - Type-safe command routing
+- Interceptor pipeline for cross-cutting concerns
 - Automatic validation using Bean Validation annotations
 - Dynamic handler registration at startup
 - Centralized error handling and logging
 - Decoupled command processing
 
-**Example**:
+**Command Interceptor Interface**:
+```java
+public interface CommandInterceptor {
+    <C extends Command> void preProcess(C command);
+    <C extends Command, R> void postProcess(C command, R result);
+    <C extends Command> void onError(C command, Exception error);
+}
+```
+
+**CommandBus with Interceptors**:
 ```java
 @Component
 public class CommandBus {
+    private final List<CommandInterceptor> interceptors;  // Auto-injected
+    
     public <C extends Command, R> R dispatch(C command) {
-        // 1. Validate command
-        Set<ConstraintViolation<C>> violations = validator.validate(command);
-        if (!violations.isEmpty()) {
-            throw new IllegalArgumentException("Validation failed");
+        try {
+            // 1. Pre-processing interceptors
+            interceptors.forEach(i -> i.preProcess(command));
+            
+            // 2. Validate command
+            validateCommand(command);
+            
+            // 3. Execute handler
+            R result = handler.handle(command);
+            
+            // 4. Post-processing interceptors
+            interceptors.forEach(i -> i.postProcess(command, result));
+            
+            return result;
+        } catch (Exception e) {
+            interceptors.forEach(i -> i.onError(command, e));
+            throw e;
         }
-        
-        // 2. Find and execute handler
-        CommandHandler<C, R> handler = handlers.get(command.getClass());
-        return handler.handle(command);
     }
 }
 ```
+
+**Built-in Interceptor** (`LoggingCommandInterceptor`):
+- Logs command execution start/completion
+- Logs errors with command context
+- Auto-registered via `@Component`
 
 ### 7. Message Dispatcher Pattern
 

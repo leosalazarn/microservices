@@ -4,6 +4,7 @@ import com.example.products.domain.aggregate.ProductAggregate;
 import com.example.products.domain.entity.ProductEntity;
 import com.example.products.domain.event.DomainEvent;
 import com.example.products.domain.repository.ProductRepository;
+import com.example.products.exception.DuplicateProductException;
 import com.example.products.infrastructure.eventstore.EventStore;
 import com.example.products.infrastructure.mapper.ProductAggregateMapper;
 import com.example.products.infrastructure.mapper.ProductMapper;
@@ -29,6 +30,9 @@ public class CreateProductCommandHandler implements CommandHandler<CreateProduct
     @Override
     @Transactional
     public Product handle(CreateProductCommand command) {
+        // Set-Based Consistency Validation
+        validateUniqueProductName(command.getName());
+        
         // Create and process aggregate
         ProductAggregate aggregate = createAggregate(command);
         
@@ -72,5 +76,11 @@ public class CreateProductCommandHandler implements CommandHandler<CreateProduct
         
         // Mark events as committed
         aggregate.markEventsAsCommitted();
+    }
+    
+    private void validateUniqueProductName(String name) {
+        if (repository.existsByNameAndActiveTrue(name)) {
+            throw new DuplicateProductException(name);
+        }
     }
 }
