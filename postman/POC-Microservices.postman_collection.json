@@ -127,6 +127,54 @@
 					}
 				},
 				{
+					"name": "Update Product (Command Bus → Exists Validation)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Product Name\",\n  \"price\": 799.99\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/products/products/{{product_id}}",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["products", "products", "{{product_id}}"]
+						},
+						"description": "Update product using Command Bus → Set-Based Consistency Validation (product must exist)"
+					}
+				},
+				{
+					"name": "Update Product - Not Found (404)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Should Fail\",\n  \"price\": 99.99\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/products/products/nonexistent-id",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["products", "products", "nonexistent-id"]
+						},
+						"description": "Test ProductNotFoundException - should return 404"
+					}
+				},
+				{
 					"name": "Products Health",
 					"request": {
 						"method": "GET",
@@ -324,6 +372,11 @@
 		{
 			"key": "eureka_url",
 			"value": "http://localhost:8761",
+			"type": "string"
+		},
+		{
+			"key": "product_id",
+			"value": "REPLACE_WITH_ACTUAL_ID",
 			"type": "string"
 		}
 	]

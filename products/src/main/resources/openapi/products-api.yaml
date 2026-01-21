@@ -74,6 +74,34 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Product'
+  /products/{id}:
+    put:
+      tags:
+        - Products Command
+      summary: Update product
+      description: Updates an existing product (partial update supported)
+      operationId: updateProduct
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '200':
+          description: Product updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Product not found
 components:
   schemas:
     Product:

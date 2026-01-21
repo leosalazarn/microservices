@@ -3,6 +3,7 @@ package com.example.products.controller;
 import com.example.products.api.ProductsCommandApi;
 import com.example.products.command.CommandBus;
 import com.example.products.command.CreateProductCommand;
+import com.example.products.command.UpdateProductCommand;
 import com.example.products.model.Product;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,5 +26,19 @@ public class ProductCommandController implements ProductsCommandApi {
         
         Product createdProduct = commandBus.dispatch(command);
         return ResponseEntity.status(201).body(createdProduct);
+    }
+    
+    @Override
+    public ResponseEntity<Product> updateProduct(String id, Product product) {
+        UpdateProductCommand command = new UpdateProductCommand(
+            id,
+            product.getName(),
+            product.getPrice(),
+            product.getDescription(),
+            product.getCategory()
+        );
+        
+        Product updatedProduct = commandBus.dispatch(command);
+        return ResponseEntity.ok(updatedProduct);
     }
 }
