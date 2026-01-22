@@ -52,8 +52,8 @@ management:
 info:
   app:
     name: Products Service
-    description: Microservice for product management
-    version: 1.0.0
+    description: Microservice for product management with Event Sourcing, CQRS, and Redis caching
+    version: 1.1.0
 
 springdoc:
   api-docs:

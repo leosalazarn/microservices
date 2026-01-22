@@ -15,10 +15,8 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8761",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8761"
+							"raw": "{{eureka_url}}",
+							"host": ["{{eureka_url}}"]
 						},
 						"description": "Access Eureka service discovery dashboard"
 					}
@@ -34,13 +32,10 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/actuator/health",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
+							"raw": "{{gateway_url}}/actuator/health",
+							"host": ["{{gateway_url}}"],
 							"path": ["actuator", "health"]
-						},
-						"description": "Check API Gateway health status"
+						}
 					}
 				},
 				{
@@ -49,85 +44,98 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/actuator/gateway/routes",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
+							"raw": "{{gateway_url}}/actuator/gateway/routes",
+							"host": ["{{gateway_url}}"],
 							"path": ["actuator", "gateway", "routes"]
-						},
-						"description": "List all configured gateway routes"
+						}
 					}
 				}
 			]
 		},
 		{
-			"name": "Products Service - CQRS/Aggregate",
+			"name": "Products Service - Query (CQRS Read)",
 			"item": [
 				{
-					"name": "Create Product (Command Bus → Aggregate)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"name\": \"Aggregate Product\",\n  \"price\": 599.99\n}"
-						},
-						"url": {
-							"raw": "http://localhost:8080/products/products",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
-							"path": ["products", "products"]
-						},
-						"description": "Create product using Command Bus → Command Handler → Aggregate → Event Store → Kafka"
-					}
-				},
-				{
-					"name": "Create Product with Description",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"name\": \"Premium Product\",\n  \"price\": 999.99\n}"
-						},
-						"url": {
-							"raw": "http://localhost:8080/products/products",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
-							"path": ["products", "products"]
-						},
-						"description": "Create product with full aggregate state"
-					}
-				},
-				{
-					"name": "Get All Products (Query)",
+					"name": "Get Service Info",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/products/products",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
-							"path": ["products", "products"]
-						},
-						"description": "Query all products (CQRS Read side)"
+							"raw": "{{gateway_url}}/products/",
+							"host": ["{{gateway_url}}"],
+							"path": ["products", ""]
+						}
 					}
 				},
 				{
-					"name": "Update Product (Command Bus → Exists Validation)",
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{gateway_url}}/products/health",
+							"host": ["{{gateway_url}}"],
+							"path": ["products", "health"]
+						}
+					}
+				},
+				{
+					"name": "Get All Products",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{gateway_url}}/products/products",
+							"host": ["{{gateway_url}}"],
+							"path": ["products", "products"]
+						},
+						"description": "Query all products (CQRS Read side with Redis cache)"
+					}
+				}
+			]
+		},
+		{
+			"name": "Products Service - Command (CQRS Write)",
+			"item": [
+				{
+					"name": "Create Product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.id) {",
+									"    pm.collectionVariables.set('product_id', jsonData.id);",
+									"    console.log('Saved product_id: ' + jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"New Product\",\n  \"price\": 99.99,\n  \"description\": \"Product description\",\n  \"category\": \"Electronics\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/products/products",
+							"host": ["{{gateway_url}}"],
+							"path": ["products", "products"]
+						},
+						"description": "Create product via Command Bus → Aggregate → Event Store → Kafka. Returns MongoDB ObjectId as 'id'."
+					}
+				},
+				{
+					"name": "Update Product (Full)",
 					"request": {
 						"method": "PUT",
 						"header": [
@@ -138,20 +146,18 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"name\": \"Updated Product Name\",\n  \"price\": 799.99\n}"
+							"raw": "{\n  \"name\": \"Updated Product Name\",\n  \"price\": 149.99,\n  \"description\": \"Updated description\",\n  \"category\": \"Updated Category\"\n}"
 						},
 						"url": {
-							"raw": "http://localhost:8080/products/products/{{product_id}}",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
+							"raw": "{{gateway_url}}/products/products/{{product_id}}",
+							"host": ["{{gateway_url}}"],
 							"path": ["products", "products", "{{product_id}}"]
 						},
-						"description": "Update product using Command Bus → Set-Based Consistency Validation (product must exist)"
+						"description": "Full update - all fields"
 					}
 				},
 				{
-					"name": "Update Product - Not Found (404)",
+					"name": "Update Product (Price Only)",
 					"request": {
 						"method": "PUT",
 						"header": [
@@ -162,53 +168,129 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"name\": \"Should Fail\",\n  \"price\": 99.99\n}"
+							"raw": "{\n  \"price\": 199.99\n}"
 						},
 						"url": {
-							"raw": "http://localhost:8080/products/products/nonexistent-id",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
-							"path": ["products", "products", "nonexistent-id"]
+							"raw": "{{gateway_url}}/products/products/{{product_id}}",
+							"host": ["{{gateway_url}}"],
+							"path": ["products", "products", "{{product_id}}"]
 						},
-						"description": "Test ProductNotFoundException - should return 404"
+						"description": "Partial update - price only"
 					}
 				},
 				{
-					"name": "Products Health",
+					"name": "Update Product (Name Only)",
 					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:8080/products/actuator/health",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
-							"path": ["products", "actuator", "health"]
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Renamed Product\"\n}"
 						},
-						"description": "Check Products service health"
+						"url": {
+							"raw": "{{gateway_url}}/products/products/{{product_id}}",
+							"host": ["{{gateway_url}}"],
+							"path": ["products", "products", "{{product_id}}"]
+						},
+						"description": "Partial update - name only"
+					}
+				},
+				{
+					"name": "Update Product - Not Found",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"price\": 99.99\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/products/products/nonexistent-id",
+							"host": ["{{gateway_url}}"],
+							"path": ["products", "products", "nonexistent-id"]
+						},
+						"description": "Test ProductNotFoundException"
+					}
+				},
+				{
+					"name": "Create Product - Duplicate Name",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"New Product\",\n  \"price\": 50.00\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/products/products",
+							"host": ["{{gateway_url}}"],
+							"path": ["products", "products"]
+						},
+						"description": "Test DuplicateProductException via ProductLookup table"
 					}
 				}
 			]
 		},
 		{
-			"name": "Billing Service - SAGA Consumer",
+			"name": "Billing Service - Query (CQRS Read)",
 			"item": [
+				{
+					"name": "Get Service Info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{gateway_url}}/billing/",
+							"host": ["{{gateway_url}}"],
+							"path": ["billing", ""]
+						}
+					}
+				},
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{gateway_url}}/billing/health",
+							"host": ["{{gateway_url}}"],
+							"path": ["billing", "health"]
+						}
+					}
+				},
 				{
 					"name": "Get All Invoices",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/billing/invoices",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
+							"raw": "{{gateway_url}}/billing/invoices",
+							"host": ["{{gateway_url}}"],
 							"path": ["billing", "invoices"]
 						},
-						"description": "Retrieve all invoices (receives events from Products via SAGA)"
+						"description": "Query all invoices (receives events from Products via SAGA)"
 					}
-				},
+				}
+			]
+		},
+		{
+			"name": "Billing Service - Command (CQRS Write)",
+			"item": [
 				{
 					"name": "Create Invoice",
 					"request": {
@@ -224,105 +306,10 @@
 							"raw": "{\n  \"customerId\": 123,\n  \"amount\": 299.99,\n  \"status\": \"PENDING\"\n}"
 						},
 						"url": {
-							"raw": "http://localhost:8080/billing/invoices",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
+							"raw": "{{gateway_url}}/billing/invoices",
+							"host": ["{{gateway_url}}"],
 							"path": ["billing", "invoices"]
-						},
-						"description": "Create a new invoice"
-					}
-				},
-				{
-					"name": "Billing Health",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:8080/billing/actuator/health",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
-							"path": ["billing", "actuator", "health"]
-						},
-						"description": "Check Billing service health"
-					}
-				}
-			]
-		},
-		{
-			"name": "Event Sourcing Tests",
-			"item": [
-				{
-					"name": "Create Product 1 (Event Sourced)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"name\": \"Event Sourced Product 1\",\n  \"price\": 199.99\n}"
-						},
-						"url": {
-							"raw": "http://localhost:8080/products/products",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
-							"path": ["products", "products"]
-						},
-						"description": "Create product - Event stored in MongoDB event_store collection"
-					}
-				},
-				{
-					"name": "Create Product 2 (Event Sourced)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"name\": \"Event Sourced Product 2\",\n  \"price\": 299.99\n}"
-						},
-						"url": {
-							"raw": "http://localhost:8080/products/products",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
-							"path": ["products", "products"]
-						},
-						"description": "Create another product - Check event_store for ProductCreatedEvent"
-					}
-				},
-				{
-					"name": "Create Product 3 (SAGA Test)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"name\": \"SAGA Test Product\",\n  \"price\": 499.99\n}"
-						},
-						"url": {
-							"raw": "http://localhost:8080/products/products",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
-							"path": ["products", "products"]
-						},
-						"description": "Create product - Event published to Kafka → Billing service receives it"
+						}
 					}
 				}
 			]
@@ -336,13 +323,10 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/products/swagger-ui.html",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
-							"path": ["products", "swagger-ui.html"]
-						},
-						"description": "Access Products service Swagger UI"
+							"raw": "{{gateway_url}}/products/swagger-ui/index.html",
+							"host": ["{{gateway_url}}"],
+							"path": ["products", "swagger-ui", "index.html"]
+						}
 					}
 				},
 				{
@@ -351,13 +335,10 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/billing/swagger-ui.html",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
-							"path": ["billing", "swagger-ui.html"]
-						},
-						"description": "Access Billing service Swagger UI"
+							"raw": "{{gateway_url}}/billing/swagger-ui/index.html",
+							"host": ["{{gateway_url}}"],
+							"path": ["billing", "swagger-ui", "index.html"]
+						}
 					}
 				}
 			]
@@ -376,8 +357,9 @@
 		},
 		{
 			"key": "product_id",
-			"value": "REPLACE_WITH_ACTUAL_ID",
-			"type": "string"
+			"value": "REPLACE_WITH_MONGODB_OBJECTID",
+			"type": "string",
+			"description": "MongoDB ObjectId returned from Create Product (auto-saved by test script)"
 		}
 	]
 }

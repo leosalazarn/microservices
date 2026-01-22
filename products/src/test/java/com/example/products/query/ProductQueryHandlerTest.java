@@ -47,12 +47,12 @@ class ProductQueryHandlerTest {
         mockEntities = Arrays.asList(entity1, entity2);
 
         Product product1 = new Product();
-        product1.setId(1L);
+        product1.setId("507f1f77bcf86cd799439011");
         product1.setName("Product 1");
         product1.setPrice(100.0);
 
         Product product2 = new Product();
-        product2.setId(2L);
+        product2.setId("507f1f77bcf86cd799439012");
         product2.setName("Product 2");
         product2.setPrice(200.0);
 

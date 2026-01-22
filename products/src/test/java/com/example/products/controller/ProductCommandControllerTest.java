@@ -37,7 +37,7 @@ class ProductCommandControllerTest {
         inputProduct.setCategory("Test Category");
 
         createdProduct = new Product();
-        createdProduct.setId(1L);
+        createdProduct.setId("507f1f77bcf86cd799439011");
         createdProduct.setName("Test Product");
         createdProduct.setPrice(100.0);
         createdProduct.setDescription("Test Description");

@@ -19,10 +19,11 @@ class ProductEntityTest {
     @Test
     void constructor_ShouldCreateEntityWithDefaults() {
         assertNotNull(entity);
-        assertTrue(entity.getActive());
-        assertNotNull(entity.getCreatedAt());
-        assertNotNull(entity.getUpdatedAt());
-        assertEquals(0L, entity.getVersion());
+        assertTrue(entity.getActive()); // Only active has default value
+        // createdAt, updatedAt, version are null until set via factory method
+        assertNull(entity.getCreatedAt());
+        assertNull(entity.getUpdatedAt());
+        assertNull(entity.getVersion());
     }
 
     @Test

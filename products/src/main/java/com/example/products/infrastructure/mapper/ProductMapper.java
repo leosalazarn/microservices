@@ -11,7 +11,7 @@ public class ProductMapper {
         if (entity == null) return null;
         
         Product product = new Product();
-        product.setId(generateLongId(entity.getId()));
+        product.setId(entity.getId());
         product.setName(entity.getName());
         product.setPrice(entity.getPrice());
         product.setDescription(entity.getDescription());
@@ -22,20 +22,11 @@ public class ProductMapper {
     public ProductEntity toEntity(Product model) {
         if (model == null) return null;
         
-        // Use factory method instead of direct instantiation (DDD)
         return ProductEntity.create(
             model.getName(),
             model.getPrice(),
             model.getDescription(),
             model.getCategory()
         );
-    }
-    
-    // DRY: Centralized ID conversion logic
-    private Long generateLongId(String mongoId) {
-        if (mongoId == null || mongoId.isEmpty()) {
-            return null;
-        }
-        return (long) Math.abs(mongoId.hashCode());
     }
 }

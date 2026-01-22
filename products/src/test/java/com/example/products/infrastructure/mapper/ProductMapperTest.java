@@ -31,7 +31,7 @@ class ProductMapperTest {
         entity.setVersion(1L);
 
         model = new Product();
-        model.setId(1L);
+        model.setId("507f1f77bcf86cd799439011");
         model.setName("Test Product");
         model.setPrice(100.0);
         model.setDescription("Test Description");

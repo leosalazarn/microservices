@@ -5,6 +5,7 @@ import com.example.products.command.CommandBus;
 import com.example.products.command.CreateProductCommand;
 import com.example.products.command.UpdateProductCommand;
 import com.example.products.model.Product;
+import com.example.products.model.ProductUpdate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,13 +30,13 @@ public class ProductCommandController implements ProductsCommandApi {
     }
     
     @Override
-    public ResponseEntity<Product> updateProduct(String id, Product product) {
+    public ResponseEntity<Product> updateProduct(String id, ProductUpdate productUpdate) {
         UpdateProductCommand command = new UpdateProductCommand(
             id,
-            product.getName(),
-            product.getPrice(),
-            product.getDescription(),
-            product.getCategory()
+            productUpdate.getName(),
+            productUpdate.getPrice(),
+            productUpdate.getDescription(),
+            productUpdate.getCategory()
         );
         
         Product updatedProduct = commandBus.dispatch(command);

@@ -3,6 +3,7 @@ package com.example.products.command;
 import com.example.products.domain.aggregate.ProductAggregate;
 import com.example.products.domain.entity.ProductEntity;
 import com.example.products.domain.event.DomainEvent;
+import com.example.products.domain.repository.ProductLookupRepository;
 import com.example.products.domain.repository.ProductRepository;
 import com.example.products.exception.DuplicateProductException;
 import com.example.products.infrastructure.eventstore.EventStore;
@@ -22,6 +23,7 @@ import java.util.List;
 public class CreateProductCommandHandler implements CommandHandler<CreateProductCommand, Product> {
     
     private final ProductRepository repository;
+    private final ProductLookupRepository lookupRepository;
     private final EventStore eventStore;
     private final DomainEventPublisher domainEventPublisher;
     private final ProductMapper productMapper;
@@ -33,14 +35,15 @@ public class CreateProductCommandHandler implements CommandHandler<CreateProduct
         // Set-Based Consistency Validation
         validateUniqueProductName(command.getName());
         
-        // Create and process aggregate
+        // Create aggregate
         ProductAggregate aggregate = createAggregate(command);
         
         // Persist entity
         ProductEntity savedEntity = persistEntity(aggregate);
         
-        // Update aggregate with generated data
+        // Update aggregate with generated data and apply event
         updateAggregateFromEntity(aggregate, savedEntity);
+        aggregate.applyProductCreated();
         
         // Process domain events
         processDomainEvents(aggregate);
@@ -51,7 +54,6 @@ public class CreateProductCommandHandler implements CommandHandler<CreateProduct
     private ProductAggregate createAggregate(CreateProductCommand command) {
         ProductAggregate aggregate = new ProductAggregate();
         BeanUtils.copyProperties(command, aggregate);
-        aggregate.applyProductCreated();
         return aggregate;
     }
     
@@ -79,7 +81,7 @@ public class CreateProductCommandHandler implements CommandHandler<CreateProduct
     }
     
     private void validateUniqueProductName(String name) {
-        if (repository.existsByNameAndActiveTrue(name)) {
+        if (lookupRepository.existsByName(name)) {
             throw new DuplicateProductException(name);
         }
     }

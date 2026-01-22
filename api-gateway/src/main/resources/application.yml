@@ -67,5 +67,5 @@ management:
 info:
   app:
     name: API Gateway
-    description: Spring Cloud Gateway for microservices routing
-    version: 1.0.0
+    description: Spring Cloud Gateway for microservices routing and load balancing
+    version: 1.1.0

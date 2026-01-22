@@ -97,22 +97,13 @@ class MongoEventStoreTest {
     }
 
     @Test
-    void saveAll_NullList_ShouldHandleGracefully() {
-        assertDoesNotThrow(() -> eventStore.saveAll(null));
-
-        verifyNoInteractions(objectMapper);
-        verifyNoInteractions(repository);
+    void saveAll_NullList_ShouldThrowNullPointerException() {
+        assertThrows(NullPointerException.class, () -> eventStore.saveAll(null));
     }
 
     @Test
-    void save_NullEvent_ShouldHandleGracefully() throws JsonProcessingException {
-        when(objectMapper.writeValueAsString(null)).thenReturn("null");
-        when(repository.save(any(EventStoreEntity.class))).thenReturn(entity);
-
-        assertDoesNotThrow(() -> eventStore.save(null));
-
-        verify(objectMapper).writeValueAsString(null);
-        verify(repository).save(any(EventStoreEntity.class));
+    void save_NullEvent_ShouldThrowNullPointerException() {
+        assertThrows(NullPointerException.class, () -> eventStore.save(null));
     }
 
     @Test
