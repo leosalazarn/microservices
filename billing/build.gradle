@@ -21,6 +21,32 @@ ext {
 }
 
 dependencies {
+    constraints {
+        implementation('org.bouncycastle:bcprov-jdk18on:1.80') {
+            because 'CVE Bouncy Castle covert timing channel #77'
+        }
+        implementation('com.thoughtworks.xstream:xstream:1.4.21') {
+            because 'CVE XStream DoS #5'
+        }
+        implementation('org.lz4:lz4-java') {
+            because 'CVE LZ4 OOB memory DoS #43 + info leak #45'
+        }
+        testImplementation('org.apache.zookeeper:zookeeper:3.9.5') {
+            because 'CVE ZooKeeper config handling #55 + DNS bypass #58'
+        }
+        testImplementation('commons-io:commons-io:2.22.0') {
+            because 'CVE Commons-IO DoS via XmlStreamReader #4'
+        }
+        testImplementation('commons-beanutils:commons-beanutils:1.11.0') {
+            because 'CVE Commons BeanUtils access control #20'
+        }
+        testImplementation('org.bitbucket.b_c:jose4j:0.9.6') {
+            because 'CVE jose4j DoS via compressed JWE #48'
+        }
+        testImplementation('org.assertj:assertj-core:3.27.2') {
+            because 'CVE AssertJ XXE #50'
+        }
+    }
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
