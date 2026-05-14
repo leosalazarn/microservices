@@ -19,6 +19,7 @@ ext {
     set('jersey.version', '3.1.10')
     set('netty.version', '4.2.13.Final')
     set('kafka.version', '3.9.2')
+    set('spring-framework.version', '6.2.11')
 }
 
 dependencies {
