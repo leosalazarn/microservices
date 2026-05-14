@@ -14,11 +14,11 @@ repositories {
 
 ext {
     springCloudVersion = '2024.0.0'
+    set('tomcat.version', '10.1.35')
 }
 
 dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-server'
-    implementation 'org.springframework.kafka:spring-kafka'
     
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
