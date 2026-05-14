@@ -107,5 +107,4 @@ docker exec -it redis-poc redis-cli -a redispassword CLIENT LIST
 
 ## Documentation
 - Full guide: `docs/REDIS_INTEGRATION.md`
-- Summary: `docs/REDIS_SUMMARY.md`
 - Main README: `README.md` (Redis sections)

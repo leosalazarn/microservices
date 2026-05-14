@@ -1,21 +1,18 @@
 # Security Policy
 
-## Supported Versions
-
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
-
-| Version | Supported          |
-| ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
-
 ## Reporting a Vulnerability
 
-Use this section to tell people how to report a vulnerability.
+Please report security vulnerabilities by opening an issue on the GitHub repository or contacting the maintainers directly.
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+We aim to acknowledge receipt of vulnerability reports within 48 hours and provide a timeline for a fix within 5 business days.
+
+## Supported Versions
+
+This project is a proof-of-concept (POC) and is not currently published as a stable release. All security issues should be reported as described above.
+
+## Secrets Management
+
+- Production secrets must never be committed to source control.
+- This project uses HashiCorp Vault for secret management.
+- Docker Compose credentials are for local development only.
+- See `docs/DOCKER.md` for infrastructure configuration.
