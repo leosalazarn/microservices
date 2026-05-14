@@ -92,7 +92,7 @@ configurations — such as mutual authentication, custom key/trust stores, and o
 
 **Why**: Perimeter auth, HTTP smuggling, data integrity, and credential leakage risks in direct or perimeter-facing deps.
 
-**Fix**: Spring Boot 3.4.0→3.4.5, Spring Cloud 2024.0.0→2024.0.1, Netty 4.1.115.Final→4.1.121.Final, Tomcat already at 10.1.53 (from A.2).
+**Fix**: Spring Boot 3.4.0→3.4.5, Spring Cloud 2024.0.0→2024.0.1, Netty 4.1.114→4.2.13.Final, Tomcat 10.1.33→10.1.55, Kafka 3.7.x→3.9.2.
 
 | #   | Item | Fix | Status |
 |-----|------|-----|--------|
@@ -101,16 +101,16 @@ configurations — such as mutual authentication, custom key/trust stores, and o
 | 1.3 | Actuator CloudFoundry auth bypass (#65) | `spring-boot-starter-actuator` 3.4.0→3.4.5 (via Boot 3.4.5) | ✅ |
 | 1.4 | Actuator Health groups auth bypass (#62) | `spring-boot-starter-actuator` 3.4.0→3.4.5 | ✅ |
 | 1.5 | Spring annotation detection auth bypass (#36) | `spring-core` 6.2.0→6.2.6 (via Boot 3.4.5) | ✅ |
-| 1.6 | netty-codec-http2 CONTINUATION flood DoS (#67) | `netty-codec-http2` 4.1.114→4.1.121.Final | ✅ |
-| 1.7 | netty-codec-http2 MadeYouReset DDoS (#31) | `netty-codec-http2` 4.1.114→4.1.121.Final | ✅ |
-| 1.8 | netty-codec-http smuggling — Chunked Ext (#66) | `netty-codec-http` 4.1.114→4.1.121.Final | ✅ |
-| 1.9 | netty-codec-http smuggling — TE+CL (#89) | `netty-codec-http` 4.1.114→4.1.121.Final | ✅ |
-| 1.10 | netty-codec-http smuggling — Start-Line (#78) | `netty-codec-http` 4.1.114→4.1.121.Final | ✅ |
-| 1.11 | netty-codec-http smuggling — Transfer-Encoding (#92) | `netty-codec-http` 4.1.114→4.1.121.Final | ✅ |
-| 1.12 | netty-codec-http smuggling — chunk size (#88) | `netty-codec-http` 4.1.114→4.1.121.Final | ✅ |
-| 1.13 | CRLF Injection in HttpRequestEncoder (#47) | `netty-codec-http` 4.1.114→4.1.121.Final | ✅ |
-| 1.14 | kafka-clients buffer pool race (#74) | `kafka-clients` 3.7.x→3.8.1 (via Boot 3.4.5) | ✅ |
-| 1.15 | Tomcat sensitive info in log file (#70) | `tomcat-embed-core` 10.1.33→10.1.53 (see A.2) | ✅ |
+| 1.6 | netty-codec-http2 CONTINUATION flood DoS (#67) | `netty-codec-http2` 4.1.114→4.2.13.Final | ✅ |
+| 1.7 | netty-codec-http2 MadeYouReset DDoS (#31) | `netty-codec-http2` 4.1.114→4.2.13.Final | ✅ |
+| 1.8 | netty-codec-http smuggling — Chunked Ext (#66) | `netty-codec-http` 4.1.114→4.2.13.Final | ✅ |
+| 1.9 | netty-codec-http smuggling — TE+CL (#89) | `netty-codec-http` 4.1.114→4.2.13.Final | ✅ |
+| 1.10 | netty-codec-http smuggling — Start-Line (#78) | `netty-codec-http` 4.1.114→4.2.13.Final | ✅ |
+| 1.11 | netty-codec-http smuggling — Transfer-Encoding (#92) | `netty-codec-http` 4.1.114→4.2.13.Final | ✅ |
+| 1.12 | netty-codec-http smuggling — chunk size (#88) | `netty-codec-http` 4.1.114→4.2.13.Final | ✅ |
+| 1.13 | CRLF Injection in HttpRequestEncoder (#47) | `netty-codec-http` 4.1.114→4.2.13.Final | ✅ |
+| 1.14 | kafka-clients buffer pool race (#74) | `kafka-clients` 3.7.x→3.9.2 (via kafka.version override) | ✅ |
+| 1.15 | Tomcat sensitive info in log file (#70) | `tomcat-embed-core` 10.1.33→10.1.55 | ✅ |
 
 ---
 
@@ -346,7 +346,7 @@ prioritized.
 | #   | Task                                                                     | Files                                                                         | Status |
 |-----|--------------------------------------------------------------------------|-------------------------------------------------------------------------------|--------|
 | A.1 | Upgrade SpringDoc 2.3.0→2.7.0 (compat with Spring Web 6.2)               | `products/build.gradle`, `billing/build.gradle`                               | ✅      |
-| A.2 | Upgrade Tomcat 10.1.33→10.1.53 (CVE-2025-24813, CLIENT_CERT auth bypass) | `products/build.gradle`, `billing/build.gradle`, `eureka-server/build.gradle` | ✅      |
+| A.2 | Upgrade Tomcat 10.1.33→10.1.55 (CVE-2025-24813, CLIENT_CERT auth bypass, log injection, JsonAccessLogValve encoding) | `products/build.gradle`, `billing/build.gradle`, `eureka-server/build.gradle` | ✅      |
 | A.3 | Upgrade Jersey 3.1.9→3.1.10 (SSL race condition)                         | all 4 `build.gradle` files (jersey.version)                                   | ✅      |
 | A.4 | Fix Kafka bootstrap-servers placeholder resolution                       | `products/application.yml`, `billing/application.yml`                         | ✅      |
 | A.5 | Fix Redis password placeholder resolution                                | `products/application.yml`, `RedisConfig.java`                                | ✅      |
