@@ -10,13 +10,13 @@ spring:
   cloud:
     vault:
       uri: http://localhost:8200
-      token: myroot
+      token: ${VAULT_TOKEN:myroot}
       kv:
         enabled: true
         backend: secret
         default-context: billing
   kafka:
-    bootstrap-servers: ${kafka.bootstrap-servers}
+    bootstrap-servers: localhost:9092
 
 eureka:
   client:

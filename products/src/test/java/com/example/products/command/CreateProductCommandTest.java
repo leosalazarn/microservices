@@ -4,6 +4,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -14,11 +15,18 @@ import static org.junit.jupiter.api.Assertions.*;
 class CreateProductCommandTest {
 
     private Validator validator;
+    private ValidatorFactory validatorFactory;
 
     @BeforeEach
     void setUp() {
-        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
-            validator = factory.getValidator();
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
+    }
+
+    @AfterEach
+    void tearDown() {
+        if (validatorFactory != null) {
+            validatorFactory.close();
         }
     }
 

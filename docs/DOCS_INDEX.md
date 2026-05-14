@@ -1,60 +1,66 @@
 # Documentation Index
 
-Welcome to the Enterprise Microservices Architecture documentation. This guide will help you navigate through all available documentation.
+Welcome to the Enterprise Microservices Architecture documentation. This guide will help you navigate through all
+available documentation.
 
 ## 📚 Documentation Structure
 
 ### For New Users
 
 1. **[README.md](../README.md)** - Start here!
-   - Project overview and key features
-   - Complete setup instructions
-   - API documentation
-   - Troubleshooting guide
+    - Project overview and key features
+    - Complete setup instructions
+    - API documentation
+    - Troubleshooting guide
 
 2. **[QUICKSTART.md](QUICKSTART.md)** - Get running in 5 minutes
-   - Minimal setup steps
-   - Quick verification
-   - Essential commands
+    - Minimal setup steps
+    - Quick verification
+    - Essential commands
 
 ### For Developers
 
 3. **[ARCHITECTURE.md](ARCHITECTURE.md)** - Deep dive into patterns
-   - Event Sourcing implementation
-   - CQRS pattern details
-   - SAGA pattern flow
-   - Domain-Driven Design
-   - Technology stack breakdown
+    - Event Sourcing implementation
+    - CQRS pattern details
+    - SAGA pattern flow
+    - Domain-Driven Design
+    - Technology stack breakdown
 
 4. **[DOCKER.md](DOCKER.md)** - Infrastructure setup
-   - Docker Compose configuration
-   - Service management
-   - Connection details
-   - Data persistence
+    - Docker Compose configuration
+    - Service management
+    - Connection details
+    - Data persistence
 
 5. **[VALIDATION_STRATEGY.md](VALIDATION_STRATEGY.md)** - Validation architecture
-   - CQRS validation layers
-   - Why NOT validate entities
-   - Command validation
-   - Business rule validation
+    - CQRS validation layers
+    - Why NOT validate entities
+    - Command validation
+    - Business rule validation
 
 6. **[BEAN_VALIDATION.md](BEAN_VALIDATION.md)** - Implementation details
-   - OpenAPI validation constraints
-   - Generated code examples
-   - Testing validation
-   - Build commands
+    - OpenAPI validation constraints
+    - Generated code examples
+    - Testing validation
+    - Build commands
 
 ### For Project Review
 
 7. **[PROJECT_REVIEW.md](PROJECT_REVIEW.md)** - Architecture assessment
-   - Implementation checklist
-   - Pattern maturity
-   - Best practices validation
+    - Implementation checklist
+    - Pattern maturity
+    - Best practices validation
 
-8. **[DOCUMENTATION_UPDATES.md](DOCUMENTATION_UPDATES.md)** - Change log
-   - Documentation improvements
-   - File structure
-   - Update history
+8. **[AUDIT_REMEDIATION_PLAN.md](AUDIT_REMEDIATION_PLAN.md)** - Codebase audit & remediation
+    - Audit findings by severity
+    - Step-by-step remediation plan
+    - Status tracker
+
+9. **[DOCUMENTATION_UPDATES.md](DOCUMENTATION_UPDATES.md)** - Change log
+    - Documentation improvements
+    - File structure
+    - Update history
 
 ## 🚀 Quick Navigation
 
@@ -72,18 +78,21 @@ Welcome to the Enterprise Microservices Architecture documentation. This guide w
 ## 📖 Reading Order
 
 ### For First-Time Users
+
 1. README.md (Overview)
 2. QUICKSTART.md (Setup)
 3. Verify everything works
 4. ARCHITECTURE.md (Understanding)
 
 ### For Developers
+
 1. ARCHITECTURE.md (Patterns)
 2. README.md (Reference)
 3. DOCKER.md (Infrastructure)
 4. PROJECT_REVIEW.md (Best practices)
 
 ### For DevOps/Operations
+
 1. DOCKER.md (Infrastructure)
 2. README.md (Deployment & Monitoring)
 3. QUICKSTART.md (Quick reference)
