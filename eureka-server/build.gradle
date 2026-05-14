@@ -16,7 +16,7 @@ ext {
     springCloudVersion = '2024.0.1'
     set('tomcat.version', '10.1.55')
     set('jersey.version', '3.1.10')
-    set('netty.version', '4.2.1.Final')
+    set('netty.version', '4.2.13.Final')
 }
 
 dependencies {
