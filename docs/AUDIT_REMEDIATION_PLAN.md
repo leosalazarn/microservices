@@ -1,7 +1,7 @@
 # Audit & Remediation Plan
 
 **Date**: 2026-05-14  
-**Prod Readiness**: 🟡 **35 Alerts Remain** (8 High, 17 Moderate, 10 Low) — 36 of 71 closed via Boot/Cloud/Netty/Tomcat/Kafka bumps + dep constraints.  
+**Prod Readiness**: 🟡 **33 Alerts Remain** (6 High, 17 Moderate, 10 Low) — 38 of 71 closed.  
 **Scope**: Full codebase audit of `poc-microservices`  
 **Auditor**: AI Assistant (Claude)
 
@@ -24,7 +24,7 @@ CI/CD/containerization.
 | Priority                          | Count | Key Areas                                                                                           |
 |-----------------------------------|-------|-----------------------------------------------------------------------------------------------------|
 | 🔴 Phase 1 — P0 Blocking | 15 → ✅ Fixed | Boot 3.4.0→3.4.5, Cloud 2024.0.0→2024.0.1, Netty 4.1.114→4.2.13.Final, Tomcat 10.1.33→10.1.55 |
-| 🟠 Phase 2 — P1 Before GA         | 48 (36 ✅ closed, 12 ⬜ pending — 8 High, 17 Moderate, 10 Low) | Logback EL injection, HTTP Clients, LZ4 stuck, AssertJ, Reactor Netty, 2x Actuator (no patch) |
+| 🟠 Phase 2 — P1 Before GA         | 48 (38 ✅ closed, 10 ⬜ pending — 6 High, 17 Moderate, 10 Low) | Logback EL injection, HTTP Clients, LZ4 stuck, AssertJ, Reactor Netty, 2x Actuator (no patch) |
 | 🟡 Phase 3 — Logging & Robustness | 2     | stderr logging, Event deserialization fragility                                                     |
 | 🟡 Phase 4 — Event Sourcing       | 4     | UpdateProduct path incomplete, missing ProductUpdatedEvent + Kafka                                  |
 | 🔵 Phase 5 — Cleanup              | 7     | Dead code, Docker tags, naming, unused deps                                                         |
