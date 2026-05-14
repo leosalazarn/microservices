@@ -1,7 +1,7 @@
 # Audit & Remediation Plan
 
 **Date**: 2026-05-14  
-**Prod Readiness**: 🟡 **60 Alerts Remain** — 11 closed (some patches still pending Dependabot re-scan). 22 High, 26 Moderate, 12 Low.  
+**Prod Readiness**: 🟡 **35 Alerts Remain** (8 High, 17 Moderate, 10 Low) — Netty 4.2.13.Final closed most outstanding High CVEs.  
 **Scope**: Full codebase audit of `poc-microservices`  
 **Auditor**: AI Assistant (Claude)
 
@@ -23,8 +23,8 @@ CI/CD/containerization.
 
 | Priority                          | Count | Key Areas                                                                                           |
 |-----------------------------------|-------|-----------------------------------------------------------------------------------------------------|
-| 🔴 Phase 1 — P0 Blocking | 15 → ✅ Fixed | Boot 3.4.0→3.4.5, Cloud 2024.0.0→2024.0.1, Netty 4.1.115→4.1.121.Final, Tomcat 10.1.35→10.1.53 |
-| 🟠 Phase 2 — P1 Before GA         | 48 (11 ✅ closed by Dependabot scan, \~16 ⏳ patches await re-scan, \~21 ⬜ still pending) | Netty, Spring/Boot, Kafka, Commons, Tomcat, HTTP Clients, Logback, etc. |
+| 🔴 Phase 1 — P0 Blocking | 15 → ✅ Fixed | Boot 3.4.0→3.4.5, Cloud 2024.0.0→2024.0.1, Netty 4.1.114→4.2.13.Final, Tomcat 10.1.33→10.1.55 |
+| 🟠 Phase 2 — P1 Before GA         | 48 (38 ✅ closed via bumps + constraints, 10 ⬜ still pending) | 8 High, 17 Moderate, 10 Low remaining — Logback, HTTP Clients, Commons, etc. |
 | 🟡 Phase 3 — Logging & Robustness | 2     | stderr logging, Event deserialization fragility                                                     |
 | 🟡 Phase 4 — Event Sourcing       | 4     | UpdateProduct path incomplete, missing ProductUpdatedEvent + Kafka                                  |
 | 🔵 Phase 5 — Cleanup              | 7     | Dead code, Docker tags, naming, unused deps                                                         |
