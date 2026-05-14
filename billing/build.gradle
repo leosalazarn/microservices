@@ -15,7 +15,7 @@ repositories {
 
 ext {
     springCloudVersion = '2024.0.0'
-    set('tomcat.version', '10.1.35')
+    set('tomcat.version', '10.1.53')
     set('jersey.version', '3.1.10')
 }
 

@@ -33,14 +33,15 @@ CI/CD/containerization.
 
 | CVE                           | Package             | Affected | Fixed   | Status  |
 |-------------------------------|---------------------|----------|---------|---------|
-| CVE-2025-24813                | `tomcat-embed-core` | 10.1.33  | 10.1.35 | ✅ Fixed |
+| CVE-2025-24813                | `tomcat-embed-core` | 10.1.33  | 10.1.53 | ✅ Fixed |
+| Tomcat CLIENT_CERT auth       | `tomcat-embed-core` | 10.1.35  | 10.1.53 | ✅ Fixed |
 | Eclipse Jersey Race Condition | `jersey-client`     | 3.1.9    | 3.1.10  | ✅ Fixed |
 |                               |                     |          |         |         |
 
 ### CVE-2025-24813 — Apache Tomcat Path Equivalence
 
 **Package**: `org.apache.tomcat.embed:tomcat-embed-core` (transitive via Spring Boot + Eureka)  
-**Fix**: Added `ext.set('tomcat.version', '10.1.35')` to `products/build.gradle`, `billing/build.gradle`,
+**Fix**: Added `ext.set('tomcat.version', '10.1.53')` to `products/build.gradle`, `billing/build.gradle`,
 `eureka-server/build.gradle`
 
 **Details**: Path equivalence vulnerability allowing potential RCE and/or information disclosure and/or information
@@ -48,6 +49,14 @@ corruption with partial PUT. Affects Tomcat 10.1.0-M1 through 10.1.34.
 
 **Prerequisites for exploit**: writes enabled for default servlet (disabled by default), partial PUT enabled (default),
 file-based session persistence with default location, deserialization library present.
+
+### Apache Tomcat CLIENT_CERT Authentication Bypass
+
+**Package**: `org.apache.tomcat.embed:tomcat-embed-core` (transitive via Spring Boot + Eureka)  
+**Affected**: `10.1.35` → **Fixed**: `10.1.53`
+**Fix**: Bumped `ext.set('tomcat.version', '10.1.53')` in `products/build.gradle`, `billing/build.gradle`, `eureka-server/build.gradle`
+
+**Details**: CLIENT_CERT authentication does not fail as expected for some scenarios when soft fail is disabled. Affects Tomcat 10.1.0-M7 through 10.1.52.
 
 ### Eclipse Jersey Race Condition (CVE-like)
 
@@ -114,7 +123,7 @@ configurations — such as mutual authentication, custom key/trust stores, and o
 | #   | Task                                                       | Files                                                                         | Status |
 |-----|------------------------------------------------------------|-------------------------------------------------------------------------------|--------|
 | A.1 | Upgrade SpringDoc 2.3.0→2.7.0 (compat with Spring Web 6.2) | `products/build.gradle`, `billing/build.gradle`                               | ✅      |
-| A.2 | Upgrade Tomcat 10.1.33→10.1.35 (CVE-2025-24813)            | `products/build.gradle`, `billing/build.gradle`, `eureka-server/build.gradle` | ✅      |
+| A.2 | Upgrade Tomcat 10.1.33→10.1.53 (CVE-2025-24813, CLIENT_CERT auth bypass) | `products/build.gradle`, `billing/build.gradle`, `eureka-server/build.gradle` | ✅      |
 | A.3 | Upgrade Jersey 3.1.9→3.1.10 (SSL race condition)           | all 4 `build.gradle` files (jersey.version)                                   | ✅      |
 | A.4 | Fix Kafka bootstrap-servers placeholder resolution         | `products/application.yml`, `billing/application.yml`                         | ✅      |
 | A.5 | Fix Redis password placeholder resolution                  | `products/application.yml`, `RedisConfig.java`                                | ✅      |
