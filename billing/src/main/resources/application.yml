@@ -15,14 +15,6 @@ spring:
         enabled: true
         backend: secret
         default-context: billing
-  data:
-    mongodb:
-      host: localhost
-      port: 27017
-      database: billing
-      username: admin
-      password: ${MONGO_PASSWORD:password}
-      authentication-database: admin
   kafka:
     bootstrap-servers: localhost:9092
 
