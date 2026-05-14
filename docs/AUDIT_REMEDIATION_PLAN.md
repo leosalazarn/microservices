@@ -1,7 +1,7 @@
 # Audit & Remediation Plan
 
 **Date**: 2026-05-14  
-**Prod Readiness**: 🟡 **Making Progress** — 11 of 71 Dependabot alerts closed (11 fixed, 60 remain)  
+**Prod Readiness**: 🟡 **60 Alerts Remain** — 11 closed (some patches still pending Dependabot re-scan). 22 High, 26 Moderate, 12 Low.  
 **Scope**: Full codebase audit of `poc-microservices`  
 **Auditor**: AI Assistant (Claude)
 
@@ -24,7 +24,7 @@ CI/CD/containerization.
 | Priority                          | Count | Key Areas                                                                                           |
 |-----------------------------------|-------|-----------------------------------------------------------------------------------------------------|
 | 🔴 Phase 1 — P0 Blocking | 15 → ✅ Fixed | Boot 3.4.0→3.4.5, Cloud 2024.0.0→2024.0.1, Netty 4.1.115→4.1.121.Final, Tomcat 10.1.35→10.1.53 |
-| 🟠 Phase 2 — P1 Before GA         | 48 (11 ✅ fixed, 37 ⬜ still pending) | Netty DoS, Spring path traversal, Logback EL injection, Kafka, HTTP clients, etc. |
+| 🟠 Phase 2 — P1 Before GA         | 48 (11 ✅ closed by Dependabot scan, \~16 ⏳ patches await re-scan, \~21 ⬜ still pending) | Netty, Spring/Boot, Kafka, Commons, Tomcat, HTTP Clients, Logback, etc. |
 | 🟡 Phase 3 — Logging & Robustness | 2     | stderr logging, Event deserialization fragility                                                     |
 | 🟡 Phase 4 — Event Sourcing       | 4     | UpdateProduct path incomplete, missing ProductUpdatedEvent + Kafka                                  |
 | 🔵 Phase 5 — Cleanup              | 7     | Dead code, Docker tags, naming, unused deps                                                         |
@@ -118,21 +118,21 @@ configurations — such as mutual authentication, custom key/trust stores, and o
 
 **Why**: Realistic threats under specific conditions (configs, feature usage, runtime paths). Fix **before v1.0 release**.
 
-**Note**: Boot 3.4.5, Cloud 2024.0.1, Netty 4.1.121.Final, and dependency constraint upgrades have fixed many P1 items. See breakdown below.
+**Note**: Dependabot re-scan after push shows 60 alerts still open (22 High, 26 Moderate, 12 Low). The table below cross-references what we patched vs. what Dependabot still reports.
 
-| Group | Items | Status |
-|-------|-------|--------|
-| Netty | 10 (#94, #93, #91, #90, #34, #87, #10, #12, #86, #35) | ⏳ Verify — already at Netty 4.1.121.Final |
-| Spring / Spring Boot | 17 (#16, #79, #25, #32, #63, #64, #14, #84, #83, #60, #61, #82, #81, #80, #23, #5, #52) | ⏳ Verify — already at Boot 3.4.5 / Spring 6.2.6 |
-| Tomcat | 1 (#69) | ⏳ Verify — already at 10.1.53 |
-| Kafka | 3 (#46, #24, #76) | Already at kafka 3.8.1 via Boot 3.4.5 — verify |
-| **Apache Commons** | **3 (#20, #4, #2)** | **#20, #4 ✅ Fixed (v1.11.0, v2.22.0); #2 ⬜** |
-| **Bouncy Castle** | **2 (#77, #75)** | **#77 ✅ Fixed (v1.80); #75 ⬜** |
-| **ZooKeeper** | **2 (#55, #58)** | **✅ Both fixed (v3.9.5)** |
-| **jose4j** | **1 (#48)** | **✅ Fixed (v0.9.6)** |
-| HTTP Clients | 2 (#15, #1) | ⬜ |
-| Logback | 4 (#7, #41, #8, #49) | ⬜ |
-| Other | 3 (#43, #45, #30) | ⬜ (lz4 at 1.8.0, reactor-netty ⬜) |
+| Group | Items | Doc Status | Dependabot Status | Gap |
+|-------|-------|-----------|-------------------|-----|
+| Netty | 10 (#94, #93, #91, #90, #34, #87, #10, #12, #86, #35) | ⏳ Patched v4.1.121.Final | Still open (10 High) | Version may not cover all CVEs |
+| Spring / Spring Boot | 17 (#16, #79, #25, #32, #63, #64, #14, #84, #83, #60, #61, #82, #81, #80, #23, #5, #52) | ⏳ Patched Boot 3.4.5 / Spring 6.2.6 | 5 still open (#79, #36, #65, #62, and #25, #32, #63... likely Moderate) | Partial fix — need higher patches |
+| Tomcat | 1 (#69) | ⏳ Patched v10.1.53 | Still open (High) | May need >10.1.53 |
+| Kafka | 3 (#46, #24, #76) | ⏳ Patched kafka 3.8.1 | Still open (2 High: #46, #74) | 3.8.1 may not cover all |
+| Apache Commons | 3 (#20, #4, #2) | ✅ #20, #4 fixed; #2 ⬜ | Should close on next scan | #2 still ⬜ |
+| Bouncy Castle | 2 (#77, #75) | ✅ #77 fixed (v1.80); #75 ⬜ | #77 still open — possible false positive or needs 1.81 | #75 ⬜ |
+| ZooKeeper | 2 (#55, #58) | ✅ Both fixed (v3.9.5) | Should close on next scan | — |
+| jose4j | 1 (#48) | ✅ Fixed (v0.9.6) | Should close on next scan | — |
+| HTTP Clients | 2 (#15, #1) | ⬜ | ⬜ | Needs explicit bump |
+| Logback | 4 (#7, #41, #8, #49) | ⬜ | ⬜ | Needs explicit bump |
+| Other | 3 (#43, #45, #30) | ⬜ (lz4 at 1.8.0) | ⬜ (lz4 #43, #45 still open) | lz4 capability conflict |
 
 ---
 
