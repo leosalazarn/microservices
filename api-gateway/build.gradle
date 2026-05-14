@@ -39,6 +39,7 @@ dependencies {
             because 'CVE jose4j DoS via compressed JWE #48'
         }
     }
+    implementation 'org.springframework.cloud:spring-cloud-gateway-server:4.2.6'
     implementation 'org.springframework.cloud:spring-cloud-starter-gateway'
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
