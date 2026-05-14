@@ -1,7 +1,7 @@
 # Audit & Remediation Plan
 
 **Date**: 2026-05-14  
-**Prod Readiness**: 🟡 **Getting Closer** — 15 P0 ✅ Fixed, ~12 P1 ✅ Fixed via dep constraints, ~36 P1 remain  
+**Prod Readiness**: 🟡 **Making Progress** — 11 of 71 Dependabot alerts closed (11 fixed, 60 remain)  
 **Scope**: Full codebase audit of `poc-microservices`  
 **Auditor**: AI Assistant (Claude)
 
@@ -24,7 +24,7 @@ CI/CD/containerization.
 | Priority                          | Count | Key Areas                                                                                           |
 |-----------------------------------|-------|-----------------------------------------------------------------------------------------------------|
 | 🔴 Phase 1 — P0 Blocking | 15 → ✅ Fixed | Boot 3.4.0→3.4.5, Cloud 2024.0.0→2024.0.1, Netty 4.1.115→4.1.121.Final, Tomcat 10.1.35→10.1.53 |
-| 🟠 Phase 2 — P1 Before GA         | 48    | Netty DoS, Spring path traversal + static resource DoS, Logback EL injection, Kafka deserialization |
+| 🟠 Phase 2 — P1 Before GA         | 48 (11 ✅ fixed, 37 ⬜ still pending) | Netty DoS, Spring path traversal, Logback EL injection, Kafka, HTTP clients, etc. |
 | 🟡 Phase 3 — Logging & Robustness | 2     | stderr logging, Event deserialization fragility                                                     |
 | 🟡 Phase 4 — Event Sourcing       | 4     | UpdateProduct path incomplete, missing ProductUpdatedEvent + Kafka                                  |
 | 🔵 Phase 5 — Cleanup              | 7     | Dead code, Docker tags, naming, unused deps                                                         |
