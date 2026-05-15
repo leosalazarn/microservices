@@ -1,7 +1,7 @@
 # Audit & Remediation Plan
 
 **Date**: 2026-05-14  
-**Prod Readiness**: 🟡 **30 Alerts Remain** (6 High, 15 Moderate, 9 Low) — 41 of 71 closed.  
+**Prod Readiness**: 🟡 **29 Alerts Remain** (5 High, 15 Moderate, 9 Low) — 42 of 71 closed.  
 **Scope**: Full codebase audit of `poc-microservices`  
 **Auditor**: AI Assistant (Claude)
 
@@ -24,7 +24,7 @@ CI/CD/containerization.
 | Priority                          | Count | Key Areas                                                                                           |
 |-----------------------------------|-------|-----------------------------------------------------------------------------------------------------|
 | 🔴 Phase 1 — P0 Blocking | 15 → ✅ Fixed | Boot 3.4.0→3.4.5, Cloud 2024.0.0→2024.0.1, Netty 4.1.114→4.2.13.Final, Tomcat 10.1.33→10.1.55 |
-| 🟠 Phase 2 — P1 Before GA         | 48 (41 ✅ closed, 7 ⬜ remaining) | #36 (6.2.11), #50 (3.27.7), #77 (1.80) await scan; #65, #62, #79 no patch; Logback, HTTP Clients, LZ4, Reactor Netty remaining |
+| 🟠 Phase 2 — P1 Before GA         | 48 (42 ✅ closed, 6 ⬜ remaining) | #36 (6.2.11), #50 (3.27.7), #77 (1.80) await scan; #65, #62, #79 no patch; Logback, HTTP Clients, LZ4, Reactor Netty remaining |
 | 🟡 Phase 3 — Logging & Robustness | 2 → ✅ Complete | `EventPublisher.java` `@Slf4j` + `log.error()`, `MongoEventStore.java` FQCN |
 | 🟡 Phase 4 — Event Sourcing       | 4     | UpdateProduct path incomplete, missing ProductUpdatedEvent + Kafka                                  |
 | 🔵 Phase 5 — Cleanup              | 7     | Dead code, Docker tags, naming, unused deps                                                         |
