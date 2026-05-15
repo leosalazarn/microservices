@@ -2,27 +2,26 @@
 
 **Date**: 2026-05-14  
 **Prod Readiness**: 🟡 **29 Alerts Remain** (5 High, 15 Moderate, 9 Low) — 42 of 71 closed.  
-**Architecture**: Bridge Strategy — Java 21 (Spring Boot) + Python (FastAPI/LangGraph) with Event-Driven Kafka bridge  
+**Architecture**: Java 21 — Spring Boot 3.4, CQRS, Event Sourcing, SAGA, Kafka EDA, MongoDB, Redis, Virtual Threads  
 **Auditor**: AI Assistant (Claude)
 
 ---
 
 ## Overview
 
-This document tracks production readiness for the **Bridge Strategy** architecture: Java 21 (Spring Boot) handling auth, persistence, and transactions, with Python-based AI microservices (FastAPI/LangGraph) for agentic logic, connected via Kafka Event-Driven Architecture.
+This document tracks production readiness for a **Java 21 microservices POC** demonstrating CQRS, Event Sourcing, SAGA, Command Bus, DDD, Redis caching, and Virtual Threads (Project Loom) with Spring Boot 3.4.
 
 A comprehensive audit was performed on the Enterprise Microservices Architecture POC. The project demonstrates
-sophisticated patterns (CQRS, Event Sourcing, SAGA, DDD, Command Bus, Redis caching) but has material issues preventing
-production readiness.
+sophisticated patterns but has material issues preventing production readiness.
 
 **Overall Assessment**: Architecture is mature and well-designed, but the codebase is **not production-ready** due to
-hardcoded secrets (✅ fixed), incomplete Event Sourcing paths (🔴 critical for Kafka bridge), mock data in Billing service, missing error handling (✅ fixed), and no CI/CD/containerization.
+hardcoded secrets (✅ fixed), incomplete Event Sourcing, mock data in Billing service, missing error handling (✅ fixed), and no CI/CD/containerization.
 
-### Bridge Strategy Critical Path
-The Event Sourcing + Kafka pipeline is the backbone of the Java→Python bridge. Currently:
-- ✅ `CreateProductCommandHandler` → raises event → EventStore → Kafka → Python consumers
-- ❌ `UpdateProductCommandHandler` → **direct DB update only, no event, no Kafka** — Python side never learns about updates
-- This is the **highest priority gap** after CVEs and logging fixes.
+---
+
+### Phase 4 — Event Sourcing Completeness
+
+> **Why this matters**: `UpdateProductCommandHandler` bypasses the Event Sourcing pipeline — it directly modifies the DB without raising `ProductUpdatedEvent`, saving to EventStore, or publishing to Kafka. This breaks the CQRS contract and makes updates invisible to downstream Kafka consumers (intended for future Python AI microservices consuming from the same topics).
 
 ---
 
@@ -162,7 +161,7 @@ configurations — such as mutual authentication, custom key/trust stores, and o
 
 ### 🟡 Phase 4 — Event Sourcing Completeness
 
-> **🔴 Critical for Bridge Strategy**: The `UpdateProductCommandHandler` bypasses the Event Sourcing pipeline entirely — it directly modifies the DB without raising `ProductUpdatedEvent`, saving to EventStore, or publishing to Kafka. This means **Python AI microservices never learn about product updates**, breaking the event-driven Java→Python bridge.
+> **Critical for Kafka bridging**: `UpdateProductCommandHandler` bypasses Event Sourcing entirely. Future Python AI microservices (separate repo) will consume from the same Kafka topics — products must publish events for updates just as they do for creates.
 
 | #   | Task                                                       | Files                              | Est. Effort |
 |-----|------------------------------------------------------------|------------------------------------|-------------|
@@ -373,7 +372,27 @@ prioritized.
 
 ---
 
-## Detailed Findings
+## 🔮 Future Architecture: Bridge Strategy via Kafka
+
+This POC focuses exclusively on **Java 21 (Spring Boot)** — CQRS, Event Sourcing, Virtual Threads, Kafka EDA.
+
+The **Bridge Strategy** (Java ↔ Python integration) will be implemented **across two separate repos** sharing a Kafka cluster:
+
+```
+┌─────────────────────────────┐     Kafka Topics      ┌─────────────────────────────┐
+│  This Project (Java 21)     │                        │  Future Project (Python)    │
+│                             │   product-events       │                             │
+│  • CQRS Command/Query Bus   │ ◄────────────────────► │  • FastAPI                  │
+│  • Event Sourcing + Store   │   billing-events       │  • LangGraph                │
+│  • SAGA via Kafka           │                        │  • LLM Orchestration        │
+│  • Redis Cache + Vault      │                        │  • RAG Pipelines            │
+│  • Virtual Threads          │                        │                             │
+└─────────────────────────────┘                        └─────────────────────────────┘
+```
+
+**Key design decision**: This repo's Kafka topics (`product-events`, `billing-events`) are the **integration contract**. When Phase 4 is complete, every product mutation (create, update) publishes an event. A future Python project can consume these topics independently — no need to mix stacks or create a monorepo.
+
+---
 
 ### 🔴 Critical
 
