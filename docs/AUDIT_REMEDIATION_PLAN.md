@@ -138,7 +138,8 @@ configurations — such as mutual authentication, custom key/trust stores, and o
 #### Items with no patch available
 | Alert | Package | Reason |
 |-------|---------|--------|
-| #65, #62 | `spring-boot-starter-actuator` | Affects Spring Boot 3.4.0–3.4.13 — **no patched version exists yet**. CloudFoundry endpoints only — low impact if not using CloudFoundry. |
+| #65, #62 | `spring-boot-starter-actuator` | Affects Boot 3.4.0–3.4.13 — **no patch exists yet**. CloudFoundry endpoints only. |
+| #79 | `spring-boot` | Affects Boot 3.4.0–3.4.15 — **fix expected in 3.4.16**, not yet released. Requires local host access + persistent sessions. |
 
 ---
 
