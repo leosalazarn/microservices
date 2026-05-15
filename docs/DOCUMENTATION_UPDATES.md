@@ -3,12 +3,14 @@
 ## Recent Updates (December 2025)
 
 ### CQRS Controller Separation
+
 - ✅ Separated Query and Command controllers in Products and Billing services
 - ✅ Updated OpenAPI specifications with "Query" and "Command" tags
 - ✅ Generated separate API interfaces: `ProductsQueryApi` and `ProductsCommandApi`
 - ✅ Updated all documentation to reflect controller separation
 
 ### Documentation Organization
+
 - ✅ Moved all documentation to `docs/` folder
 - ✅ Created `DOCS_INDEX.md` for navigation
 - ✅ Added MIT LICENSE file
@@ -17,7 +19,9 @@
 ## Files Updated
 
 ### 1. README.md
+
 **Changes:**
+
 - ✅ Updated architecture diagram with Event Store, CQRS, Command Bus details
 - ✅ Enhanced Products Service description with Event Sourcing architecture
 - ✅ Added MongoDB access section with read-only user credentials
@@ -27,7 +31,9 @@
 - ✅ Updated notes section with Event Store and SAGA pattern details
 
 ### 2. ARCHITECTURE.md (NEW)
+
 **Content:**
+
 - Complete Event Sourcing implementation details
 - CQRS pattern explanation with code examples
 - Command Bus pattern documentation
@@ -46,7 +52,9 @@
 - Reference links
 
 ### 3. QUICKSTART.md (NEW)
+
 **Content:**
+
 - 5-minute setup guide
 - Step-by-step instructions with timing
 - Prerequisites checklist
@@ -65,11 +73,13 @@
 ## Key Improvements
 
 ### Better Organization
+
 - Separated quick start from detailed architecture
 - Clear progression: Quick Start → README → Architecture
 - Troubleshooting consolidated in README
 
 ### Complete Coverage
+
 - Event Sourcing fully documented
 - CQRS pattern explained
 - Command Bus implementation detailed
@@ -77,12 +87,14 @@
 - Security configuration included
 
 ### Developer Experience
+
 - Quick start gets developers running in 5 minutes
 - Troubleshooting section addresses common issues
 - MongoDB read-only user for safe data viewing
 - Swagger UI accessible through gateway
 
 ### Production Readiness
+
 - Security best practices documented
 - Monitoring endpoints listed
 - Scaling instructions included
@@ -111,26 +123,31 @@ poc-microservices/
 ## Highlights
 
 ### Event Sourcing
+
 - Complete event history in MongoDB
 - Event replay capability
 - Audit trail for all changes
 
 ### CQRS
+
 - Separate read/write models
 - Optimized queries
 - Clear separation of concerns
 
 ### SAGA Pattern
+
 - Distributed transactions
 - Event choreography
 - Eventual consistency
 
 ### Security
+
 - Vault integration
 - Read-only MongoDB user
 - No hardcoded secrets
 
 ### Developer Experience
+
 - Swagger UI through gateway
 - Clean build instructions
 - Troubleshooting guide

@@ -5,9 +5,11 @@
 [![Spring Cloud](https://img.shields.io/badge/Spring%20Cloud-2024.0.0-blue.svg)](https://spring.io/projects/spring-cloud)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A production-grade microservices architecture demonstrating Event Sourcing, CQRS, and SAGA patterns using Spring Cloud ecosystem with enterprise-level security and observability.
+A production-grade microservices architecture demonstrating Event Sourcing, CQRS, and SAGA patterns using Spring Cloud
+ecosystem with enterprise-level security and observability.
 
-> 📚 **New to this project?** Check the [Documentation Index](docs/DOCS_INDEX.md) for guided navigation through all documentation.
+> 📚 **New to this project?** Check the [Documentation Index](docs/DOCS_INDEX.md) for guided navigation through all
+> documentation.
 
 ## Table of Contents
 
@@ -24,7 +26,8 @@ A production-grade microservices architecture demonstrating Event Sourcing, CQRS
 
 ## Overview
 
-This project implements a distributed microservices architecture following industry best practices and enterprise patterns. The system demonstrates:
+This project implements a distributed microservices architecture following industry best practices and enterprise
+patterns. The system demonstrates:
 
 - **Event Sourcing** for complete audit trails and temporal queries
 - **CQRS** for optimized read/write operations
@@ -86,26 +89,28 @@ This project implements a distributed microservices architecture following indus
 
 ### Service Catalog
 
-| Service | Purpose | Port | Technology |
-|---------|---------|------|------------|
-| **Eureka Server** | Service registry and discovery | 8761 | Netflix Eureka |
-| **API Gateway** | Centralized routing, load balancing | 8080 | Spring Cloud Gateway |
-| **Products Service** | Product management with Event Sourcing | Dynamic | Spring Boot, MongoDB |
-| **Billing Service** | Invoice management and event consumption | Dynamic | Spring Boot, Kafka |
-| **MongoDB** | Document database and event store | 27017 | MongoDB 8.0 |
-| **Kafka** | Event streaming platform | 9092 | Apache Kafka 4.0 |
-| **Vault** | Secret and configuration management | 8200 | HashiCorp Vault |
-| **Redis** | Distributed cache and session store | 6379 | Redis 7 |
+| Service              | Purpose                                  | Port    | Technology           |
+|----------------------|------------------------------------------|---------|----------------------|
+| **Eureka Server**    | Service registry and discovery           | 8761    | Netflix Eureka       |
+| **API Gateway**      | Centralized routing, load balancing      | 8080    | Spring Cloud Gateway |
+| **Products Service** | Product management with Event Sourcing   | Dynamic | Spring Boot, MongoDB |
+| **Billing Service**  | Invoice management and event consumption | Dynamic | Spring Boot, Kafka   |
+| **MongoDB**          | Document database and event store        | 27017   | MongoDB 8.0          |
+| **Kafka**            | Event streaming platform                 | 9092    | Apache Kafka 4.0     |
+| **Vault**            | Secret and configuration management      | 8200    | HashiCorp Vault      |
+| **Redis**            | Distributed cache and session store      | 6379    | Redis 7              |
 
 ## Technology Stack
 
 ### Core Framework
+
 - **Java 21** - Latest LTS with modern language features
 - **Spring Boot 3.4.0** - Production-ready application framework
 - **Spring Cloud 2024.0.0** - Microservices patterns and tools
 - **Gradle 8.11.1** - Build automation and dependency management
 
 ### Infrastructure
+
 - **Netflix Eureka** - Service discovery and registration
 - **Spring Cloud Gateway** - Reactive API gateway with load balancing
 - **Apache Kafka 4.0.0** - Distributed event streaming
@@ -113,6 +118,7 @@ This project implements a distributed microservices architecture following indus
 - **HashiCorp Vault** - Secrets management
 
 ### Development Tools
+
 - **OpenAPI 3.0.3** - API specification and contract-first development
 - **Swagger UI** - Interactive API documentation
 - **Spring Boot Actuator** - Production-ready monitoring
@@ -120,6 +126,7 @@ This project implements a distributed microservices architecture following indus
 - **Jackson** - JSON serialization with JSR310 support
 
 ### Containerization
+
 - **Docker** - Container runtime
 - **Docker Compose** - Multi-container orchestration
 
@@ -128,6 +135,7 @@ This project implements a distributed microservices architecture following indus
 ### Event Sourcing
 
 Captures all changes to application state as a sequence of events, providing:
+
 - Complete audit trail
 - Temporal queries and event replay
 - Debugging and troubleshooting capabilities
@@ -138,11 +146,13 @@ Captures all changes to application state as a sequence of events, providing:
 ### CQRS (Command Query Responsibility Segregation)
 
 Separates read and write operations for optimal performance:
+
 - **Commands**: State-changing operations with validation
 - **Queries**: Optimized read operations without side effects
 - Independent scaling of read/write workloads
 
-**Implementation**: 
+**Implementation**:
+
 - Separate controllers: `ProductQueryController` (GET) and `ProductCommandController` (POST)
 - OpenAPI-generated interfaces: `ProductsQueryApi` and `ProductsCommandApi`
 - Separate handlers for commands and queries in all services
@@ -150,6 +160,7 @@ Separates read and write operations for optimal performance:
 ### SAGA Pattern
 
 Manages distributed transactions across microservices:
+
 - Event choreography for loose coupling
 - Eventual consistency model
 - Compensating transactions for rollback
@@ -208,6 +219,7 @@ docker-compose ps
 ```
 
 Expected output:
+
 - `mongodb-poc` - Running on port 27017
 - `kafka-poc` - Running on port 9092
 - `vault-poc` - Running on port 8200
@@ -250,37 +262,47 @@ vault kv get secret/billing
 Start services in the following order (each in a separate terminal):
 
 **Terminal 1 - Eureka Server:**
+
 ```bash
 ./gradlew :eureka-server:bootRun
 ```
+
 Wait for: `Started EurekaServerApplication`
 
 **Terminal 2 - API Gateway:**
+
 ```bash
 ./gradlew :api-gateway:bootRun
 ```
+
 Wait for: `Started ApiGatewayApplication`
 
 **Terminal 3 - Products Service:**
+
 ```bash
 ./gradlew :products:bootRun
 ```
+
 Wait for: `Started ProductsApplication`
 
 **Terminal 4 - Billing Service:**
+
 ```bash
 ./gradlew :billing:bootRun
 ```
+
 Wait for: `Started BillingApplication`
 
 #### 6. Verify Deployment
 
 **Check Service Registry:**
+
 ```bash
 curl http://localhost:8761
 ```
 
 **Test Products API:**
+
 ```bash
 # List products
 curl http://localhost:8080/products/products
@@ -292,6 +314,7 @@ curl -X POST http://localhost:8080/products/products \
 ```
 
 **Test Billing API:**
+
 ```bash
 curl http://localhost:8080/billing/invoices
 ```
@@ -309,33 +332,34 @@ Access Swagger UI through the API Gateway:
 
 #### Products Service
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/products` | Retrieve all active products |
-| POST | `/products` | Create new product (triggers event sourcing) |
-| GET | `/health` | Service health check |
-| GET | `/actuator/health` | Detailed health information |
-| GET | `/actuator/info` | Service metadata |
+| Method | Endpoint           | Description                                  |
+|--------|--------------------|----------------------------------------------|
+| GET    | `/products`        | Retrieve all active products                 |
+| POST   | `/products`        | Create new product (triggers event sourcing) |
+| GET    | `/health`          | Service health check                         |
+| GET    | `/actuator/health` | Detailed health information                  |
+| GET    | `/actuator/info`   | Service metadata                             |
 
 #### Billing Service
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/invoices` | Retrieve all invoices |
-| POST | `/invoices` | Create new invoice |
-| GET | `/health` | Service health check |
-| GET | `/actuator/health` | Detailed health information |
+| Method | Endpoint           | Description                 |
+|--------|--------------------|-----------------------------|
+| GET    | `/invoices`        | Retrieve all invoices       |
+| POST   | `/invoices`        | Create new invoice          |
+| GET    | `/health`          | Service health check        |
+| GET    | `/actuator/health` | Detailed health information |
 
 #### API Gateway
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/actuator/gateway/routes` | View configured routes |
-| GET | `/actuator/health` | Gateway health status |
+| Method | Endpoint                   | Description            |
+|--------|----------------------------|------------------------|
+| GET    | `/actuator/gateway/routes` | View configured routes |
+| GET    | `/actuator/health`         | Gateway health status  |
 
 ### Example Requests
 
 **Create Product:**
+
 ```bash
 curl -X POST http://localhost:8080/products/products \
   -H "Content-Type: application/json" \
@@ -346,6 +370,7 @@ curl -X POST http://localhost:8080/products/products \
 ```
 
 **Response:**
+
 ```json
 {
   "id": 123456789,
@@ -390,6 +415,7 @@ curl http://localhost:8080/products/actuator/metrics
 #### MongoDB Access
 
 **Read-Only User (Recommended):**
+
 ```bash
 docker exec -it mongodb-poc mongosh \
   -u viewer \
@@ -399,6 +425,7 @@ docker exec -it mongodb-poc mongosh \
 ```
 
 **View Products Collection:**
+
 ```bash
 docker exec -it mongodb-poc mongosh \
   -u viewer \
@@ -409,6 +436,7 @@ docker exec -it mongodb-poc mongosh \
 ```
 
 **View Event Store:**
+
 ```bash
 docker exec -it mongodb-poc mongosh \
   -u viewer \
@@ -421,6 +449,7 @@ docker exec -it mongodb-poc mongosh \
 ### Event Streaming Monitoring
 
 **List Kafka Topics:**
+
 ```bash
 docker exec -it kafka-poc kafka-topics \
   --list \
@@ -428,6 +457,7 @@ docker exec -it kafka-poc kafka-topics \
 ```
 
 **Consume Product Events:**
+
 ```bash
 docker exec -it kafka-poc kafka-console-consumer \
   --bootstrap-server localhost:9092 \
@@ -438,11 +468,13 @@ docker exec -it kafka-poc kafka-console-consumer \
 ### Redis Cache Monitoring
 
 **Connect to Redis CLI:**
+
 ```bash
 docker exec -it redis-poc redis-cli -a redispassword
 ```
 
 **Monitor Cache Operations:**
+
 ```bash
 # View all keys
 docker exec -it redis-poc redis-cli -a redispassword KEYS "*"
@@ -464,6 +496,7 @@ docker exec -it redis-poc redis-cli -a redispassword FLUSHALL
 ```
 
 **Cache Behavior:**
+
 - First GET request: Cache miss → Database query → Cache stored (10 min TTL)
 - Subsequent GET requests: Cache hit → Instant response
 - POST request: Cache evicted → Next GET rebuilds cache
@@ -483,12 +516,14 @@ All sensitive credentials are stored in HashiCorp Vault:
 ### MongoDB Security
 
 **Admin User:**
+
 - Username: `admin`
 - Password: Stored in Vault (`secret/products/mongodb.password`)
 - Permissions: Full administrative access
 - Authentication Database: `admin`
 
 **Read-Only User:**
+
 - Username: `viewer`
 - Password: `viewonly123`
 - Permissions: Read-only access to `products` database
@@ -511,6 +546,7 @@ All sensitive credentials are stored in HashiCorp Vault:
 **Cause**: Gateway has cached stale service instances after service restarts
 
 **Solution**:
+
 ```bash
 pkill -f "api-gateway:bootRun"
 ./gradlew :api-gateway:bootRun
@@ -523,8 +559,10 @@ pkill -f "api-gateway:bootRun"
 **Cause**: Forward headers not properly configured
 
 **Solution**:
+
 1. Verify `forward-headers-strategy: framework` in `application.yml`
 2. Restart both service and gateway:
+
 ```bash
 ./gradlew clean build -x test
 # Restart services in order: Eureka → Gateway → Products → Billing
@@ -535,6 +573,7 @@ pkill -f "api-gateway:bootRun"
 **Symptom**: Services fail to connect to MongoDB
 
 **Diagnosis**:
+
 ```bash
 # Check MongoDB container
 docker ps | grep mongodb
@@ -550,6 +589,7 @@ vault kv get secret/products
 **Symptom**: Services cannot publish/consume events
 
 **Diagnosis**:
+
 ```bash
 # Check Kafka container
 docker ps | grep kafka
@@ -566,6 +606,7 @@ vault kv get secret/billing
 **Symptom**: Service fails to start due to port already in use
 
 **Solution**:
+
 ```bash
 # Find process using port
 lsof -ti:8080 | xargs kill -9
@@ -648,7 +689,7 @@ poc-microservices/
 - Follow Spring Boot best practices
 - Maintain SOLID principles
 - Use Lombok for boilerplate reduction
-- Document public APIs with JavaDoc
+- Document public APIs with Javadoc
 - Write meaningful commit messages
 
 ### Testing
@@ -681,6 +722,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Acknowledgments
 
 Built with modern microservices patterns and enterprise-grade technologies:
+
 - Spring Cloud ecosystem
 - Netflix OSS components
 - Apache Kafka

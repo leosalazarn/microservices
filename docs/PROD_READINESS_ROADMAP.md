@@ -1,6 +1,6 @@
 # Production Readiness Roadmap
 
-**Date**: 2026-05-14  
+**Date**: 2026-05-15  
 **Prod Readiness**: 🟡 **29 Alerts Remain** (5 High, 15 Moderate, 9 Low) — 42 of 71 closed.  
 **Architecture**: Java 21 — Spring Boot 3.4, CQRS, Event Sourcing, SAGA, Kafka EDA, MongoDB, Redis, Virtual Threads  
 **Auditor**: AI Assistant (Claude)
@@ -9,32 +9,37 @@
 
 ## Overview
 
-This document tracks production readiness for a **Java 21 microservices POC** demonstrating CQRS, Event Sourcing, SAGA, Command Bus, DDD, Redis caching, and Virtual Threads (Project Loom) with Spring Boot 3.4.
+This document tracks production readiness for a **Java 21 microservices POC** demonstrating CQRS, Event Sourcing, SAGA,
+Command Bus, DDD, Redis caching, and Virtual Threads (Project Loom) with Spring Boot 3.4.
 
 A comprehensive audit was performed on the Enterprise Microservices Architecture POC. The project demonstrates
 sophisticated patterns but has material issues preventing production readiness.
 
 **Overall Assessment**: Architecture is mature and well-designed, but the codebase is **not production-ready** due to
-hardcoded secrets (✅ fixed), incomplete Event Sourcing, mock data in Billing service, missing error handling (✅ fixed), and no CI/CD/containerization.
+hardcoded secrets (✅ fixed), incomplete Event Sourcing, mock data in Billing service, missing error handling (✅ fixed),
+and no CI/CD/containerization.
 
 ---
 
 ### Phase 4 — Event Sourcing Completeness
 
-> **Why this matters**: `UpdateProductCommandHandler` bypasses the Event Sourcing pipeline — it directly modifies the DB without raising `ProductUpdatedEvent`, saving to EventStore, or publishing to Kafka. This breaks the CQRS contract and makes updates invisible to downstream Kafka consumers (intended for future Python AI microservices consuming from the same topics).
+> **Why this matters**: `UpdateProductCommandHandler` bypasses the Event Sourcing pipeline — it directly modifies the DB
+> without raising `ProductUpdatedEvent`, saving to EventStore, or publishing to Kafka. This breaks the CQRS contract and
+> makes updates invisible to downstream Kafka consumers (intended for future Python AI microservices consuming from the
+> same topics).
 
 ---
 
 ## Findings Summary
 
-| Priority                          | Count | Key Areas                                                                                           |
-|-----------------------------------|-------|-----------------------------------------------------------------------------------------------------|
-| 🔴 Phase 1 — P0 Blocking | 15 → ✅ Fixed | Boot 3.4.0→3.4.5, Cloud 2024.0.0→2024.0.1, Netty 4.1.114→4.2.13.Final, Tomcat 10.1.33→10.1.55 |
+| Priority                          | Count                           | Key Areas                                                                                                                      |
+|-----------------------------------|---------------------------------|--------------------------------------------------------------------------------------------------------------------------------|
+| 🔴 Phase 1 — P0 Blocking          | 15 → ✅ Fixed                    | Boot 3.4.0→3.4.5, Cloud 2024.0.0→2024.0.1, Netty 4.1.114→4.2.13.Final, Tomcat 10.1.33→10.1.55                                  |
 | 🟠 Phase 2 — P1 Before GA         | 48 (42 ✅ closed, 6 ⬜ remaining) | #36 (6.2.11), #50 (3.27.7), #77 (1.80) await scan; #65, #62, #79 no patch; Logback, HTTP Clients, LZ4, Reactor Netty remaining |
-| 🟡 Phase 3 — Logging & Robustness | 2 → ✅ Complete | `EventPublisher.java` `@Slf4j` + `log.error()`, `MongoEventStore.java` FQCN |
-| 🟡 Phase 4 — Event Sourcing       | 4     | UpdateProduct path incomplete, missing ProductUpdatedEvent + Kafka                                  |
-| 🔵 Phase 5 — Cleanup              | 7     | Dead code, Docker tags, naming, unused deps                                                         |
-| 🔵 Backlog — Billing              | 4     | MongoDB persistence reverted to mocks                                                               |
+| 🟡 Phase 3 — Logging & Robustness | 2 → ✅ Complete                  | `EventPublisher.java` `@Slf4j` + `log.error()`, `MongoEventStore.java` FQCN                                                    |
+| 🟡 Phase 4 — Event Sourcing       | 4                               | UpdateProduct path incomplete, missing ProductUpdatedEvent + Kafka                                                             |
+| 🔵 Phase 5 — Cleanup              | 7                               | Dead code, Docker tags, naming, unused deps                                                                                    |
+| 🔵 Backlog — Billing              | 4                               | MongoDB persistence reverted to mocks                                                                                          |
 
 ---
 
@@ -96,27 +101,29 @@ configurations — such as mutual authentication, custom key/trust stores, and o
 
 ### 🔴 Phase 1 — P0 Blocking CVEs (Prod Ship-Blockers) — ✅ **ALL FIXED**
 
-**Why**: Perimeter auth, HTTP smuggling, data integrity, and credential leakage risks in direct or perimeter-facing deps.
+**Why**: Perimeter auth, HTTP smuggling, data integrity, and credential leakage risks in direct or perimeter-facing
+deps.
 
-**Fix**: Spring Boot 3.4.0→3.4.5, Spring Cloud 2024.0.0→2024.0.1, Netty 4.1.114→4.2.13.Final, Tomcat 10.1.33→10.1.55, Kafka 3.7.x→3.9.2.
+**Fix**: Spring Boot 3.4.0→3.4.5, Spring Cloud 2024.0.0→2024.0.1, Netty 4.1.114→4.2.13.Final, Tomcat 10.1.33→10.1.55,
+Kafka 3.7.x→3.9.2.
 
-| #   | Item | Fix | Status |
-|-----|------|-----|--------|
-| 1.1 | Gateway EL Injection (#51) | `spring-cloud-gateway-server` 4.2.0→4.2.6 | ✅ |
-| 1.2 | Gateway forwarded headers (#22) | `spring-cloud-gateway-server` 4.2.0→4.2.6 | ✅ |
-| 1.3 | Actuator CloudFoundry auth bypass (#65) | `spring-boot-starter-actuator` 3.4.0→3.4.5 (via Boot 3.4.5) | ✅ |
-| 1.4 | Actuator Health groups auth bypass (#62) | `spring-boot-starter-actuator` 3.4.0→3.4.5 | ✅ |
-| 1.5 | Spring annotation detection auth bypass (#36) | `spring-core` 6.2.0→6.2.6 (via Boot 3.4.5) | ✅ |
-| 1.6 | netty-codec-http2 CONTINUATION flood DoS (#67) | `netty-codec-http2` 4.1.114→4.2.13.Final | ✅ |
-| 1.7 | netty-codec-http2 MadeYouReset DDoS (#31) | `netty-codec-http2` 4.1.114→4.2.13.Final | ✅ |
-| 1.8 | netty-codec-http smuggling — Chunked Ext (#66) | `netty-codec-http` 4.1.114→4.2.13.Final | ✅ |
-| 1.9 | netty-codec-http smuggling — TE+CL (#89) | `netty-codec-http` 4.1.114→4.2.13.Final | ✅ |
-| 1.10 | netty-codec-http smuggling — Start-Line (#78) | `netty-codec-http` 4.1.114→4.2.13.Final | ✅ |
-| 1.11 | netty-codec-http smuggling — Transfer-Encoding (#92) | `netty-codec-http` 4.1.114→4.2.13.Final | ✅ |
-| 1.12 | netty-codec-http smuggling — chunk size (#88) | `netty-codec-http` 4.1.114→4.2.13.Final | ✅ |
-| 1.13 | CRLF Injection in HttpRequestEncoder (#47) | `netty-codec-http` 4.1.114→4.2.13.Final | ✅ |
-| 1.14 | kafka-clients buffer pool race (#74) | `kafka-clients` 3.7.x→3.9.2 (via kafka.version override) | ✅ |
-| 1.15 | Tomcat sensitive info in log file (#70) | `tomcat-embed-core` 10.1.33→10.1.55 | ✅ |
+| #    | Item                                                 | Fix                                                         | Status |
+|------|------------------------------------------------------|-------------------------------------------------------------|--------|
+| 1.1  | Gateway EL Injection (#51)                           | `spring-cloud-gateway-server` 4.2.0→4.2.6                   | ✅      |
+| 1.2  | Gateway forwarded headers (#22)                      | `spring-cloud-gateway-server` 4.2.0→4.2.6                   | ✅      |
+| 1.3  | Actuator CloudFoundry auth bypass (#65)              | `spring-boot-starter-actuator` 3.4.0→3.4.5 (via Boot 3.4.5) | ✅      |
+| 1.4  | Actuator Health groups auth bypass (#62)             | `spring-boot-starter-actuator` 3.4.0→3.4.5                  | ✅      |
+| 1.5  | Spring annotation detection auth bypass (#36)        | `spring-core` 6.2.0→6.2.6 (via Boot 3.4.5)                  | ✅      |
+| 1.6  | netty-codec-http2 CONTINUATION flood DoS (#67)       | `netty-codec-http2` 4.1.114→4.2.13.Final                    | ✅      |
+| 1.7  | netty-codec-http2 MadeYouReset DDoS (#31)            | `netty-codec-http2` 4.1.114→4.2.13.Final                    | ✅      |
+| 1.8  | netty-codec-http smuggling — Chunked Ext (#66)       | `netty-codec-http` 4.1.114→4.2.13.Final                     | ✅      |
+| 1.9  | netty-codec-http smuggling — TE+CL (#89)             | `netty-codec-http` 4.1.114→4.2.13.Final                     | ✅      |
+| 1.10 | netty-codec-http smuggling — Start-Line (#78)        | `netty-codec-http` 4.1.114→4.2.13.Final                     | ✅      |
+| 1.11 | netty-codec-http smuggling — Transfer-Encoding (#92) | `netty-codec-http` 4.1.114→4.2.13.Final                     | ✅      |
+| 1.12 | netty-codec-http smuggling — chunk size (#88)        | `netty-codec-http` 4.1.114→4.2.13.Final                     | ✅      |
+| 1.13 | CRLF Injection in HttpRequestEncoder (#47)           | `netty-codec-http` 4.1.114→4.2.13.Final                     | ✅      |
+| 1.14 | kafka-clients buffer pool race (#74)                 | `kafka-clients` 3.7.x→3.9.2 (via kafka.version override)    | ✅      |
+| 1.15 | Tomcat sensitive info in log file (#70)              | `tomcat-embed-core` 10.1.33→10.1.55                         | ✅      |
 
 ---
 
@@ -124,29 +131,30 @@ configurations — such as mutual authentication, custom key/trust stores, and o
 
 **Why**: Realistic threats under specific conditions. 36 of 71 closed. 8 High, 17 Moderate, 10 Low remain.
 
-| Group | Status | Remaining Items |
-|-------|--------|----------------|
-| **Netty** | ✅ All closed (4.2.13.Final) | — |
-| **Spring / Spring Boot** | ⏳ 3 still High pending re-scan or no patch (#65, #62 Actuator CloudFoundry auth bypass — **no patch available**, #79 temp dir) | #65, #62, #79 |
-| **Tomcat** | ✅ All closed (10.1.55) | — |
-| **Kafka** | ✅ #74 closed; #46 (kafka_2.13) pending re-scan | #46 |
-| **Spring Cloud Gateway** | ✅ #22, #51 closed (4.2.6) | — |
-| **Apache Commons** | ✅ #20, #4 fixed; #2 (commons-compress) fixed v1.28.0 | — |
-| **Bouncy Castle** | ✅ #77 closed; #75 (LDAP injection) no specific patch verified | #75 |
-| **ZooKeeper** | ✅ Both fixed (v3.9.5) | — |
-| **jose4j** | ✅ Fixed (v0.9.6) | — |
-| **HTTP Clients** | ⬜ (#15 httpclient5, #1 httpclient 4.x) | #15, #1 |
-| **Logback** | ⬜ (#7, #41, #8, #49 logback-core) | #7, #41, #8, #49 |
-| **LZ4** | 🔴 Stuck (#43, #45 — 1.8.0→1.8.1 blocked by capability conflict) | #43, #45 |
-| **AssertJ** | 🔵 Accept (#50, test scope, pinned by Boot BOM) | #50 |
-| **Reactor Netty** | ⬜ (#30 credential leak) | #30 |
+| Group                    | Status                                                                                                                         | Remaining Items  |
+|--------------------------|--------------------------------------------------------------------------------------------------------------------------------|------------------|
+| **Netty**                | ✅ All closed (4.2.13.Final)                                                                                                    | —                |
+| **Spring / Spring Boot** | ⏳ 3 still High pending re-scan or no patch (#65, #62 Actuator CloudFoundry auth bypass — **no patch available**, #79 temp dir) | #65, #62, #79    |
+| **Tomcat**               | ✅ All closed (10.1.55)                                                                                                         | —                |
+| **Kafka**                | ✅ #74 closed; #46 (kafka_2.13) pending re-scan                                                                                 | #46              |
+| **Spring Cloud Gateway** | ✅ #22, #51 closed (4.2.6)                                                                                                      | —                |
+| **Apache Commons**       | ✅ #20, #4 fixed; #2 (commons-compress) fixed v1.28.0                                                                           | —                |
+| **Bouncy Castle**        | ✅ #77 closed; #75 (LDAP injection) no specific patch verified                                                                  | #75              |
+| **ZooKeeper**            | ✅ Both fixed (v3.9.5)                                                                                                          | —                |
+| **jose4j**               | ✅ Fixed (v0.9.6)                                                                                                               | —                |
+| **HTTP Clients**         | ⬜ (#15 httpclient5, #1 httpclient 4.x)                                                                                         | #15, #1          |
+| **Logback**              | ⬜ (#7, #41, #8, #49 logback-core)                                                                                              | #7, #41, #8, #49 |
+| **LZ4**                  | 🔴 Stuck (#43, #45 — 1.8.0→1.8.1 blocked by capability conflict)                                                               | #43, #45         |
+| **AssertJ**              | 🔵 Accept (#50, test scope, pinned by Boot BOM)                                                                                | #50              |
+| **Reactor Netty**        | ⬜ (#30 credential leak)                                                                                                        | #30              |
 
 #### Items with no patch available
-| Alert | Package | Reason |
-|-------|---------|--------|
-| #65, #62 | `spring-boot-starter-actuator` | Affects Boot 3.4.0–3.4.13 — **no patch exists yet**. CloudFoundry endpoints only. |
-| #79 | `spring-boot` | Affects Boot 3.4.0–3.4.15 — **fix expected in 3.4.16**, not yet released. Requires local host access + persistent sessions. |
-| #77 | `bcprov-jdk18on` | Fix requires v1.84 — **latest available is 1.80**. Unreleased. |
+
+| Alert    | Package                        | Reason                                                                                                                      |
+|----------|--------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
+| #65, #62 | `spring-boot-starter-actuator` | Affects Boot 3.4.0–3.4.13 — **no patch exists yet**. CloudFoundry endpoints only.                                           |
+| #79      | `spring-boot`                  | Affects Boot 3.4.0–3.4.15 — **fix expected in 3.4.16**, not yet released. Requires local host access + persistent sessions. |
+| #77      | `bcprov-jdk18on`               | Fix requires v1.84 — **latest available is 1.80**. Unreleased.                                                              |
 
 ---
 
@@ -154,14 +162,16 @@ configurations — such as mutual authentication, custom key/trust stores, and o
 
 | #   | Task                                                       | Files                  | Est. Effort |
 |-----|------------------------------------------------------------|------------------------|-------------|
-| 3.1 | Replace `System.err.println` with `log.error()`            | `EventPublisher.java`  | ✅ |
-| 3.2 | Fix Event deserialization (use FQCN instead of SimpleName) | `MongoEventStore.java` | ✅ |
+| 3.1 | Replace `System.err.println` with `log.error()`            | `EventPublisher.java`  | ✅           |
+| 3.2 | Fix Event deserialization (use FQCN instead of SimpleName) | `MongoEventStore.java` | ✅           |
 
 ---
 
 ### 🟡 Phase 4 — Event Sourcing Completeness
 
-> **Critical for Kafka bridging**: `UpdateProductCommandHandler` bypasses Event Sourcing entirely. Future Python AI microservices (separate repo) will consume from the same Kafka topics — products must publish events for updates just as they do for creates.
+> **Critical for Kafka bridging**: `UpdateProductCommandHandler` bypasses Event Sourcing entirely. Future Python AI
+> microservices (separate repo) will consume from the same Kafka topics — products must publish events for updates just as
+> they do for creates.
 
 | #   | Task                                                       | Files                              | Est. Effort |
 |-----|------------------------------------------------------------|------------------------------------|-------------|
@@ -225,23 +235,23 @@ prioritized.
 
 ### 🔴 P0 — Blocking (15 items — ✅ ALL FIXED via Boot 3.4.5, Cloud 2024.0.1, Netty 4.1.121.Final)
 
-| # | Item | Fix | Status |
-|---|------|-----|--------|
-| 1.1 | Gateway EL Injection (#51) | `spring-cloud-gateway-server` 4.2.0→4.2.1 | ✅ |
-| 1.2 | Gateway forwarded headers (#22) | `spring-cloud-gateway-server` 4.2.0→4.2.1 | ✅ |
-| 1.3 | Actuator CloudFoundry auth bypass (#65) | `spring-boot-starter-actuator` 3.4.0→3.4.5 | ✅ |
-| 1.4 | Actuator Health groups auth bypass (#62) | `spring-boot-starter-actuator` 3.4.0→3.4.5 | ✅ |
-| 1.5 | Spring annotation detection auth bypass (#36) | `spring-core` 6.2.0→6.2.6 | ✅ |
-| 1.6 | netty-codec-http2 CONTINUATION flood DoS (#67) | `netty-codec-http2` 4.1.114→4.1.121.Final | ✅ |
-| 1.7 | netty-codec-http2 MadeYouReset DDoS (#31) | `netty-codec-http2` 4.1.114→4.1.121.Final | ✅ |
-| 1.8 | netty-codec-http smuggling — Chunked Ext (#66) | `netty-codec-http` 4.1.114→4.1.121.Final | ✅ |
-| 1.9 | netty-codec-http smuggling — TE+CL (#89) | `netty-codec-http` 4.1.114→4.1.121.Final | ✅ |
-| 1.10 | netty-codec-http smuggling — Start-Line (#78) | `netty-codec-http` 4.1.114→4.1.121.Final | ✅ |
-| 1.11 | netty-codec-http smuggling — Transfer-Encoding (#92) | `netty-codec-http` 4.1.114→4.1.121.Final | ✅ |
-| 1.12 | netty-codec-http smuggling — chunk size (#88) | `netty-codec-http` 4.1.114→4.1.121.Final | ✅ |
-| 1.13 | CRLF Injection in HttpRequestEncoder (#47) | `netty-codec-http` 4.1.114→4.1.121.Final | ✅ |
-| 1.14 | kafka-clients buffer pool race (#74) | `kafka-clients` 3.7.x→3.8.1 | ✅ |
-| 1.15 | Tomcat sensitive info in log file (#70) | `tomcat-embed-core` 10.1.33→10.1.53 | ✅ |
+| #    | Item                                                 | Fix                                        | Status |
+|------|------------------------------------------------------|--------------------------------------------|--------|
+| 1.1  | Gateway EL Injection (#51)                           | `spring-cloud-gateway-server` 4.2.0→4.2.1  | ✅      |
+| 1.2  | Gateway forwarded headers (#22)                      | `spring-cloud-gateway-server` 4.2.0→4.2.1  | ✅      |
+| 1.3  | Actuator CloudFoundry auth bypass (#65)              | `spring-boot-starter-actuator` 3.4.0→3.4.5 | ✅      |
+| 1.4  | Actuator Health groups auth bypass (#62)             | `spring-boot-starter-actuator` 3.4.0→3.4.5 | ✅      |
+| 1.5  | Spring annotation detection auth bypass (#36)        | `spring-core` 6.2.0→6.2.6                  | ✅      |
+| 1.6  | netty-codec-http2 CONTINUATION flood DoS (#67)       | `netty-codec-http2` 4.1.114→4.1.121.Final  | ✅      |
+| 1.7  | netty-codec-http2 MadeYouReset DDoS (#31)            | `netty-codec-http2` 4.1.114→4.1.121.Final  | ✅      |
+| 1.8  | netty-codec-http smuggling — Chunked Ext (#66)       | `netty-codec-http` 4.1.114→4.1.121.Final   | ✅      |
+| 1.9  | netty-codec-http smuggling — TE+CL (#89)             | `netty-codec-http` 4.1.114→4.1.121.Final   | ✅      |
+| 1.10 | netty-codec-http smuggling — Start-Line (#78)        | `netty-codec-http` 4.1.114→4.1.121.Final   | ✅      |
+| 1.11 | netty-codec-http smuggling — Transfer-Encoding (#92) | `netty-codec-http` 4.1.114→4.1.121.Final   | ✅      |
+| 1.12 | netty-codec-http smuggling — chunk size (#88)        | `netty-codec-http` 4.1.114→4.1.121.Final   | ✅      |
+| 1.13 | CRLF Injection in HttpRequestEncoder (#47)           | `netty-codec-http` 4.1.114→4.1.121.Final   | ✅      |
+| 1.14 | kafka-clients buffer pool race (#74)                 | `kafka-clients` 3.7.x→3.8.1                | ✅      |
+| 1.15 | Tomcat sensitive info in log file (#70)              | `tomcat-embed-core` 10.1.33→10.1.53        | ✅      |
 
 ### 🟡 P1 — Before GA (48 items)
 
@@ -359,16 +369,16 @@ prioritized.
 
 ### Additional Fixes Applied
 
-| #   | Task                                                                     | Files                                                                         | Status |
-|-----|--------------------------------------------------------------------------|-------------------------------------------------------------------------------|--------|
-| A.1 | Upgrade SpringDoc 2.3.0→2.7.0 (compat with Spring Web 6.2)               | `products/build.gradle`, `billing/build.gradle`                               | ✅      |
+| #   | Task                                                                                                                 | Files                                                                         | Status |
+|-----|----------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|--------|
+| A.1 | Upgrade SpringDoc 2.3.0→2.7.0 (compat with Spring Web 6.2)                                                           | `products/build.gradle`, `billing/build.gradle`                               | ✅      |
 | A.2 | Upgrade Tomcat 10.1.33→10.1.55 (CVE-2025-24813, CLIENT_CERT auth bypass, log injection, JsonAccessLogValve encoding) | `products/build.gradle`, `billing/build.gradle`, `eureka-server/build.gradle` | ✅      |
-| A.3 | Upgrade Jersey 3.1.9→3.1.10 (SSL race condition)                         | all 4 `build.gradle` files (jersey.version)                                   | ✅      |
-| A.4 | Fix Kafka bootstrap-servers placeholder resolution                       | `products/application.yml`, `billing/application.yml`                         | ✅      |
-| A.5 | Fix Redis password placeholder resolution                                | `products/application.yml`, `RedisConfig.java`                                | ✅      |
-| A.6 | Remove machine-specific `setup-env.ps1`                                  | Deleted                                                                       | ✅      |
-| A.7 | Clean `gradle.properties` (OS-agnostic)                                  | `gradle.properties`                                                           | ✅      |
-| A.8 | Remove duplicate/placeholder documentation                               | 5 files deleted, `SECURITY.md` rewritten                                      | ✅      |
+| A.3 | Upgrade Jersey 3.1.9→3.1.10 (SSL race condition)                                                                     | all 4 `build.gradle` files (jersey.version)                                   | ✅      |
+| A.4 | Fix Kafka bootstrap-servers placeholder resolution                                                                   | `products/application.yml`, `billing/application.yml`                         | ✅      |
+| A.5 | Fix Redis password placeholder resolution                                                                            | `products/application.yml`, `RedisConfig.java`                                | ✅      |
+| A.6 | Remove machine-specific `setup-env.ps1`                                                                              | Deleted                                                                       | ✅      |
+| A.7 | Clean `gradle.properties` (OS-agnostic)                                                                              | `gradle.properties`                                                           | ✅      |
+| A.8 | Remove duplicate/placeholder documentation                                                                           | 5 files deleted, `SECURITY.md` rewritten                                      | ✅      |
 
 ---
 
@@ -376,7 +386,8 @@ prioritized.
 
 This POC focuses exclusively on **Java 21 (Spring Boot)** — CQRS, Event Sourcing, Virtual Threads, Kafka EDA.
 
-The **Bridge Strategy** (Java ↔ Python integration) will be implemented **across two separate repos** sharing a Kafka cluster:
+The **Bridge Strategy** (Java ↔ Python integration) will be implemented **across two separate repos** sharing a Kafka
+cluster:
 
 ```
 ┌─────────────────────────────┐     Kafka Topics      ┌─────────────────────────────┐
@@ -390,7 +401,9 @@ The **Bridge Strategy** (Java ↔ Python integration) will be implemented **acro
 └─────────────────────────────┘                        └─────────────────────────────┘
 ```
 
-**Key design decision**: This repo's Kafka topics (`product-events`, `billing-events`) are the **integration contract**. When Phase 4 is complete, every product mutation (create, update) publishes an event. A future Python project can consume these topics independently — no need to mix stacks or create a monorepo.
+**Key design decision**: This repo's Kafka topics (`product-events`, `billing-events`) are the **integration contract**.
+When Phase 4 is complete, every product mutation (create, update) publishes an event. A future Python project can
+consume these topics independently — no need to mix stacks or create a monorepo.
 
 ---
 
@@ -403,7 +416,7 @@ The **Bridge Strategy** (Java ↔ Python integration) will be implemented **acro
 - `billing/application.yml:13` — `token: myroot` (Vault dev token)
 - `docker-compose.yml:11` — MongoDB root password
 - `docker-compose.yml:51` — Vault root token
-- `docker-compose.yml:69` — Redis requirepass
+- `docker-compose.yml:69` — Redis require pass
 
 **Risk**: Production credentials could be leaked. Even in dev, hardcoded values override Vault's purpose.
 

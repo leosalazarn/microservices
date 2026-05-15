@@ -2,7 +2,8 @@
 
 ## Overview
 
-This microservices architecture implements Event Sourcing, CQRS, and SAGA patterns using Spring Cloud, MongoDB, and Kafka.
+This microservices architecture implements Event Sourcing, CQRS, and SAGA patterns using Spring Cloud, MongoDB, and
+Kafka.
 
 ## Core Patterns
 
@@ -10,15 +11,18 @@ This microservices architecture implements Event Sourcing, CQRS, and SAGA patter
 
 **Implementation**: Products Service
 
-Event Sourcing captures all changes to application state as a sequence of events. Instead of storing just the current state, we store the full history of state changes.
+Event Sourcing captures all changes to application state as a sequence of events. Instead of storing just the current
+state, we store the full history of state changes.
 
 **Components**:
+
 - **DomainEvent Interface**: Base interface for all domain events
 - **ProductCreatedEvent**: Captures product creation with all relevant data
 - **EventStore**: MongoDB-based persistence for events
 - **EventStoreEntity**: MongoDB document storing event metadata and data
 
 **Flow**:
+
 ```
 1. Command received → CreateProductCommand
 2. Aggregate processes command → ProductAggregate
@@ -29,6 +33,7 @@ Event Sourcing captures all changes to application state as a sequence of events
 ```
 
 **Benefits**:
+
 - Complete audit trail
 - Event replay capability
 - Temporal queries
@@ -41,18 +46,21 @@ Event Sourcing captures all changes to application state as a sequence of events
 Separates read and write operations into different models.
 
 **Command Side** (Write):
+
 - `CreateProductCommand`
 - `CreateProductCommandHandler`
 - Validates and processes state changes
 - Raises domain events
 
 **Query Side** (Read):
+
 - `ProductQueryHandler`
 - Optimized for read operations
 - Returns DTOs/Models
 - No business logic
 
 **Benefits**:
+
 - Independent scaling of reads/writes
 - Optimized data models for each operation
 - Clear separation of concerns
@@ -64,16 +72,19 @@ Separates read and write operations into different models.
 Routes commands to their appropriate handlers.
 
 **Components**:
+
 - `Command` interface: Marker for all commands
 - `CommandHandler<T, R>` interface: Generic handler contract
 - `CommandBus`: Routes commands to registered handlers
 
 **Flow**:
+
 ```
 Controller → CommandBus.dispatch(command) → Handler.handle(command) → Result
 ```
 
 **Benefits**:
+
 - Decouples command execution from handling
 - Easy to add new commands
 - Testable handlers
@@ -85,12 +96,14 @@ Controller → CommandBus.dispatch(command) → Handler.handle(command) → Resu
 Rich domain models that encapsulate business logic and enforce invariants.
 
 **Features**:
+
 - Business validation (name length, price range)
 - State management (active/inactive)
 - Domain event generation
 - Invariant enforcement
 
 **Example**:
+
 ```java
 public void applyDiscount(Double discountPercentage) {
     if (!this.active) {
@@ -107,6 +120,7 @@ public void applyDiscount(Double discountPercentage) {
 Manages distributed transactions across microservices using event choreography.
 
 **Flow**:
+
 ```
 1. Products Service creates product
 2. ProductCreatedEvent published to Kafka
@@ -116,6 +130,7 @@ Manages distributed transactions across microservices using event choreography.
 ```
 
 **Benefits**:
+
 - Eventual consistency
 - Loose coupling
 - Resilience to failures
@@ -127,6 +142,7 @@ Manages distributed transactions across microservices using event choreography.
 Provides a single entry point for all commands with validation, routing, and error handling.
 
 **Components**:
+
 - `CommandBus`: Central dispatcher with handler registry
 - `Command` interface: Marker for all commands
 - `CommandHandler<T, R>`: Generic handler contract
@@ -134,6 +150,7 @@ Provides a single entry point for all commands with validation, routing, and err
 - Bean Validation: Command validation pipeline
 
 **Flow**:
+
 ```
 Command → preProcess interceptors → Validation → Handler.handle() → postProcess interceptors → Result
            │                                              │                    │
@@ -142,6 +159,7 @@ Command → preProcess interceptors → Validation → Handler.handle() → post
 ```
 
 **Features**:
+
 - Type-safe command routing
 - Interceptor pipeline for cross-cutting concerns
 - Automatic validation using Bean Validation annotations
@@ -150,34 +168,39 @@ Command → preProcess interceptors → Validation → Handler.handle() → post
 - Decoupled command processing
 
 **Command Interceptor Interface**:
+
 ```java
 public interface CommandInterceptor {
     <C extends Command> void preProcess(C command);
+
     <C extends Command, R> void postProcess(C command, R result);
+
     <C extends Command> void onError(C command, Exception error);
 }
 ```
 
 **CommandBus with Interceptors**:
+
 ```java
+
 @Component
 public class CommandBus {
     private final List<CommandInterceptor> interceptors;  // Auto-injected
-    
+
     public <C extends Command, R> R dispatch(C command) {
         try {
             // 1. Pre-processing interceptors
             interceptors.forEach(i -> i.preProcess(command));
-            
+
             // 2. Validate command
             validateCommand(command);
-            
+
             // 3. Execute handler
             R result = handler.handle(command);
-            
+
             // 4. Post-processing interceptors
             interceptors.forEach(i -> i.postProcess(command, result));
-            
+
             return result;
         } catch (Exception e) {
             interceptors.forEach(i -> i.onError(command, e));
@@ -188,6 +211,7 @@ public class CommandBus {
 ```
 
 **Built-in Interceptor** (`LoggingCommandInterceptor`):
+
 - Logs command execution start/completion
 - Logs errors with command context
 - Auto-registered via `@Component`
@@ -199,21 +223,25 @@ public class CommandBus {
 Handles both outbound event publishing and inbound event consumption with proper routing.
 
 **Outbound Dispatcher** (`EventPublisher`):
+
 - Publishes domain events to Kafka topics
 - Handles serialization and topic routing
 - Error handling for failed publications
 
 **Inbound Dispatcher** (`ProductEventConsumer`):
+
 - Consumes events from Kafka topics using `@KafkaListener`
 - Deserializes and routes messages to appropriate handlers
 - Implements SAGA pattern coordination
 
 **Flow**:
+
 ```
 Domain Event → EventPublisher → Kafka Topic → EventConsumer → Business Handler
 ```
 
 **Features**:
+
 - Asynchronous message processing
 - Topic-based message routing
 - Automatic deserialization
@@ -221,6 +249,7 @@ Domain Event → EventPublisher → Kafka Topic → EventConsumer → Business H
 - SAGA pattern implementation
 
 **Integration with Command Gateway**:
+
 ```
 CommandBus → CommandHandler → Domain Logic → EventPublisher → Kafka
                                                     ↓
@@ -230,36 +259,43 @@ CommandBus → CommandHandler → Domain Logic → EventPublisher → Kafka
 ## Technology Stack
 
 ### Core Framework
+
 - **Spring Boot 3.4.0**: Application framework
 - **Spring Cloud 2024.0.0**: Microservices patterns
 - **Java 21**: Modern Java features
 
 ### Service Discovery
+
 - **Eureka Server**: Service registry
 - **Eureka Client**: Service registration and discovery
 
 ### API Gateway
+
 - **Spring Cloud Gateway**: Reactive gateway
 - **Load Balancing**: Client-side with Ribbon
 - **Routing**: Path-based routing with filters
 
 ### Data Persistence
+
 - **MongoDB 8.0**: Document database
-  - Products collection: Current state
-  - Event Store collection: Event history
+    - Products collection: Current state
+    - Event Store collection: Event history
 - **Spring Data MongoDB**: Repository abstraction
 
 ### Event Streaming
+
 - **Apache Kafka 4.0.0**: Event bus
 - **Spring Kafka**: Kafka integration
 - **Topics**: product-events, invoice-events
 
 ### Secret Management
+
 - **HashiCorp Vault**: Centralized secrets
 - **Spring Cloud Vault**: Vault integration
 - **KV Secrets Engine**: Key-value storage
 
 ### API Documentation
+
 - **OpenAPI 3.0.3**: API specification
 - **Swagger UI**: Interactive documentation
 - **SpringDoc**: OpenAPI integration
@@ -351,6 +387,7 @@ vault/
 ### Application Configuration
 
 **Products Service** (`application.yml`):
+
 ```yaml
 server:
   port: 0  # Random port for scaling
@@ -404,12 +441,14 @@ spring:
 ### MongoDB Users
 
 **Admin User**:
+
 - Username: `admin`
 - Password: Stored in Vault
 - Permissions: Full access
 - Auth DB: `admin`
 
 **Read-Only User**:
+
 - Username: `viewer`
 - Password: `viewonly123`
 - Permissions: Read-only on `products` database
@@ -427,11 +466,13 @@ spring:
 ### Actuator Endpoints
 
 **Products Service**:
+
 - `/actuator/health` - Health status
 - `/actuator/info` - Service information
 - `/actuator/metrics` - Metrics
 
 **API Gateway**:
+
 - `/actuator/gateway/routes` - Route information
 - `/actuator/health` - Gateway health
 
@@ -439,9 +480,9 @@ spring:
 
 - **URL**: http://localhost:8761
 - **Features**:
-  - Service registration status
-  - Instance health
-  - Metadata viewing
+    - Service registration status
+    - Instance health
+    - Metadata viewing
 
 ## Development Workflow
 
@@ -502,24 +543,28 @@ curl -X POST http://localhost:8080/products/products \
 ## Best Practices
 
 ### Event Sourcing
+
 - ✅ Events are immutable
 - ✅ Events capture intent (ProductCreated, not ProductUpdated)
 - ✅ Store complete event data
 - ✅ Version events for schema evolution
 
 ### CQRS
+
 - ✅ Separate models for reads and writes
 - ✅ Optimize queries independently
 - ✅ Use DTOs for API responses
 - ✅ Keep command handlers focused
 
 ### Aggregates
+
 - ✅ Enforce business invariants
 - ✅ Keep aggregates small
 - ✅ Use value objects
 - ✅ Raise domain events
 
 ### Microservices
+
 - ✅ One database per service
 - ✅ Async communication via events
 - ✅ Independent deployment

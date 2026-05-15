@@ -55,10 +55,12 @@ Command Side (Write)          Query Side (Read)
 ```java
 // Generated from OpenAPI spec
 public class Product {
-    @NotNull @Size(min = 1, max = 100)
+    @NotNull
+    @Size(min = 1, max = 100)
     private String name;
-    
-    @NotNull @DecimalMin("0.01")
+
+    @NotNull
+    @DecimalMin("0.01")
     private Double price;
 }
 
@@ -78,12 +80,13 @@ ResponseEntity<Product> createProduct(@Valid @RequestBody Product product) {
 **Location**: Command classes
 
 ```java
+
 @Data
 public class CreateProductCommand implements Command {
     @NotNull(message = "Product name is required")
     @Size(min = 1, max = 100, message = "Name must be 1-100 characters")
     private String name;
-    
+
     @NotNull(message = "Product price is required")
     @DecimalMin(value = "0.01", message = "Price must be at least 0.01")
     private Double price;
@@ -109,23 +112,23 @@ public <C extends Command, R> R dispatch(C command) {
 
 ```java
 public class ProductAggregate {
-    
+
     public void updatePrice(Double newPrice) {
         // Business rule validation
         validatePrice(newPrice);
-        
+
         if (this.price.equals(newPrice)) {
             throw new IllegalArgumentException("New price must differ from current");
         }
-        
+
         if (!this.active) {
             throw new IllegalStateException("Cannot update inactive product");
         }
-        
+
         this.price = newPrice;
         this.version++;
     }
-    
+
     private void validatePrice(Double price) {
         if (price == null || price <= 0) {
             throw new IllegalArgumentException("Price must be positive");
@@ -146,21 +149,22 @@ public class ProductAggregate {
 **Location**: Entity classes
 
 ```java
+
 @Data
 @Document(collection = "products")
 public class ProductEntity {
     @Id
     private String id;
-    
+
     @Field("name")
     private String name;  // ← NO @NotNull, NO @Size
-    
+
     @Field("price")
     private Double price;  // ← NO @DecimalMin
-    
+
     @Field("active")
     private Boolean active;
-    
+
     // NO validation annotations!
 }
 ```
@@ -216,6 +220,7 @@ implementation 'org.springframework.boot:spring-boot-starter-validation'
 ## Testing Validation
 
 ### Test API Layer
+
 ```bash
 # Missing required field
 curl -X POST http://localhost:8080/products/products \
@@ -231,27 +236,31 @@ curl -X POST http://localhost:8080/products/products \
 ```
 
 ### Test Command Layer
+
 ```java
+
 @Test
 void shouldValidateCommand() {
     CreateProductCommand command = new CreateProductCommand();
     command.setName("");  // Invalid
     command.setPrice(-1.0);  // Invalid
-    
-    assertThrows(IllegalArgumentException.class, 
-        () -> commandBus.dispatch(command));
+
+    assertThrows(IllegalArgumentException.class,
+            () -> commandBus.dispatch(command));
 }
 ```
 
 ### Test Aggregate Layer
+
 ```java
+
 @Test
 void shouldEnforceBusinessRules() {
     ProductAggregate product = new ProductAggregate();
     product.setActive(false);
-    
+
     assertThrows(IllegalStateException.class,
-        () -> product.updatePrice(100.0));
+            () -> product.updatePrice(100.0));
 }
 ```
 

@@ -17,6 +17,7 @@ Redis is used as a distributed cache layer to optimize query performance in the 
 The `ProductQueryHandler` uses Spring's `@Cacheable` annotation:
 
 ```java
+
 @Cacheable(value = "products", key = "'all'")
 public List<Product> getAllProducts() {
     log.info("Fetching products from database (cache miss)");
@@ -28,6 +29,7 @@ public List<Product> getAllProducts() {
 ```
 
 **Behavior:**
+
 - First call: Queries MongoDB and stores result in Redis
 - Subsequent calls: Returns cached data (no DB query)
 - Cache TTL: 10 minutes (configurable in `RedisConfig`)
@@ -37,6 +39,7 @@ public List<Product> getAllProducts() {
 The `CreateProductCommandHandler` uses `@CacheEvict` annotation:
 
 ```java
+
 @CacheEvict(value = "products", key = "'all'")
 public Product handle(CreateProductCommand command) {
     // Create product logic
@@ -44,6 +47,7 @@ public Product handle(CreateProductCommand command) {
 ```
 
 **Behavior:**
+
 - When a product is created, the cache is cleared
 - Next GET request will rebuild the cache with fresh data
 
@@ -79,6 +83,7 @@ vault kv put secret/products \
 ### 4. Test Cache Behavior
 
 **First Request (Cache Miss):**
+
 ```bash
 curl http://localhost:8080/products/products
 ```
@@ -86,11 +91,13 @@ curl http://localhost:8080/products/products
 Check logs - you'll see: `Fetching products from database (cache miss)`
 
 **Verify Cache in Redis:**
+
 ```bash
 docker exec -it redis-poc redis-cli -a redispassword GET "products::all"
 ```
 
 **Second Request (Cache Hit):**
+
 ```bash
 curl http://localhost:8080/products/products
 ```
@@ -98,6 +105,7 @@ curl http://localhost:8080/products/products
 No database query log - data served from cache!
 
 **Create New Product (Cache Eviction):**
+
 ```bash
 curl -X POST http://localhost:8080/products/products \
   -H "Content-Type: application/json" \
@@ -107,6 +115,7 @@ curl -X POST http://localhost:8080/products/products \
 Cache is now cleared.
 
 **Next GET Request:**
+
 ```bash
 curl http://localhost:8080/products/products
 ```
@@ -156,7 +165,7 @@ Modify TTL in `RedisConfig.java`:
 
 ```java
 RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
-    .entryTtl(Duration.ofMinutes(10));  // Change this value
+        .entryTtl(Duration.ofMinutes(10));  // Change this value
 ```
 
 ### Cache Names
@@ -164,6 +173,7 @@ RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
 Add more caches in `@Cacheable` annotations:
 
 ```java
+
 @Cacheable(value = "products-by-id", key = "#id")
 public Product getProductById(Long id) {
     // Implementation
@@ -173,11 +183,13 @@ public Product getProductById(Long id) {
 ## Performance Benefits
 
 ### Without Cache
+
 - Every GET request queries MongoDB
 - Response time: ~50-100ms
 - Database load: High
 
 ### With Cache
+
 - First request: ~50-100ms (cache miss)
 - Subsequent requests: ~5-10ms (cache hit)
 - Database load: Minimal
@@ -197,13 +209,17 @@ The `RedisCacheService` provides additional operations:
 
 ```java
 // Store with custom TTL
-redisCacheService.set("key", value, Duration.ofHours(1));
+redisCacheService.set("key",value, Duration.ofHours(1));
 
 // Increment counter
-redisCacheService.increment("api:requests:user123");
+        redisCacheService.
+
+increment("api:requests:user123");
 
 // Store complex objects as hash
-redisCacheService.setHash("user:123", "email", "user@example.com");
+redisCacheService.
+
+setHash("user:123","email","user@example.com");
 ```
 
 ## Troubleshooting
@@ -211,11 +227,13 @@ redisCacheService.setHash("user:123", "email", "user@example.com");
 ### Connection Issues
 
 Check Redis is running:
+
 ```bash
 docker ps | grep redis-poc
 ```
 
 Test connection:
+
 ```bash
 docker exec -it redis-poc redis-cli -a redispassword PING
 ```
@@ -232,11 +250,13 @@ Should return: `PONG`
 ### Memory Issues
 
 Monitor Redis memory:
+
 ```bash
 docker exec -it redis-poc redis-cli -a redispassword INFO memory
 ```
 
 Set max memory in docker-compose.yml:
+
 ```yaml
 command: redis-server --requirepass redispassword --maxmemory 256mb --maxmemory-policy allkeys-lru
 ```

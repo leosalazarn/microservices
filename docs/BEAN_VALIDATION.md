@@ -5,7 +5,8 @@
 
 ## Overview
 
-Added Jakarta Bean Validation to the microservices project using OpenAPI specification-first approach. Validation constraints are defined in OpenAPI specs and automatically generated into Java code.
+Added Jakarta Bean Validation to the microservices project using OpenAPI specification-first approach. Validation
+constraints are defined in OpenAPI specs and automatically generated into Java code.
 
 ## Changes Made
 
@@ -42,6 +43,7 @@ components:
 ```
 
 **Generated Annotations:**
+
 - `name`: `@NotNull @Size(min=1, max=100)`
 - `price`: `@NotNull @DecimalMin("0.01")`
 - `description`: `@Size(max=500)`
@@ -75,10 +77,11 @@ components:
           exclusiveMinimum: false
         status:
           type: string
-          enum: [PENDING, PAID, CANCELLED]
+          enum: [ PENDING, PAID, CANCELLED ]
 ```
 
 **Generated Annotations:**
+
 - `customerId`: `@NotNull @Min(1)`
 - `amount`: `@NotNull @DecimalMin("0.01")`
 - `status`: `@NotNull` (enum validation)
@@ -87,6 +90,7 @@ components:
 ### 3. OpenAPI Generator Configuration
 
 **Products Service** (`products/build.gradle`):
+
 ```gradle
 openApiGenerate {
     generatorName = "spring"
@@ -104,6 +108,7 @@ openApiGenerate {
 ```
 
 **Billing Service** (`billing/build.gradle`):
+
 ```gradle
 openApiGenerate {
     generatorName = "spring"
@@ -123,6 +128,7 @@ openApiGenerate {
 ## Dependencies
 
 Both services already had the required dependency:
+
 ```gradle
 implementation 'org.springframework.boot:spring-boot-starter-validation'
 ```
@@ -130,15 +136,18 @@ implementation 'org.springframework.boot:spring-boot-starter-validation'
 ## Generated Code Examples
 
 ### Product Model
+
 ```java
 public class Product {
-    @NotNull @Size(min = 1, max = 100)
+    @NotNull
+    @Size(min = 1, max = 100)
     @JsonProperty("name")
     public String getName() {
         return name;
     }
 
-    @NotNull @DecimalMin("0.01")
+    @NotNull
+    @DecimalMin("0.01")
     @JsonProperty("price")
     public Double getPrice() {
         return price;
@@ -153,15 +162,17 @@ public class Product {
 ```
 
 ### API Interface
+
 ```java
+
 @PostMapping(
-    value = "/products",
-    produces = { "application/json" },
-    consumes = { "application/json" }
+        value = "/products",
+        produces = {"application/json"},
+        consumes = {"application/json"}
 )
 default ResponseEntity<Product> createProduct(
-    @Parameter(name = "Product", description = "", required = true) 
-    @Valid @RequestBody Product product  // ← @Valid annotation
+        @Parameter(name = "Product", description = "", required = true)
+        @Valid @RequestBody Product product  // ← @Valid annotation
 ) {
     // ...
 }
@@ -177,6 +188,7 @@ default ResponseEntity<Product> createProduct(
 ## Testing Validation
 
 ### Valid Request
+
 ```bash
 curl -X POST http://localhost:8080/products/products \
   -H "Content-Type: application/json" \
@@ -186,6 +198,7 @@ curl -X POST http://localhost:8080/products/products \
 ### Invalid Requests
 
 **Missing required fields:**
+
 ```bash
 curl -X POST http://localhost:8080/products/products \
   -H "Content-Type: application/json" \
@@ -194,6 +207,7 @@ curl -X POST http://localhost:8080/products/products \
 ```
 
 **Price too low:**
+
 ```bash
 curl -X POST http://localhost:8080/products/products \
   -H "Content-Type: application/json" \
@@ -202,6 +216,7 @@ curl -X POST http://localhost:8080/products/products \
 ```
 
 **Name too long:**
+
 ```bash
 curl -X POST http://localhost:8080/products/products \
   -H "Content-Type: application/json" \
@@ -210,6 +225,7 @@ curl -X POST http://localhost:8080/products/products \
 ```
 
 **Invalid customerId:**
+
 ```bash
 curl -X POST http://localhost:8080/billing/invoices \
   -H "Content-Type: application/json" \
@@ -234,21 +250,23 @@ curl -X POST http://localhost:8080/billing/invoices \
 ## Validation Rules Summary
 
 ### Products Service
-| Field | Required | Constraints |
-|-------|----------|-------------|
-| name | ✅ Yes | 1-100 characters |
-| price | ✅ Yes | ≥ 0.01 |
-| description | ❌ No | ≤ 500 characters |
-| category | ❌ No | ≤ 50 characters |
-| id | N/A | Read-only |
+
+| Field       | Required | Constraints      |
+|-------------|----------|------------------|
+| name        | ✅ Yes    | 1-100 characters |
+| price       | ✅ Yes    | ≥ 0.01           |
+| description | ❌ No     | ≤ 500 characters |
+| category    | ❌ No     | ≤ 50 characters  |
+| id          | N/A      | Read-only        |
 
 ### Billing Service
-| Field | Required | Constraints |
-|-------|----------|-------------|
-| customerId | ✅ Yes | ≥ 1 |
-| amount | ✅ Yes | ≥ 0.01 |
-| status | ✅ Yes | PENDING, PAID, or CANCELLED |
-| id | N/A | Read-only |
+
+| Field      | Required | Constraints                 |
+|------------|----------|-----------------------------|
+| customerId | ✅ Yes    | ≥ 1                         |
+| amount     | ✅ Yes    | ≥ 0.01                      |
+| status     | ✅ Yes    | PENDING, PAID, or CANCELLED |
+| id         | N/A      | Read-only                   |
 
 ## Benefits
 
@@ -257,28 +275,30 @@ curl -X POST http://localhost:8080/billing/invoices \
 ✅ **Automatic**: Spring Boot validates before controller execution  
 ✅ **Consistent**: Same validation rules in API docs and code  
 ✅ **Maintainable**: Single source of truth for validation rules  
-✅ **Self-Documenting**: Swagger UI shows validation constraints  
+✅ **Self-Documenting**: Swagger UI shows validation constraints
 
 ## Validation Strategy for CQRS + MongoDB
 
 ### ✅ Where to Apply Validation
 
-| Layer | Validation Type | Purpose | Implementation |
-|-------|----------------|---------|----------------|
-| **API DTOs** | Bean Validation | Input validation at API boundary | `@Valid` on DTOs (OpenAPI generated) |
-| **Commands** | Bean Validation | Validate command intent | `@NotNull`, `@Size` on Command classes |
-| **Aggregates** | Business Rules | Domain logic validation | Manual validation in methods |
-| **Entities** | ❌ NO Validation | Read models only | MongoDB @Document (no validation) |
+| Layer          | Validation Type | Purpose                          | Implementation                         |
+|----------------|-----------------|----------------------------------|----------------------------------------|
+| **API DTOs**   | Bean Validation | Input validation at API boundary | `@Valid` on DTOs (OpenAPI generated)   |
+| **Commands**   | Bean Validation | Validate command intent          | `@NotNull`, `@Size` on Command classes |
+| **Aggregates** | Business Rules  | Domain logic validation          | Manual validation in methods           |
+| **Entities**   | ❌ NO Validation | Read models only                 | MongoDB @Document (no validation)      |
 
 ### Why NOT Validate Entities in CQRS?
 
 **MongoDB Entities are Read Models (Query Side):**
+
 - Entities represent **persisted state**, not input
 - Validation on entities would validate **stale data** on reads
 - Breaks CQRS separation: Commands write, Queries read
 - Event Sourcing: Entities are **projections** of events
 
 **Validation Belongs on Command Side:**
+
 - Commands represent **user intent** (write operations)
 - Validate **before** state changes
 - Aggregates enforce **business rules**
@@ -287,47 +307,51 @@ curl -X POST http://localhost:8080/billing/invoices \
 ### Command Validation Implementation
 
 **CreateProductCommand** with Bean Validation:
+
 ```java
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateProductCommand implements Command {
-    
+
     @NotNull(message = "Product name is required")
     @Size(min = 1, max = 100, message = "Product name must be between 1 and 100 characters")
     private String name;
-    
+
     @NotNull(message = "Product price is required")
     @DecimalMin(value = "0.01", message = "Product price must be at least 0.01")
     private Double price;
-    
+
     @Size(max = 500, message = "Description cannot exceed 500 characters")
     private String description;
-    
+
     @Size(max = 50, message = "Category cannot exceed 50 characters")
     private String category;
 }
 ```
 
 **CommandBus** with Automatic Validation:
+
 ```java
+
 @Component
 @RequiredArgsConstructor
 public class CommandBus {
-    
+
     private final Validator validator;
     private final Map<Class<? extends Command>, CommandHandler<? extends Command, ?>> handlers = new HashMap<>();
-    
+
     public <C extends Command, R> R dispatch(C command) {
         // Validate command before dispatching
         Set<ConstraintViolation<C>> violations = validator.validate(command);
         if (!violations.isEmpty()) {
             String errors = violations.stream()
-                .map(ConstraintViolation::getMessage)
-                .collect(Collectors.joining(", "));
+                    .map(ConstraintViolation::getMessage)
+                    .collect(Collectors.joining(", "));
             throw new IllegalArgumentException("Command validation failed: " + errors);
         }
-        
+
         CommandHandler<C, R> handler = (CommandHandler<C, R>) handlers.get(command.getClass());
         if (handler == null) {
             throw new IllegalArgumentException("No handler registered for command: " + command.getClass().getName());
@@ -373,32 +397,34 @@ public class CommandBus {
 ### Entity Example (NO Validation)
 
 **ProductEntity** - MongoDB Document:
+
 ```java
+
 @Data
 @NoArgsConstructor
 @Document(collection = "products")
 public class ProductEntity {
-    
+
     @Id
     private String id;
-    
+
     @Field("name")
     @Indexed
     private String name;  // ← NO @NotNull, NO @Size
-    
+
     @Field("price")
     private Double price;  // ← NO @DecimalMin
-    
+
     @Field("description")
     private String description;
-    
+
     @Field("category")
     @Indexed
     private String category;
-    
+
     @Field("active")
     private Boolean active = true;
-    
+
     // ... timestamps, version, etc.
 }
 ```
@@ -406,22 +432,23 @@ public class ProductEntity {
 ### Aggregate Example (Business Rules)
 
 **ProductAggregate** - Domain Logic:
+
 ```java
 public class ProductAggregate {
-    
+
     // Business method with validation
     public void updatePrice(Double newPrice) {
         validatePrice(newPrice);  // ← Manual business rule validation
-        
+
         if (this.price.equals(newPrice)) {
             throw new IllegalArgumentException("New price must be different from current price");
         }
-        
+
         this.price = newPrice;
         this.updatedAt = LocalDateTime.now();
         this.version++;
     }
-    
+
     private static void validatePrice(Double price) {
         if (price == null) {
             throw new IllegalArgumentException("Product price cannot be null");

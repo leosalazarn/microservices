@@ -48,15 +48,18 @@ docker-compose stop mongodb
 ### Connection Details
 
 **MongoDB:**
+
 - URL: `mongodb://admin:password@localhost:27017`
 - Username: `admin`
 - Password: `password`
 
 **Kafka:**
+
 - Bootstrap Servers: `localhost:9092`
 - Topics: Auto-created as needed
 
 **Vault:**
+
 - URL: `http://localhost:8200`
 - Root Token: `myroot`
 - Mode: Development (unsealed by default)
@@ -84,4 +87,5 @@ vault kv get -field=password secret/mongodb
 - Vault data: `vault_data` volume (dev mode - not persistent)
 - Vault config: `vault_config` volume
 
-**Note**: Vault runs in development mode for simplicity. For production, use proper Vault configuration with persistent storage and proper authentication.
+**Note**: Vault runs in development mode for simplicity. For production, use proper Vault configuration with persistent
+storage and proper authentication.

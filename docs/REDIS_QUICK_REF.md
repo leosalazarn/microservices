@@ -1,11 +1,13 @@
 # Redis Quick Reference Card
 
 ## Start Redis
+
 ```bash
 docker-compose up -d redis
 ```
 
 ## Configure Vault
+
 ```bash
 export VAULT_ADDR='http://localhost:8200'
 export VAULT_TOKEN='myroot'
@@ -17,6 +19,7 @@ vault kv put secret/products \
 ```
 
 ## Test Cache
+
 ```bash
 # Run automated test
 ./scripts/test-redis-cache.sh
@@ -34,6 +37,7 @@ curl -X POST http://localhost:8080/products/products \
 ```
 
 ## Monitor Cache
+
 ```bash
 # Connect to Redis CLI
 docker exec -it redis-poc redis-cli -a redispassword
@@ -58,6 +62,7 @@ FLUSHALL
 ```
 
 ## Common Operations
+
 ```bash
 # Check if Redis is running
 docker ps | grep redis-poc
@@ -76,16 +81,19 @@ docker-compose down -v redis
 ```
 
 ## Cache Behavior
+
 - **GET /products** (first time): MongoDB query → Store in Redis (10 min TTL)
 - **GET /products** (cached): Instant response from Redis
 - **POST /products**: Cache evicted → Next GET rebuilds cache
 
 ## Performance
+
 - **Without cache**: ~50-100ms per request
 - **With cache**: ~5-10ms per request
 - **Improvement**: 10-20x faster
 
 ## Troubleshooting
+
 ```bash
 # Test Redis connection
 docker exec -it redis-poc redis-cli -a redispassword PING
@@ -99,6 +107,7 @@ docker exec -it redis-poc redis-cli -a redispassword CLIENT LIST
 ```
 
 ## Configuration
+
 - **Host**: localhost
 - **Port**: 6379
 - **Password**: redispassword
@@ -106,5 +115,6 @@ docker exec -it redis-poc redis-cli -a redispassword CLIENT LIST
 - **Cache Key**: products::all
 
 ## Documentation
+
 - Full guide: `docs/REDIS_INTEGRATION.md`
 - Main README: `README.md` (Redis sections)

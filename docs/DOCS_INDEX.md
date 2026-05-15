@@ -52,7 +52,8 @@ available documentation.
     - Pattern maturity
     - Best practices validation
 
-8. **[PROD_READINESS_ROADMAP.md](PROD_READINESS_ROADMAP.md)** - Production readiness plan, audit findings, CVE remediation, risk triage, and architectural roadmap
+8. **[PROD_READINESS_ROADMAP.md](PROD_READINESS_ROADMAP.md)** - Production readiness plan, audit findings, CVE
+   remediation, risk triage, and architectural roadmap
     - Audit findings by severity
     - Step-by-step remediation plan
     - Status tracker
