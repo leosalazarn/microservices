@@ -1,21 +1,28 @@
-# Audit & Remediation Plan
+# Production Readiness Roadmap
 
 **Date**: 2026-05-14  
 **Prod Readiness**: 🟡 **29 Alerts Remain** (5 High, 15 Moderate, 9 Low) — 42 of 71 closed.  
-**Scope**: Full codebase audit of `poc-microservices`  
+**Architecture**: Bridge Strategy — Java 21 (Spring Boot) + Python (FastAPI/LangGraph) with Event-Driven Kafka bridge  
 **Auditor**: AI Assistant (Claude)
 
 ---
 
 ## Overview
 
+This document tracks production readiness for the **Bridge Strategy** architecture: Java 21 (Spring Boot) handling auth, persistence, and transactions, with Python-based AI microservices (FastAPI/LangGraph) for agentic logic, connected via Kafka Event-Driven Architecture.
+
 A comprehensive audit was performed on the Enterprise Microservices Architecture POC. The project demonstrates
 sophisticated patterns (CQRS, Event Sourcing, SAGA, DDD, Command Bus, Redis caching) but has material issues preventing
 production readiness.
 
 **Overall Assessment**: Architecture is mature and well-designed, but the codebase is **not production-ready** due to
-hardcoded secrets, incomplete Event Sourcing paths, mock data in Billing service, missing error handling, and no
-CI/CD/containerization.
+hardcoded secrets (✅ fixed), incomplete Event Sourcing paths (🔴 critical for Kafka bridge), mock data in Billing service, missing error handling (✅ fixed), and no CI/CD/containerization.
+
+### Bridge Strategy Critical Path
+The Event Sourcing + Kafka pipeline is the backbone of the Java→Python bridge. Currently:
+- ✅ `CreateProductCommandHandler` → raises event → EventStore → Kafka → Python consumers
+- ❌ `UpdateProductCommandHandler` → **direct DB update only, no event, no Kafka** — Python side never learns about updates
+- This is the **highest priority gap** after CVEs and logging fixes.
 
 ---
 
@@ -154,6 +161,8 @@ configurations — such as mutual authentication, custom key/trust stores, and o
 ---
 
 ### 🟡 Phase 4 — Event Sourcing Completeness
+
+> **🔴 Critical for Bridge Strategy**: The `UpdateProductCommandHandler` bypasses the Event Sourcing pipeline entirely — it directly modifies the DB without raising `ProductUpdatedEvent`, saving to EventStore, or publishing to Kafka. This means **Python AI microservices never learn about product updates**, breaking the event-driven Java→Python bridge.
 
 | #   | Task                                                       | Files                              | Est. Effort |
 |-----|------------------------------------------------------------|------------------------------------|-------------|
