@@ -140,6 +140,7 @@ configurations — such as mutual authentication, custom key/trust stores, and o
 |-------|---------|--------|
 | #65, #62 | `spring-boot-starter-actuator` | Affects Boot 3.4.0–3.4.13 — **no patch exists yet**. CloudFoundry endpoints only. |
 | #79 | `spring-boot` | Affects Boot 3.4.0–3.4.15 — **fix expected in 3.4.16**, not yet released. Requires local host access + persistent sessions. |
+| #77 | `bcprov-jdk18on` | Fix requires v1.84 — **latest available is 1.80**. Unreleased. |
 
 ---
 
