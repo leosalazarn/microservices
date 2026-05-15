@@ -21,25 +21,20 @@ and no CI/CD/containerization.
 
 ---
 
-### Phase 4 — Event Sourcing Completeness
-
-> **Why this matters**: `UpdateProductCommandHandler` bypasses the Event Sourcing pipeline — it directly modifies the DB
-> without raising `ProductUpdatedEvent`, saving to EventStore, or publishing to Kafka. This breaks the CQRS contract and
-> makes updates invisible to downstream Kafka consumers (intended for future Python AI microservices consuming from the
-> same topics).
-
 ---
 
 ## Findings Summary
 
-| Priority                          | Count                           | Key Areas                                                                                                                      |
-|-----------------------------------|---------------------------------|--------------------------------------------------------------------------------------------------------------------------------|
-| 🔴 Phase 1 — P0 Blocking          | 15 → ✅ Fixed                    | Boot 3.4.0→3.4.5, Cloud 2024.0.0→2024.0.1, Netty 4.1.114→4.2.13.Final, Tomcat 10.1.33→10.1.55                                  |
-| 🟠 Phase 2 — P1 Before GA         | 48 (42 ✅ closed, 6 ⬜ remaining) | #36 (6.2.11), #50 (3.27.7), #77 (1.80) await scan; #65, #62, #79 no patch; Logback, HTTP Clients, LZ4, Reactor Netty remaining |
-| 🟡 Phase 3 — Logging & Robustness | 2 → ✅ Complete                  | `EventPublisher.java` `@Slf4j` + `log.error()`, `MongoEventStore.java` FQCN                                                    |
-| 🟡 Phase 4 — Event Sourcing       | 4                               | UpdateProduct path incomplete, missing ProductUpdatedEvent + Kafka                                                             |
-| 🔵 Phase 5 — Cleanup              | 7                               | Dead code, Docker tags, naming, unused deps                                                                                    |
-| 🔵 Backlog — Billing              | 4                               | MongoDB persistence reverted to mocks                                                                                          |
+| Priority       | Task                                      | Hrs     | ROI    | Status     |
+|----------------|-------------------------------------------|---------|--------|------------|
+| 🔴 Phase 1     | P0 Blocking CVEs (15)                     | —       | 🟢     | ✅ Fixed    |
+| 🟠 Phase 2     | P1 Before-GA CVEs (42 closed / 6 rem.)    | —       | 🟢     | 🟡 Ongoing |
+| 🟡 Phase 3     | Logging & Robustness (2 tasks)            | 1h      | 🟡     | ✅ Complete |
+| **🟢 Phase 4** | **Event Sourcing Completeness (4 tasks)** | **10h** | **🟢** | **⬜ Next** |
+| 🔵 Phase 5a    | Code Cleanup (5 tasks)                    | —       | 🔵     | ⬜          |
+| 🔵 Phase 5b    | Dockerfiles (4) + README                  | 2.5h    | 🟢     | ⬜          |
+| 🟢 ADRs        | Decision Records (3 docs)                 | 1h      | 🟢     | ✅ Complete |
+| 🔵 Backlog     | Billing persistence                       | —       | 🔵     | ❌ Reverted |
 
 ---
 
@@ -167,10 +162,11 @@ Kafka 3.7.x→3.9.2.
 
 ---
 
-### 🟡 Phase 4 — Event Sourcing Completeness
+### 🟢 Phase 4 — Event Sourcing Completeness — 🔴 **NEXT — 10h **
 
 > **Critical for Kafka bridging**: `UpdateProductCommandHandler` bypasses Event Sourcing entirely. Future Python AI
-> microservices (separate repo) will consume from the same Kafka topics — products must publish events for updates just as
+> microservices (separate repo) will consume from the same Kafka topics — products must publish events for updates just
+> as
 > they do for creates.
 
 | #   | Task                                                       | Files                              | Est. Effort |
@@ -182,17 +178,21 @@ Kafka 3.7.x→3.9.2.
 
 ---
 
-### 🔵 Phase 5 — Cleanup
+### 🔵 Phase 5 — Cleanup, Docker & Docs
 
-| #   | Task                                                              | Files                                                    | Status |
-|-----|-------------------------------------------------------------------|----------------------------------------------------------|--------|
-| 5.1 | Remove unused `spring-kafka` from eureka + gateway                | `eureka-server/build.gradle`, `api-gateway/build.gradle` | ✅      |
-| 5.7 | Update `SECURITY.md` with actual policy                           | `SECURITY.md`                                            | ✅      |
-| 5.2 | Remove dead `BaseController` classes                              | Both `BaseController.java` files                         | ⬜      |
-| 5.3 | Remove unused `domainEvents` from `ProductEntity`                 | `ProductEntity.java`                                     | ⬜      |
-| 5.4 | Remove unused import in `ProductCreatedEvent`                     | `ProductCreatedEvent.java`                               | ⬜      |
-| 5.5 | Rename `ProductLookupEventsHandler` → `ProductLookupEventHandler` | 1 file rename + references                               | ⬜      |
-| 5.6 | Pin Docker image versions                                         | `docker-compose.yml`                                     | ⬜      |
+| #    | Task                                                              | Files                                                                                             | Hrs      | ROI    | Status |
+|------|-------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|----------|--------|--------|
+| 5.1  | Remove unused `spring-kafka` from eureka + gateway                | `eureka-server/build.gradle`, `api-gateway/build.gradle`                                          | —        | 🔵     | ✅      |
+| 5.7  | Update `SECURITY.md` with actual policy                           | `SECURITY.md`                                                                                     | —        | 🔵     | ✅      |
+| 5.8  | **Create ADRs (3 docs)**                                          | `docs/adr/ADR-*.md`                                                                               | **1h**   | **🟢** | ✅      |
+| 5.9  | **Create multi-stage Dockerfiles**                                | `products/Dockerfile`, `billing/Dockerfile`, `eureka-server/Dockerfile`, `api-gateway/Dockerfile` | **2h**   | **🟢** | ⬜      |
+| 5.10 | **Overhaul README.md**                                            | `README.md`                                                                                       | **0.5h** | **🟢** | ⬜      |
+| 5.11 | **Logging polish** (audit remaining `@Slf4j`)                     | All service classes                                                                               | **1h**   | 🟡     | ⬜      |
+| 5.2  | Remove dead `BaseController` classes                              | Both `BaseController.java` files                                                                  | —        | 🔵     | ⬜      |
+| 5.3  | Remove unused `domainEvents` from `ProductEntity`                 | `ProductEntity.java`                                                                              | —        | 🔵     | ⬜      |
+| 5.4  | Remove unused import in `ProductCreatedEvent`                     | `ProductCreatedEvent.java`                                                                        | —        | 🔵     | ⬜      |
+| 5.5  | Rename `ProductLookupEventsHandler` → `ProductLookupEventHandler` | 1 file rename + references                                                                        | —        | 🔵     | ⬜      |
+| 5.6  | Pin Docker image versions                                         | `docker-compose.yml`                                                                              | —        | 🟢     | ⬜      |
 
 ---
 

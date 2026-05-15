@@ -58,7 +58,12 @@ available documentation.
     - Step-by-step remediation plan
     - Status tracker
 
-9. **[DOCUMENTATION_UPDATES.md](DOCUMENTATION_UPDATES.md)** - Change log
+9. **[adr/](adr/)** - Architecture Decision Records
+    - [ADR-001: CQRS + Event Sourcing over CRUD](adr/ADR-001-cqrs-event-sourcing-over-crud.md)
+    - [ADR-002: Choreographed SAGA over Orchestrated](adr/ADR-002-choreographed-saga-over-orchestrated.md)
+    - [ADR-003: Virtual Threads over Reactive Stack](adr/ADR-003-virtual-threads-over-reactive.md)
+
+10. **[DOCUMENTATION_UPDATES.md](DOCUMENTATION_UPDATES.md)** - Change log
     - Documentation improvements
     - File structure
     - Update history
