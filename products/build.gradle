@@ -69,7 +69,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.assertj:assertj-core:3.27.3'
+    testImplementation 'org.assertj:assertj-core:3.27.7'
     testImplementation 'org.springframework.kafka:spring-kafka-test'
     testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:4.11.0'
     testImplementation 'org.testcontainers:junit-jupiter'
