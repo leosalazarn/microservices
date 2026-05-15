@@ -24,8 +24,8 @@ CI/CD/containerization.
 | Priority                          | Count | Key Areas                                                                                           |
 |-----------------------------------|-------|-----------------------------------------------------------------------------------------------------|
 | 🔴 Phase 1 — P0 Blocking | 15 → ✅ Fixed | Boot 3.4.0→3.4.5, Cloud 2024.0.0→2024.0.1, Netty 4.1.114→4.2.13.Final, Tomcat 10.1.33→10.1.55 |
-| 🟠 Phase 2 — P1 Before GA         | 48 (41 ✅ closed, 7 ⬜ remaining — 6 High awaiting re-scan or no patch) | #36 (6.2.11), #50 (3.27.3), #77 (1.80) await scan; #65, #62, #79 no patch; Logback, HTTP Clients, LZ4, Reactor Netty remaining |
-| 🟡 Phase 3 — Logging & Robustness | 2     | stderr logging, Event deserialization fragility                                                     |
+| 🟠 Phase 2 — P1 Before GA         | 48 (41 ✅ closed, 7 ⬜ remaining) | #36 (6.2.11), #50 (3.27.7), #77 (1.80) await scan; #65, #62, #79 no patch; Logback, HTTP Clients, LZ4, Reactor Netty remaining |
+| 🟡 Phase 3 — Logging & Robustness | 2 → ✅ Complete | `EventPublisher.java` `@Slf4j` + `log.error()`, `MongoEventStore.java` FQCN |
 | 🟡 Phase 4 — Event Sourcing       | 4     | UpdateProduct path incomplete, missing ProductUpdatedEvent + Kafka                                  |
 | 🔵 Phase 5 — Cleanup              | 7     | Dead code, Docker tags, naming, unused deps                                                         |
 | 🔵 Backlog — Billing              | 4     | MongoDB persistence reverted to mocks                                                               |
@@ -148,8 +148,8 @@ configurations — such as mutual authentication, custom key/trust stores, and o
 
 | #   | Task                                                       | Files                  | Est. Effort |
 |-----|------------------------------------------------------------|------------------------|-------------|
-| 3.1 | Replace `System.err.println` with `log.error()`            | `EventPublisher.java`  | 15 min      |
-| 3.2 | Fix Event deserialization (use FQCN instead of SimpleName) | `MongoEventStore.java` | 30 min      |
+| 3.1 | Replace `System.err.println` with `log.error()`            | `EventPublisher.java`  | ✅ |
+| 3.2 | Fix Event deserialization (use FQCN instead of SimpleName) | `MongoEventStore.java` | ✅ |
 
 ---
 

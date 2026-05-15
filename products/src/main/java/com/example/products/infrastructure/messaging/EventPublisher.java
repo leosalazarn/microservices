@@ -3,6 +3,7 @@ package com.example.products.infrastructure.messaging;
 import com.example.products.domain.event.ProductCreatedEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.Message;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class EventPublisher {
     
     private final KafkaTemplate<String, String> kafkaTemplate;
@@ -31,7 +33,7 @@ public class EventPublisher {
                 
             kafkaTemplate.send(message);
         } catch (Exception e) {
-            System.err.println("Failed to publish ProductCreatedEvent: " + e.getMessage());
+            log.error("Failed to publish ProductCreatedEvent", e);
         }
     }
 }

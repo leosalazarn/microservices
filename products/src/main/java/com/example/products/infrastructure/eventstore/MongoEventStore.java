@@ -20,7 +20,7 @@ public class MongoEventStore implements EventStore {
     public void save(DomainEvent event) {
         EventStoreEntity entity = new EventStoreEntity();
         entity.setAggregateId(event.getAggregateId());
-        entity.setEventType(event.getClass().getSimpleName());
+        entity.setEventType(event.getClass().getName());
         entity.setEventData(serializeEvent(event));
         entity.setVersion(event.getVersion());
         entity.setOccurredAt(event.getOccurredAt());
@@ -60,7 +60,7 @@ public class MongoEventStore implements EventStore {
     
     private DomainEvent deserializeEvent(EventStoreEntity entity) {
         try {
-            Class<?> eventClass = Class.forName("com.example.products.domain.event." + entity.getEventType());
+            Class<?> eventClass = Class.forName(entity.getEventType());
             return (DomainEvent) objectMapper.readValue(entity.getEventData(), eventClass);
         } catch (Exception e) {
             throw new RuntimeException("Failed to deserialize event", e);
