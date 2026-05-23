@@ -5,6 +5,9 @@ server:
 spring:
   application:
     name: billing
+  threads:
+    virtual:
+      enabled: true
   config:
     import: optional:vault://
   cloud:

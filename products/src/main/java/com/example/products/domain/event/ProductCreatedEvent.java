@@ -3,7 +3,6 @@ package com.example.products.domain.event;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.BeanUtils;
 
 import java.time.LocalDateTime;
 

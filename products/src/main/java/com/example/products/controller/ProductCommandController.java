@@ -3,12 +3,14 @@ package com.example.products.controller;
 import com.example.products.api.ProductsCommandApi;
 import com.example.products.command.CommandBus;
 import com.example.products.command.CreateProductCommand;
+import com.example.products.command.DeleteProductCommand;
 import com.example.products.command.UpdateProductCommand;
 import com.example.products.model.Product;
 import com.example.products.model.ProductUpdate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.CacheManager;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -59,5 +61,11 @@ public class ProductCommandController implements ProductsCommandApi {
                     cache.clear();
                 });
         return ResponseEntity.ok("All caches evicted");
+    }
+
+    @Override
+    public ResponseEntity<Void> deleteProduct(String id) {
+        commandBus.dispatch(new DeleteProductCommand(id));
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

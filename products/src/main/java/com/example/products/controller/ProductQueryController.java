@@ -32,4 +32,10 @@ public class ProductQueryController implements ProductsQueryApi {
                 .header("X-Total-Count", String.valueOf(products.size()))
                 .body(products);
     }
+
+    @Override
+    public ResponseEntity<Product> getProductById(String id) {
+        Product product = queryHandler.getProductById(id);
+        return ResponseEntity.ok(product);
+    }
 }

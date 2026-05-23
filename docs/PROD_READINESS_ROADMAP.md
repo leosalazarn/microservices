@@ -35,7 +35,7 @@ and no CI/CD/containerization.
 | **🟢 Phase 4**  | **Event Sourcing Completeness (6 tasks)** | **10h** | **🟢** | **✅ Complete** |
 | **🟢 Phase 5**  | **Billing Persistence + Docker + Docs**   | **5h**  | **🟢** | **✅ Complete** |
 | 🟢 ADRs         | Decision Records (3 docs)                 | 1h      | 🟢     | ✅ Complete     |
-| 🔵 Code Cleanup | Low-priority cleanup (5 items)            | —       | 🔵     | ⬜              |
+| **🟢 Phase 6**  | **Roadmap Completion — P0, P1, P3, P4**   | **4h**  | **🟢** | **✅ Complete** |
 
 ---
 
@@ -197,6 +197,23 @@ Kafka 3.7.x→3.9.2.
 | 5.4 | **Overhaul README.md + ARCHITECTURE.md (Mermaid diagrams)**    | `README.md`, `docs/ARCHITECTURE.md`                                                               | **0.5h** | 🟢  | ✅      |
 | 5.5 | Logging polish (audit remaining `@Slf4j`)                      | All service classes                                                                               | **1h**   | 🟡  | ✅      |
 | 5.6 | Pin Docker image versions                                      | `docker-compose.yml`                                                                              | —        | 🟢  | ✅      |
+
+| 5.6 | Pin Docker image versions                                      | `docker-compose.yml`                                                                              | —        | 🟢  | ✅      |
+
+---
+
+### 🟢 Phase 6 — Roadmap Completion — **✅ COMPLETE**
+
+> Remaining P0, P1, P3, and P4 items from the backlog: event deserialization, version conflict, missing endpoints, error schemas, dead code cleanup, and virtual threads enablement.
+
+| #   | Task                                                           | Files                                                                                             | Hrs      | ROI | Status |
+|-----|----------------------------------------------------------------|---------------------------------------------------------------------------------------------------|----------|-----|--------|
+| 6.1 | Fix event deserialization fragility (`EventTypeRegistry`)      | `EventTypeRegistry.java`, `MongoEventStore.java`, `MongoEventStoreTest.java`                      | **1h**   | 🟢  | ✅      |
+| 6.2 | Remove version conflict (`@Version` vs aggregate-managed)      | `ProductEntity.java`                                                                              | —        | 🟢  | ✅      |
+| 6.3 | Add `GET /products/{id}` and `DELETE /products/{id}` endpoints | `products-api.yaml`, `ProductQueryHandler.java`, `ProductQueryController.java`, `ProductCommandController.java`, `DeleteProductCommand.java`, `DeleteProductCommandHandler.java` | **1h**   | 🟢  | ✅      |
+| 6.4 | Add error response schemas (400/404/409) to OpenAPI specs      | `products-api.yaml`, `billing-api.yaml`                                                           | **0.5h** | 🟢  | ✅      |
+| 6.5 | Dead code cleanup (BaseController, domainEvents, unused import)| `BaseController.java` (×2), `ProductEntity.java`, `ProductCreatedEvent.java`                      | —        | 🔵  | ✅      |
+| 6.6 | Enable Virtual Threads (ADR-003)                               | `products/application.yml`, `billing/application.yml`, `api-gateway/application.yml`              | —        | 🟡  | ✅      |
 
 ---
 
@@ -466,24 +483,23 @@ consume these topics independently — no need to mix stacks or create a monorep
 - If an event class is renamed or moved, ALL stored events become unreadable.
 - No event versioning or schema evolution strategy.
 
-**Status**: Pending
+**Status**: ✅ Fixed — created `EventTypeRegistry` to replace `Class.forName()` with registry lookups by simple/full class name, backward-compatible with existing stored events.
 
 ### 🟡 Medium
 
-- `ProductAggregate` manually manages `version++` while `ProductEntity` has Spring Data `@Version` — dual management can
-  conflict.
-- OpenAPI specs lack error response schemas (400, 404, 409).
-- Docker images use `latest` tags — no reproducibility.
-- No Dockerfiles for microservices, no CI/CD, no Kubernetes manifests.
+- ~~`ProductAggregate` manually manages `version++` while `ProductEntity` has Spring Data `@Version` — dual management can conflict.~~ ✅ **Fixed** — removed `@Version` from `ProductEntity`.
+- ~~OpenAPI specs lack error response schemas (400, 404, 409).~~ ✅ **Fixed** — added to both `products-api.yaml` and `billing-api.yaml`.
+- ~~Docker images use `latest` tags — no reproducibility.~~ ✅ **Fixed** (Phase 5.6).
+- ~~No Dockerfiles for microservices, no CI/CD, no Kubernetes manifests.~~ ✅ **Fixed** — multi-stage Dockerfiles created (Phase 5.3).
 - No circuit breaker (Resilience4j), retry/backoff, or distributed tracing.
 
 ### 🔵 Low
 
-- `BaseController` classes in both services — unused/empty.
-- `ProductEntity.domainEvents` (`@Transient`) — never called from production code.
+- ~~`BaseController` classes in both services — unused/empty.~~ ✅ **Deleted**.
+- ~~`ProductEntity.domainEvents` (`@Transient`) — never called from production code.~~ ✅ **Removed** field, `@Transient`, and orphaned methods.
 - `ProductLookupEventsHandler` — grammar (unnecessary plural).
-- `ProductCreatedEvent.java:6` — unused `import BeanUtils`.
-- Missing `GET /products/{id}` and `DELETE` endpoints in Products API.
+- ~~`ProductCreatedEvent.java:6` — unused `import BeanUtils`.~~ ✅ **Removed**.
+- ~~Missing `GET /products/{id}` and `DELETE` endpoints in Products API.~~ ✅ **Added** via contract-first OpenAPI.
 
 ---
 

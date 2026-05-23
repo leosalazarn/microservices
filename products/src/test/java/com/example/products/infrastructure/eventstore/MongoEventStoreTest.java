@@ -28,6 +28,9 @@ class MongoEventStoreTest {
     @Mock
     private ObjectMapper objectMapper;
 
+    @Mock
+    private EventTypeRegistry eventTypeRegistry;
+
     @InjectMocks
     private MongoEventStore eventStore;
 
@@ -37,6 +40,7 @@ class MongoEventStoreTest {
     @BeforeEach
     void setUp() {
         event = ProductCreatedEvent.of("test-id", "Test Product", 100.0, 1L);
+        lenient().when(eventTypeRegistry.resolve(event.getClass())).thenReturn("ProductCreatedEvent");
         
         entity = new EventStoreEntity();
         entity.setId("entity-id");

@@ -1,6 +1,7 @@
 package com.example.products.query;
 
 import com.example.products.domain.repository.ProductRepository;
+import com.example.products.exception.ProductNotFoundException;
 import com.example.products.infrastructure.mapper.ProductMapper;
 import com.example.products.model.Product;
 import lombok.RequiredArgsConstructor;
@@ -26,5 +27,13 @@ public class ProductQueryHandler {
                 .stream()
                 .map(mapper::toModel)
                 .collect(Collectors.toList());
+    }
+
+    @Cacheable(value = "products", key = "#id")
+    public Product getProductById(String id) {
+        log.debug("Fetching product from database (cache miss): {}", id);
+        return repository.findByIdAndActiveTrue(id)
+                .map(mapper::toModel)
+                .orElseThrow(() -> new ProductNotFoundException(id));
     }
 }

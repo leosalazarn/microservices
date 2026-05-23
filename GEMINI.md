@@ -11,9 +11,9 @@ architectural review, documentation maintenance, and infrastructure troubleshoot
 Gemini maintains a deep understanding of this project's specific tech stack and architectural choices:
 
 - **Language**: Java 21 (LTS)
-- **Framework**: Spring Boot 3.4.0 & Spring Cloud 2024.0.0
+- **Framework**: Spring Boot 3.4.5 & Spring Cloud 2024.0.1
 - **Patterns**: Event Sourcing, CQRS, SAGA, Command Bus, and DDD
-- **Infrastructure**: MongoDB 8.0, Kafka 4.0, Redis 7, HashiCorp Vault, and Netflix Eureka
+- **Infrastructure**: MongoDB 8.0, Kafka 3.9.2, Redis 7, HashiCorp Vault, and Netflix Eureka
 - **API Strategy**: Contract-first with OpenAPI 3.0 and Swagger UI
 
 ## 🧠 Architectural Awareness
@@ -60,6 +60,12 @@ You can interact with Gemini for:
 - **Kafka Optimization**: Provided configuration insights for `AUTO_OFFSET_RESET_CONFIG`.
 - **Architectural Guidance**: Validating the 3-layer validation strategy (API -> Command -> Aggregate).
 - **Project Structure**: Assisting in the organization of the `docs/` folder and navigation index.
+- **Documentation Overhaul (Phase 5.4)**: README trimmed to landing page, ARCHITECTURE.md with 4 Mermaid diagrams.
+- **Logging Polish (Phase 5.5)**: `@Slf4j` added across handlers and infrastructure, `info`→`debug` downgrades, zero
+  silent catch blocks.
+- **SAGA Flow Fixes (May 2026)**: Fixed deserialization — aligned `ProductEvent` fields with `ProductCreatedEvent`
+  JSON (`productId`), registered `JavaTimeModule`. Fixed Kafka Docker networking — containers use `kafka:19092`. Fixed
+  gateway routing — added catch-all routes with `RewritePath`.
 
 ## 📖 How to Interact
 

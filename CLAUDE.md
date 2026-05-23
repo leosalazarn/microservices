@@ -56,10 +56,21 @@ You can interact with Claude for:
 
 ## 📝 Recent AI Contributions
 
-- **Phase 5.1 (Billing Persistence)**: MongoDB entities, repository, rewritten handlers with real MongoDB, wired SAGA consumer.
-- **Phase 5.3 (Multi-stage Dockerfiles)**: Dockerfiles for all 4 services with `.dockerignore`, updated `docker-compose.yml`.
-- **Phase 5.4 (Documentation Overhaul)**: README → landing page (98 lines), ARCHITECTURE.md with 4 Mermaid diagrams (C4 context, CQRS, SAGA, cache invalidation).
-- **Phase 5.5 (Logging Polish)**: Added `@Slf4j` to 8 classes (CommandBus, MongoEventStore, DomainEventPublisher, GlobalExceptionHandler, Create/UpdateProductCommandHandler, InvoiceCommandHandler, InvoiceQueryHandler), corrected 4 `info`→`debug` downgrades. Zero silent catch blocks remain.
+- **Phase 5.1 (Billing Persistence)**: MongoDB entities, repository, rewritten handlers with real MongoDB, wired SAGA
+  consumer.
+- **Phase 5.3 (Multi-stage Dockerfiles)**: Dockerfiles for all 4 services with `.dockerignore`, updated
+  `docker-compose.yml`.
+- **Phase 5.4 (Documentation Overhaul)**: README → landing page (98 lines), ARCHITECTURE.md with 4 Mermaid diagrams (C4
+  context, CQRS, SAGA, cache invalidation).
+- **Phase 5.5 (Logging Polish)**: Added `@Slf4j` to 8 classes (CommandBus, MongoEventStore, DomainEventPublisher,
+  GlobalExceptionHandler, Create/UpdateProductCommandHandler, InvoiceCommandHandler, InvoiceQueryHandler), corrected 4
+  `info`→`debug` downgrades. Zero silent catch blocks remain.
+- **SAGA Flow Fixes (May 2026)**: Fixed SAGA deserialization — aligned `ProductEvent` fields with `ProductCreatedEvent`
+  JSON (`productId`, `@JsonIgnoreProperties`), registered `JavaTimeModule` in billing `ObjectMapper`. Fixed Kafka Docker
+  networking — containers now connect to `kafka:19092` (internal `PLAINTEXT`) instead of `kafka:9092` (`PLAINTEXT_HOST`
+  advertises `localhost`). Fixed gateway routing — added catch-all `products-api`/`billing-api` routes with
+  `RewritePath`. Fixed `optional:vault://` imports and Redis env var names (`SPRING_DATA_REDIS_*`). SAGA end-to-end
+  verified: product creation → Kafka event → billing invoice creation.
 - **Pre-push Git Hook**: Auto-detects `JAVA_HOME` from `$HOME/.jdks/`, runs `./gradlew build` before every push.
 - **Documentation Indexing**: Assisted in the comprehensive review and indexing of all project documentation.
 - **Kafka Configuration**: Refined Kafka consumer settings like `AUTO_OFFSET_RESET_CONFIG`.
@@ -84,6 +95,7 @@ A pre-push hook at `.githooks/pre-push` runs `./gradlew build` before every push
 Docker-dependent integration tests (tagged `@Tag("docker")`) are excluded from the default build.
 
 To enable locally:
+
 ```bash
 git config core.hooksPath .githooks
 ```

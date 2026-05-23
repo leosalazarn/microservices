@@ -4,6 +4,9 @@ server:
 spring:
   application:
     name: api-gateway
+  threads:
+    virtual:
+      enabled: true
   cloud:
     gateway:
       discovery:
