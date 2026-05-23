@@ -21,7 +21,7 @@ public class ProductQueryHandler {
     
     @Cacheable(value = "products", key = "'all'")
     public List<Product> getAllProducts() {
-        log.info("Fetching products from database (cache miss)");
+        log.debug("Fetching products from database (cache miss)");
         return repository.findByActiveTrue()
                 .stream()
                 .map(mapper::toModel)

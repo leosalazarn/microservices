@@ -16,12 +16,12 @@ public class CacheInvalidationEventHandler {
     @EventListener
     @CacheEvict(value = "products", key = "'all'")
     public void handleProductCreated(ProductCreatedEvent event) {
-        log.info("Cache invalidated due to ProductCreatedEvent for product: {}", event.getProductId());
+        log.debug("Cache invalidated due to ProductCreatedEvent for product: {}", event.getProductId());
     }
 
     @EventListener
     @CacheEvict(value = "products", key = "'all'")
     public void handleProductUpdated(ProductUpdatedEvent event) {
-        log.info("Cache invalidated due to ProductUpdatedEvent for product: {}", event.getAggregateId());
+        log.debug("Cache invalidated due to ProductUpdatedEvent for product: {}", event.getAggregateId());
     }
 }

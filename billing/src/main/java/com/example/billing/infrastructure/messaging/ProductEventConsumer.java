@@ -15,7 +15,7 @@ public class ProductEventConsumer {
     
     @KafkaListener(topics = "product-events", groupId = "billing-service")
     public void handleEvent(@Header("eventType") String eventType, String payload) {
-        log.info("Received event: {}", eventType);
+        log.debug("Received event: {}", eventType);
         eventDispatcher.dispatch(eventType, payload);
     }
 }

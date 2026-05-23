@@ -5,11 +5,13 @@ import com.example.products.domain.event.ProductCreatedEvent;
 import com.example.products.domain.event.ProductUpdatedEvent;
 import com.example.products.infrastructure.interceptor.MessageDispatcherInterceptor;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class DomainEventPublisher {
@@ -38,6 +40,7 @@ public class DomainEventPublisher {
             
             interceptors.forEach(i -> i.postDispatch(event));
         } catch (Exception e) {
+            log.error("Failed to publish event: {}", event.getClass().getSimpleName(), e);
             interceptors.forEach(i -> i.onError(event, e));
             throw e;
         }

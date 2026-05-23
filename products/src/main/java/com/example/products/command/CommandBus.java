@@ -2,6 +2,7 @@ package com.example.products.command;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 
@@ -11,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class CommandBus {
@@ -40,7 +42,7 @@ public class CommandBus {
             
             return result;
         } catch (Exception e) {
-            // Error handling interceptors
+            log.error("Command {} failed: {}", command.getClass().getSimpleName(), e.getMessage(), e);
             interceptors.forEach(interceptor -> interceptor.onError(command, e));
             throw e;
         }

@@ -12,12 +12,14 @@ import com.example.products.infrastructure.mapper.ProductMapper;
 import com.example.products.infrastructure.messaging.DomainEventPublisher;
 import com.example.products.model.Product;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class CreateProductCommandHandler implements CommandHandler<CreateProductCommand, Product> {
@@ -32,22 +34,18 @@ public class CreateProductCommandHandler implements CommandHandler<CreateProduct
     @Override
     @Transactional
     public Product handle(CreateProductCommand command) {
-        // Set-Based Consistency Validation
+        log.info("Creating product: name='{}'", command.getName());
         validateUniqueProductName(command.getName());
         
-        // Create aggregate
         ProductAggregate aggregate = createAggregate(command);
-        
-        // Persist entity
         ProductEntity savedEntity = persistEntity(aggregate);
         
-        // Update aggregate with generated data and apply event
         updateAggregateFromEntity(aggregate, savedEntity);
         aggregate.applyProductCreated();
         
-        // Process domain events
         processDomainEvents(aggregate);
         
+        log.info("Product created: id={}, name='{}'", savedEntity.getId(), command.getName());
         return productMapper.toModel(savedEntity);
     }
     

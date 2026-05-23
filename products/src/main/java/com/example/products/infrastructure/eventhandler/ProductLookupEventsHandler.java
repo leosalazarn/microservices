@@ -17,7 +17,7 @@ public class ProductLookupEventsHandler {
 
     @EventListener
     public void on(ProductCreatedEvent event) {
-        log.info("Persisting product lookup for: {}", event.getName());
+        log.debug("Persisting product lookup for: {}", event.getName());
         ProductLookupEntity lookup = new ProductLookupEntity(event.getProductId(), event.getName());
         lookupRepository.save(lookup);
     }

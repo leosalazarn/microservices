@@ -11,11 +11,13 @@ import com.example.products.infrastructure.mapper.ProductMapper;
 import com.example.products.infrastructure.messaging.DomainEventPublisher;
 import com.example.products.model.Product;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class UpdateProductCommandHandler implements CommandHandler<UpdateProductCommand, Product> {
@@ -29,6 +31,7 @@ public class UpdateProductCommandHandler implements CommandHandler<UpdateProduct
     @Override
     @Transactional
     public Product handle(UpdateProductCommand command) {
+        log.info("Updating product: id={}", command.getId());
         ProductEntity entity = repository.findByIdAndActiveTrue(command.getId())
                 .orElseThrow(() -> new ProductNotFoundException(command.getId()));
 
@@ -60,6 +63,7 @@ public class UpdateProductCommandHandler implements CommandHandler<UpdateProduct
         aggregate.markEventsAsCommitted();
 
         ProductEntity savedEntity = repository.save(aggregateMapper.toEntity(aggregate));
+        log.info("Product updated: id={}", savedEntity.getId());
         return productMapper.toModel(savedEntity);
     }
 }

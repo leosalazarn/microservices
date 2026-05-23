@@ -5,8 +5,10 @@ import com.example.billing.infrastructure.repository.InvoiceMapper;
 import com.example.billing.infrastructure.repository.InvoiceRepository;
 import com.example.billing.model.Invoice;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class InvoiceCommandHandler {
@@ -15,6 +17,7 @@ public class InvoiceCommandHandler {
     private final InvoiceMapper invoiceMapper;
 
     public Invoice createInvoice(Invoice invoice) {
+        log.info("Creating invoice for customer: {}, amount: {}", invoice.getCustomerId(), invoice.getAmount());
         InvoiceEntity entity = InvoiceEntity.create(
             invoice.getCustomerId(),
             invoice.getAmount(),
@@ -24,6 +27,7 @@ public class InvoiceCommandHandler {
             entity.setStatus(invoice.getStatus().getValue());
         }
         InvoiceEntity saved = invoiceRepository.save(entity);
+        log.info("Invoice created: id={}", saved.getId());
         return invoiceMapper.toModel(saved);
     }
 }

@@ -59,6 +59,7 @@ You can interact with Claude for:
 - **Phase 5.1 (Billing Persistence)**: MongoDB entities, repository, rewritten handlers with real MongoDB, wired SAGA consumer.
 - **Phase 5.3 (Multi-stage Dockerfiles)**: Dockerfiles for all 4 services with `.dockerignore`, updated `docker-compose.yml`.
 - **Phase 5.4 (Documentation Overhaul)**: README → landing page (98 lines), ARCHITECTURE.md with 4 Mermaid diagrams (C4 context, CQRS, SAGA, cache invalidation).
+- **Phase 5.5 (Logging Polish)**: Added `@Slf4j` to 8 classes (CommandBus, MongoEventStore, DomainEventPublisher, GlobalExceptionHandler, Create/UpdateProductCommandHandler, InvoiceCommandHandler, InvoiceQueryHandler), corrected 4 `info`→`debug` downgrades. Zero silent catch blocks remain.
 - **Pre-push Git Hook**: Auto-detects `JAVA_HOME` from `$HOME/.jdks/`, runs `./gradlew build` before every push.
 - **Documentation Indexing**: Assisted in the comprehensive review and indexing of all project documentation.
 - **Kafka Configuration**: Refined Kafka consumer settings like `AUTO_OFFSET_RESET_CONFIG`.
