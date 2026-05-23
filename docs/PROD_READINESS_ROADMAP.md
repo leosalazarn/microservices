@@ -1,8 +1,8 @@
 # Production Readiness Roadmap
 
-**Date**: 2026-05-15  
+**Date**: 2026-05-22  
 **Prod Readiness**: 🟡 **29 Alerts Remain** (5 High, 15 Moderate, 9 Low) — 42 of 71 closed.  
-**Architecture**: Java 21 — Spring Boot 3.4, CQRS, Event Sourcing, SAGA, Kafka EDA, MongoDB, Redis, Virtual Threads  
+**Architecture**: Java 21 — Spring Boot 3.4, CQRS, Event Sourcing, SAGA, Kafka EDA, MongoDB, Redis, Virtual Threads (ADR-003)  
 **Auditor**: AI Assistant (Claude)
 
 ---
@@ -16,7 +16,7 @@ A comprehensive audit was performed on the Enterprise Microservices Architecture
 sophisticated patterns but has material issues preventing production readiness.
 
 **Overall Assessment**: Architecture is mature and well-designed, but the codebase is **not production-ready** due to
-hardcoded secrets (✅ fixed), incomplete Event Sourcing, mock data in Billing service, missing error handling (✅ fixed),
+hardcoded secrets (✅ fixed), Event Sourcing (✅ complete), mock data in Billing service, missing error handling (✅ fixed),
 and no CI/CD/containerization.
 
 ---
@@ -25,16 +25,15 @@ and no CI/CD/containerization.
 
 ## Findings Summary
 
-| Priority       | Task                                      | Hrs     | ROI    | Status         |
-|----------------|-------------------------------------------|---------|--------|----------------|
-| 🔴 Phase 1     | P0 Blocking CVEs (15)                     | —       | 🟢     | ✅ Fixed        |
-| 🟠 Phase 2     | P1 Before-GA CVEs (42 closed / 6 rem.)    | —       | 🟢     | 🟡 Ongoing     |
-| 🟡 Phase 3     | Logging & Robustness (2 tasks)            | 1h      | 🟡     | ✅ Complete     |
-| **🟢 Phase 4** | **Event Sourcing Completeness (6 tasks)** | **10h** | **🟢** | **✅ Complete** |
-| 🔵 Phase 5a    | Code Cleanup (5 tasks)                    | —       | 🔵     | ⬜              |
-| 🔵 Phase 5b    | Dockerfiles (4) + README                  | 2.5h    | 🟢     | ⬜              |
-| 🟢 ADRs        | Decision Records (3 docs)                 | 1h      | 🟢     | ✅ Complete     |
-| 🔵 Backlog     | Billing persistence                       | —       | 🔵     | ❌ Reverted     |
+| Priority        | Task                                      | Hrs     | ROI    | Status         |
+|-----------------|-------------------------------------------|---------|--------|----------------|
+| 🔴 Phase 1      | P0 Blocking CVEs (15)                     | —       | 🟢     | ✅ Fixed        |
+| 🟠 Phase 2      | P1 Before-GA CVEs (42 closed / 6 rem.)    | —       | 🟢     | 🟡 Ongoing     |
+| 🟡 Phase 3      | Logging & Robustness (2 tasks)            | 1h      | 🟡     | ✅ Complete     |
+| **🟢 Phase 4**  | **Event Sourcing Completeness (6 tasks)** | **10h** | **🟢** | **✅ Complete** |
+| **🟢 Phase 5**  | **Billing Persistence + Docker + Docs**   | **5h**  | **🟢** | **⬜ Next**     |
+| 🟢 ADRs         | Decision Records (3 docs)                 | 1h      | 🟢     | ✅ Complete     |
+| 🔵 Code Cleanup | Low-priority cleanup (5 items)            | —       | 🔵     | ⬜              |
 
 ---
 
@@ -184,21 +183,19 @@ Kafka 3.7.x→3.9.2.
 
 ---
 
-### 🔵 Phase 5 — Cleanup, Docker & Docs
+### 🟢 Phase 5 — Billing Persistence, Docker & Docs — 🔴 **NEXT (~5h)**
 
-| #    | Task                                                              | Files                                                                                             | Hrs      | ROI    | Status |
-|------|-------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|----------|--------|--------|
-| 5.1  | Remove unused `spring-kafka` from eureka + gateway                | `eureka-server/build.gradle`, `api-gateway/build.gradle`                                          | —        | 🔵     | ✅      |
-| 5.7  | Update `SECURITY.md` with actual policy                           | `SECURITY.md`                                                                                     | —        | 🔵     | ✅      |
-| 5.8  | **Create ADRs (3 docs)**                                          | `docs/adr/ADR-*.md`                                                                               | **1h**   | **🟢** | ✅      |
-| 5.9  | **Create multi-stage Dockerfiles**                                | `products/Dockerfile`, `billing/Dockerfile`, `eureka-server/Dockerfile`, `api-gateway/Dockerfile` | **2h**   | **🟢** | ⬜      |
-| 5.10 | **Overhaul README.md**                                            | `README.md`                                                                                       | **0.5h** | **🟢** | ⬜      |
-| 5.11 | **Logging polish** (audit remaining `@Slf4j`)                     | All service classes                                                                               | **1h**   | 🟡     | ⬜      |
-| 5.2  | Remove dead `BaseController` classes                              | Both `BaseController.java` files                                                                  | —        | 🔵     | ⬜      |
-| 5.3  | Remove unused `domainEvents` from `ProductEntity`                 | `ProductEntity.java`                                                                              | —        | 🔵     | ⬜      |
-| 5.4  | Remove unused import in `ProductCreatedEvent`                     | `ProductCreatedEvent.java`                                                                        | —        | 🔵     | ⬜      |
-| 5.5  | Rename `ProductLookupEventsHandler` → `ProductLookupEventHandler` | 1 file rename + references                                                                        | —        | 🔵     | ⬜      |
-| 5.6  | Pin Docker image versions                                         | `docker-compose.yml`                                                                              | —        | 🟢     | ⬜      |
+> Billing uses mock data and empty SAGA handler. This phase adds real MongoDB persistence, wires the Kafka
+> `ProductCreatedEvent` consumer, creates Dockerfiles, and updates documentation.
+
+| #   | Task                                                           | Files                                                                                             | Hrs      | ROI | Status |
+|-----|----------------------------------------------------------------|---------------------------------------------------------------------------------------------------|----------|-----|--------|
+| 5.1 | **Billing persistence (OpenAPI spec, entity, repo, handlers)** | 8 files across billing module                                                                     | **2h**   | 🟢  | ⬜      |
+| 5.2 | **Wire SAGA consumer in Billing**                              | `ProductCreatedEventHandler.java`                                                                 | **1h**   | 🟢  | ⬜      |
+| 5.3 | **Create multi-stage Dockerfiles**                             | `products/Dockerfile`, `billing/Dockerfile`, `eureka-server/Dockerfile`, `api-gateway/Dockerfile` | **2h**   | 🟢  | ⬜      |
+| 5.4 | **Overhaul README.md**                                         | `README.md`                                                                                       | **0.5h** | 🟢  | ⬜      |
+| 5.5 | Logging polish (audit remaining `@Slf4j`)                      | All service classes                                                                               | **1h**   | 🟡  | ⬜      |
+| 5.6 | Pin Docker image versions                                      | `docker-compose.yml`                                                                              | —        | 🟢  | ⬜      |
 
 ---
 
@@ -217,19 +214,7 @@ Test-scope, theoretical, or requires non-default config. Fix opportunistically d
 | rhino DoS via toFixed() (#44)                     | Rhino JS engine unlikely in microservice runtime path |
 | commons-configuration Resource Consumption (#17)  | Requires config parsing of untrusted source           |
 
-#### Billing Service Persistence (Reverted)
 
-MongoDB persistence was implemented and **reverted** (`git revert 22c5ae5`). Mock data restored. Re-implement when
-prioritized.
-
-| #   | Task                                               | Files                                                    | Status     |
-|-----|----------------------------------------------------|----------------------------------------------------------|------------|
-| B.1 | Add MongoDB dependency to billing                  | `billing/build.gradle`                                   | ❌ Reverted |
-| B.2 | Configure MongoDB in billing application.yml       | `billing/application.yml`                                | ❌ Reverted |
-| B.3 | Create `InvoiceEntity` and `InvoiceRepository`     | New: 2 files                                             | ❌ Reverted |
-| B.4 | Replace mock implementations with real persistence | `InvoiceCommandHandler.java`, `InvoiceQueryHandler.java` | ❌ Reverted |
-
----
 
 ## 🚦 Risk Triage — Prod Release Labels
 
@@ -375,16 +360,20 @@ prioritized.
 
 ### Additional Fixes Applied
 
-| #   | Task                                                                                                                 | Files                                                                         | Status |
-|-----|----------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|--------|
-| A.1 | Upgrade SpringDoc 2.3.0→2.7.0 (compat with Spring Web 6.2)                                                           | `products/build.gradle`, `billing/build.gradle`                               | ✅      |
-| A.2 | Upgrade Tomcat 10.1.33→10.1.55 (CVE-2025-24813, CLIENT_CERT auth bypass, log injection, JsonAccessLogValve encoding) | `products/build.gradle`, `billing/build.gradle`, `eureka-server/build.gradle` | ✅      |
-| A.3 | Upgrade Jersey 3.1.9→3.1.10 (SSL race condition)                                                                     | all 4 `build.gradle` files (jersey.version)                                   | ✅      |
-| A.4 | Fix Kafka bootstrap-servers placeholder resolution                                                                   | `products/application.yml`, `billing/application.yml`                         | ✅      |
-| A.5 | Fix Redis password placeholder resolution                                                                            | `products/application.yml`, `RedisConfig.java`                                | ✅      |
-| A.6 | Remove machine-specific `setup-env.ps1`                                                                              | Deleted                                                                       | ✅      |
-| A.7 | Clean `gradle.properties` (OS-agnostic)                                                                              | `gradle.properties`                                                           | ✅      |
-| A.8 | Remove duplicate/placeholder documentation                                                                           | 5 files deleted, `SECURITY.md` rewritten                                      | ✅      |
+| #    | Task                                                                                                                 | Files                                                                         | Status |
+|------|----------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|--------|
+| A.1  | Upgrade SpringDoc 2.3.0→2.7.0 (compat with Spring Web 6.2)                                                           | `products/build.gradle`, `billing/build.gradle`                               | ✅      |
+| A.2  | Upgrade Tomcat 10.1.33→10.1.55 (CVE-2025-24813, CLIENT_CERT auth bypass, log injection, JsonAccessLogValve encoding) | `products/build.gradle`, `billing/build.gradle`, `eureka-server/build.gradle` | ✅      |
+| A.3  | Upgrade Jersey 3.1.9→3.1.10 (SSL race condition)                                                                     | all 4 `build.gradle` files (jersey.version)                                   | ✅      |
+| A.4  | Fix Kafka bootstrap-servers placeholder resolution                                                                   | `products/application.yml`, `billing/application.yml`                         | ✅      |
+| A.5  | Fix Redis password placeholder resolution                                                                            | `products/application.yml`, `RedisConfig.java`                                | ✅      |
+| A.6  | Remove machine-specific `setup-env.ps1`                                                                              | Deleted                                                                       | ✅      |
+| A.7  | Clean `gradle.properties` (OS-agnostic)                                                                              | `gradle.properties`                                                           | ✅      |
+| A.8  | Remove duplicate/placeholder documentation                                                                           | 5 files deleted, `SECURITY.md` rewritten                                      | ✅      |
+| A.9  | Update Postman collection with Event Sourcing tests, SAGA flow, cache eviction endpoint                              | `postman/POC-Microservices.postman_collection.json`                           | ✅      |
+| A.10 | Fix `ProductAggregateTest` timing assertions (Windows ms precision — `isAfter` → `isBefore`)                         | `ProductAggregateTest.java`                                                   | ✅      |
+| A.11 | Tag Docker-dependent tests with `@Tag("docker")`, exclude from default build                                         | `BaseIntegrationTest.java`, `products/build.gradle`                           | ✅      |
+| A.12 | Trim stale documentation (delete 4 files, trim 5 verbose docs)                                                       | 9 `.md` files trimmed or deleted                                              | ✅      |
 
 ---
 
@@ -446,13 +435,13 @@ consume these topics independently — no need to mix stacks or create a monorep
 
 ### 🟠 High
 
-#### 2.1-2.4 Incomplete Update Product Path
+#### 2.1-2.4 Incomplete Update Product Path (now ✅ Fixed)
 
-- `UpdateProductCommandHandler` directly modifies `ProductEntity` and saves it.
-- Does NOT raise `ProductUpdatedEvent`, save to EventStore, or publish to Kafka.
-- Breaks Event Sourcing contract and SAGA visibility.
+- `UpdateProductCommandHandler` directly modified `ProductEntity`.
+- Did NOT raise `ProductUpdatedEvent`, save to EventStore, or publish to Kafka.
+- **Fix**: Rewritten via `ProductAggregate` → `applyProductUpdated()` with old/new tracking → `EventStore.saveAll()` → `DomainEventPublisher` → Kafka.
 
-**Status**: Pending
+**Status**: ✅ Fixed
 
 #### 3.1-3.4 Billing Service Mock Data
 
@@ -464,11 +453,12 @@ consume these topics independently — no need to mix stacks or create a monorep
 
 **Status**: Reverted — to be re-implemented when prioritized
 
-#### 4.1 System.err.println
+#### 4.1 System.err.println (now ✅ Fixed)
 
-- `EventPublisher.java:34` — uses `System.err.println` instead of a proper logger. Class has Lombok but no `@Slf4j`.
+- `EventPublisher.java:34` — used `System.err.println` instead of a proper logger.
+- **Fix**: Added `@Slf4j` and replaced with `log.error()`.
 
-**Status**: Pending
+**Status**: ✅ Fixed
 
 #### 4.2 Event Deserialization Fragility
 

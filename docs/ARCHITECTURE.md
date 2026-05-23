@@ -1,591 +1,124 @@
 # Architecture Documentation
 
-## Overview
-
-This microservices architecture implements Event Sourcing, CQRS, and SAGA patterns using Spring Cloud, MongoDB, and
-Kafka.
+This microservices architecture implements Event Sourcing, CQRS, and SAGA patterns using Spring Cloud, MongoDB, Kafka and Redis.
 
 ## Core Patterns
 
 ### 1. Event Sourcing
 
-**Implementation**: Products Service
-
-Event Sourcing captures all changes to application state as a sequence of events. Instead of storing just the current
-state, we store the full history of state changes.
-
-**Components**:
-
-- **DomainEvent Interface**: Base interface for all domain events
-- **ProductCreatedEvent**: Captures product creation with all relevant data
-- **EventStore**: MongoDB-based persistence for events
-- **EventStoreEntity**: MongoDB document storing event metadata and data
-
-**Flow**:
+Captures all state changes as a sequence of immutable events instead of storing just the current state.
 
 ```
-1. Command received → CreateProductCommand
-2. Aggregate processes command → ProductAggregate
-3. Domain event raised → ProductCreatedEvent
-4. Event persisted → EventStore (MongoDB)
-5. Event published → Kafka
-6. State updated → ProductEntity (MongoDB)
+Command → Aggregate processes → Domain event raised → EventStore (MongoDB) → Kafka → Entity updated (projection)
 ```
 
-**Benefits**:
-
-- Complete audit trail
-- Event replay capability
-- Temporal queries
-- Debug and troubleshooting
+**Components**: `DomainEvent` interface, `ProductCreatedEvent`, `ProductUpdatedEvent`, `EventStore`, `EventStoreEntity`
 
 ### 2. CQRS (Command Query Responsibility Segregation)
 
-**Implementation**: Products and Billing Services
-
 Separates read and write operations into different models.
 
-**Command Side** (Write):
-
-- `CreateProductCommand`
-- `CreateProductCommandHandler`
-- Validates and processes state changes
-- Raises domain events
-
-**Query Side** (Read):
-
-- `ProductQueryHandler`
-- Optimized for read operations
-- Returns DTOs/Models
-- No business logic
-
-**Benefits**:
-
-- Independent scaling of reads/writes
-- Optimized data models for each operation
-- Clear separation of concerns
+**Command Side** (Write): `CreateProductCommand` / `UpdateProductCommand` → Handler → Aggregate → Events  
+**Query Side** (Read): `ProductQueryHandler` → Repository → Model (cached via Redis)
 
 ### 3. Command Bus Pattern
 
-**Implementation**: Products Service
-
-Routes commands to their appropriate handlers.
-
-**Components**:
-
-- `Command` interface: Marker for all commands
-- `CommandHandler<T, R>` interface: Generic handler contract
-- `CommandBus`: Routes commands to registered handlers
-
-**Flow**:
+Routes commands to registered handlers with validation and interceptor pipeline.
 
 ```
-Controller → CommandBus.dispatch(command) → Handler.handle(command) → Result
+Controller → CommandBus.dispatch(command) → preProcess interceptors → Validation → Handler → postProcess → Result
 ```
 
-**Benefits**:
+### 4. SAGA Pattern (Choreography)
 
-- Decouples command execution from handling
-- Easy to add new commands
-- Testable handlers
-
-### 4. Domain Aggregates
-
-**Implementation**: ProductAggregate
-
-Rich domain models that encapsulate business logic and enforce invariants.
-
-**Features**:
-
-- Business validation (name length, price range)
-- State management (active/inactive)
-- Domain event generation
-- Invariant enforcement
-
-**Example**:
-
-```java
-public void applyDiscount(Double discountPercentage) {
-    if (!this.active) {
-        throw new IllegalStateException("Cannot apply discount to inactive product");
-    }
-    // Business logic...
-}
-```
-
-### 5. SAGA Pattern
-
-**Implementation**: Products → Kafka → Billing
-
-Manages distributed transactions across microservices using event choreography.
-
-**Flow**:
+Distributed transactions via event choreography over Kafka.
 
 ```
-1. Products Service creates product
-2. ProductCreatedEvent published to Kafka
-3. Billing Service consumes event
-4. Billing Service creates invoice (future)
-5. InvoiceCreatedEvent published (future)
+Products Service → ProductCreatedEvent → Kafka [product-events] → Billing Service → Invoice created
 ```
 
-**Benefits**:
-
-- Eventual consistency
-- Loose coupling
-- Resilience to failures
-
-### 6. Command Gateway Pattern
-
-**Implementation**: `CommandBus` class
-
-Provides a single entry point for all commands with validation, routing, and error handling.
-
-**Components**:
-
-- `CommandBus`: Central dispatcher with handler registry
-- `Command` interface: Marker for all commands
-- `CommandHandler<T, R>`: Generic handler contract
-- `CommandInterceptor`: Pre/post processing hooks
-- Bean Validation: Command validation pipeline
-
-**Flow**:
+### 5. Event-Driven Cache Invalidation
 
 ```
-Command → preProcess interceptors → Validation → Handler.handle() → postProcess interceptors → Result
-           │                                              │                    │
-           │                                              │                    └─► onError (if exception)
-           └─► LoggingCommandInterceptor                  └─► Business Logic
-```
-
-**Features**:
-
-- Type-safe command routing
-- Interceptor pipeline for cross-cutting concerns
-- Automatic validation using Bean Validation annotations
-- Dynamic handler registration at startup
-- Centralized error handling and logging
-- Decoupled command processing
-
-**Command Interceptor Interface**:
-
-```java
-public interface CommandInterceptor {
-    <C extends Command> void preProcess(C command);
-
-    <C extends Command, R> void postProcess(C command, R result);
-
-    <C extends Command> void onError(C command, Exception error);
-}
-```
-
-**CommandBus with Interceptors**:
-
-```java
-
-@Component
-public class CommandBus {
-    private final List<CommandInterceptor> interceptors;  // Auto-injected
-
-    public <C extends Command, R> R dispatch(C command) {
-        try {
-            // 1. Pre-processing interceptors
-            interceptors.forEach(i -> i.preProcess(command));
-
-            // 2. Validate command
-            validateCommand(command);
-
-            // 3. Execute handler
-            R result = handler.handle(command);
-
-            // 4. Post-processing interceptors
-            interceptors.forEach(i -> i.postProcess(command, result));
-
-            return result;
-        } catch (Exception e) {
-            interceptors.forEach(i -> i.onError(command, e));
-            throw e;
-        }
-    }
-}
-```
-
-**Built-in Interceptor** (`LoggingCommandInterceptor`):
-
-- Logs command execution start/completion
-- Logs errors with command context
-- Auto-registered via `@Component`
-
-### 7. Message Dispatcher Pattern
-
-**Implementation**: Event-driven message routing system
-
-Handles both outbound event publishing and inbound event consumption with proper routing.
-
-**Outbound Dispatcher** (`EventPublisher`):
-
-- Publishes domain events to Kafka topics
-- Handles serialization and topic routing
-- Error handling for failed publications
-
-**Inbound Dispatcher** (`ProductEventConsumer`):
-
-- Consumes events from Kafka topics using `@KafkaListener`
-- Deserializes and routes messages to appropriate handlers
-- Implements SAGA pattern coordination
-
-**Flow**:
-
-```
-Domain Event → EventPublisher → Kafka Topic → EventConsumer → Business Handler
-```
-
-**Features**:
-
-- Asynchronous message processing
-- Topic-based message routing
-- Automatic deserialization
-- Error handling and logging
-- SAGA pattern implementation
-
-**Integration with Command Gateway**:
-
-```
-CommandBus → CommandHandler → Domain Logic → EventPublisher → Kafka
-                                                    ↓
-                                            Other Services (EventConsumer)
+Write → DomainEvent → ApplicationEventPublisher → @EventListener → @CacheEvict → Redis cleared
 ```
 
 ## Technology Stack
 
-### Core Framework
-
-- **Spring Boot 3.4.0**: Application framework
-- **Spring Cloud 2024.0.0**: Microservices patterns
-- **Java 21**: Modern Java features
-
-### Service Discovery
-
-- **Eureka Server**: Service registry
-- **Eureka Client**: Service registration and discovery
-
-### API Gateway
-
-- **Spring Cloud Gateway**: Reactive gateway
-- **Load Balancing**: Client-side with Ribbon
-- **Routing**: Path-based routing with filters
-
-### Data Persistence
-
-- **MongoDB 8.0**: Document database
-    - Products collection: Current state
-    - Event Store collection: Event history
-- **Spring Data MongoDB**: Repository abstraction
-
-### Event Streaming
-
-- **Apache Kafka 4.0.0**: Event bus
-- **Spring Kafka**: Kafka integration
-- **Topics**: product-events, invoice-events
-
-### Secret Management
-
-- **HashiCorp Vault**: Centralized secrets
-- **Spring Cloud Vault**: Vault integration
-- **KV Secrets Engine**: Key-value storage
-
-### API Documentation
-
-- **OpenAPI 3.0.3**: API specification
-- **Swagger UI**: Interactive documentation
-- **SpringDoc**: OpenAPI integration
+| Layer                | Technology                                               |
+|----------------------|----------------------------------------------------------|
+| Framework            | Spring Boot 3.4.5 / Spring Cloud 2024.0.1                |
+| Language             | Java 21 (Virtual Threads — ADR-003)                      |
+| Service Discovery    | Netflix Eureka                                           |
+| API Gateway          | Spring Cloud Gateway                                     |
+| Database             | MongoDB 8.0                                              |
+| Event Streaming      | Apache Kafka 3.9.2                                       |
+| Cache                | Redis 7                                                  |
+| Secrets              | HashiCorp Vault                                          |
+| API Docs             | OpenAPI 3.0.3 / Swagger UI / SpringDoc                   |
 
 ## Service Architecture
 
 ### Products Service
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                    Products Service                      │
-├─────────────────────────────────────────────────────────┤
-│  Controller Layer (CQRS Separation)                     │
-│  ├─ ProductQueryController (GET endpoints)              │
-│  │  └─ Implements ProductsQueryApi (OpenAPI)           │
-│  └─ ProductCommandController (POST endpoints)           │
-│     └─ Implements ProductsCommandApi (OpenAPI)          │
-├─────────────────────────────────────────────────────────┤
-│  Command Layer (CQRS Write)                             │
-│  ├─ CommandBus (routes commands)                        │
-│  ├─ CreateProductCommandHandler                         │
-│  └─ CreateProductCommand                                │
-├─────────────────────────────────────────────────────────┤
-│  Query Layer (CQRS Read)                                │
-│  └─ ProductQueryHandler                                 │
-├─────────────────────────────────────────────────────────┤
-│  Domain Layer                                            │
-│  ├─ ProductAggregate (business logic)                   │
-│  ├─ ProductEntity (persistence)                         │
-│  ├─ ProductRepository (data access)                     │
-│  └─ DomainEvent (event interface)                       │
-├─────────────────────────────────────────────────────────┤
-│  Infrastructure Layer                                    │
-│  ├─ EventStore (event persistence)                      │
-│  ├─ EventPublisher (Kafka producer)                     │
-│  ├─ ProductMapper (entity ↔ model)                      │
-│  └─ ProductAggregateMapper (aggregate ↔ entity)         │
-└─────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────┐
+│                    Products Service                       │
+├──────────────────────────────────────────────────────────┤
+│  Controllers (CQRS separated)                            │
+│  ├─ ProductCommandController (POST/PUT — via CommandBus) │
+│  └─ ProductQueryController (GET — via QueryHandler)      │
+├──────────────────────────────────────────────────────────┤
+│  Domain Layer                                             │
+│  ├─ ProductAggregate (business rules, versioning)         │
+│  ├─ ProductEntity (MongoDB @Document)                    │
+│  ├─ EventStore (MongoDB event persistence)               │
+│  └─ DomainEvent interface + events                       │
+├──────────────────────────────────────────────────────────┤
+│  Infrastructure                                          │
+│  ├─ EventPublisher (Kafka producer)                      │
+│  ├─ DomainEventPublisher (Kafka + ApplicationEventBus)   │
+│  ├─ CacheInvalidationEventHandler (@EventListener)       │
+│  └─ ProductAggregateMapper, ProductMapper                │
+└──────────────────────────────────────────────────────────┘
 ```
 
-### Event Store Schema
-
-**MongoDB Collection**: `event_store`
-
-```json
-{
-  "_id": "ObjectId",
-  "aggregateId": "68f2bdb949b01c4c50da346f",
-  "eventType": "ProductCreatedEvent",
-  "eventData": "{\"productId\":\"...\",\"name\":\"...\",\"price\":199.99,...}",
-  "version": 0,
-  "occurredAt": "ISODate",
-  "storedAt": "ISODate"
-}
-```
-
-### Products Collection Schema
-
-**MongoDB Collection**: `products`
-
-```json
-{
-  "_id": "ObjectId",
-  "name": "Product Name",
-  "price": 99.99,
-  "description": "Description",
-  "category": "Category",
-  "active": true,
-  "created_at": "ISODate",
-  "updated_at": "ISODate",
-  "version": 0
-}
-```
-
-## Configuration Management
-
-### Vault Secret Structure
+### Billing Service
 
 ```
-vault/
-├── secret/products/
-│   ├── mongodb.username = "admin"
-│   ├── mongodb.password = "password"
-│   └── kafka.bootstrap-servers = "localhost:9092"
-└── secret/billing/
-    └── kafka.bootstrap-servers = "localhost:9092"
+┌──────────────────────────────────────────────────────────┐
+│                    Billing Service                        │
+├──────────────────────────────────────────────────────────┤
+│  Controllers                                              │
+│  ├─ InvoiceCommandController (POST /invoices)             │
+│  └─ InvoiceQueryController (GET /invoices)               │
+├──────────────────────────────────────────────────────────┤
+│  Event Consumers                                          │
+│  └─ ProductCreatedEventHandler (Kafka → Invoice creation) │
+└──────────────────────────────────────────────────────────┘
 ```
 
-### Application Configuration
+### Eureka Server
 
-**Products Service** (`application.yml`):
+Eureka service registry for all microservices.
 
-```yaml
-server:
-  port: 0  # Random port for scaling
-  forward-headers-strategy: framework  # Gateway support
+### API Gateway (Spring Cloud Gateway)
 
-spring:
-  application:
-    name: products
-  config:
-    import: vault://  # Load secrets from Vault
-  data:
-    mongodb:
-      host: localhost
-      port: 27017
-      database: products
-      username: ${mongodb.username}
-      password: ${mongodb.password}
-  kafka:
-    bootstrap-servers: ${kafka.bootstrap-servers}
+Routes and load-balances requests to services by path prefix (`/products/*`, `/billing/*`).
+
+## Data Flow
+
+```
+Client → API Gateway (8080) → Products Service → CommandBus → Aggregate → EventStore (MongoDB)
+                                                                         ↓
+                                                                     Kafka (product-events)
+                                                                         ↓
+                                                                   Billing Service (SAGA consumer)
 ```
 
-## API Gateway Routing
+## ADRs
 
-### Route Configuration
-
-```yaml
-spring:
-  cloud:
-    gateway:
-      discovery:
-        locator:
-          enabled: true
-          lower-case-service-id: true
-      routes:
-        - id: products-swagger-ui
-          uri: lb://products
-          predicates:
-            - Path=/products/swagger-ui.html,/products/swagger-ui/**
-          filters:
-            - RewritePath=/products/(?<segment>.*), /${segment}
-```
-
-### Load Balancing
-
-- **Strategy**: Round-robin
-- **Discovery**: Eureka-based
-- **Health Checks**: Actuator endpoints
-
-## Security
-
-### MongoDB Users
-
-**Admin User**:
-
-- Username: `admin`
-- Password: Stored in Vault
-- Permissions: Full access
-- Auth DB: `admin`
-
-**Read-Only User**:
-
-- Username: `viewer`
-- Password: `viewonly123`
-- Permissions: Read-only on `products` database
-- Auth DB: `products`
-
-### Vault Integration
-
-- **Token**: `myroot` (development only)
-- **Backend**: KV v2
-- **Auto-renewal**: Enabled
-- **Lease Duration**: Default
-
-## Monitoring & Observability
-
-### Actuator Endpoints
-
-**Products Service**:
-
-- `/actuator/health` - Health status
-- `/actuator/info` - Service information
-- `/actuator/metrics` - Metrics
-
-**API Gateway**:
-
-- `/actuator/gateway/routes` - Route information
-- `/actuator/health` - Gateway health
-
-### Eureka Dashboard
-
-- **URL**: http://localhost:8761
-- **Features**:
-    - Service registration status
-    - Instance health
-    - Metadata viewing
-
-## Development Workflow
-
-### 1. Start Infrastructure
-
-```bash
-docker-compose up -d
-```
-
-### 2. Configure Vault
-
-```bash
-export VAULT_ADDR='http://localhost:8200'
-export VAULT_TOKEN='myroot'
-vault kv put secret/products \
-  mongodb.username=admin \
-  mongodb.password=password \
-  kafka.bootstrap-servers=localhost:9092
-```
-
-### 3. Build Services
-
-```bash
-./gradlew clean build -x test
-```
-
-### 4. Start Services (in order)
-
-```bash
-# Terminal 1: Eureka
-./gradlew :eureka-server:bootRun
-
-# Terminal 2: Gateway
-./gradlew :api-gateway:bootRun
-
-# Terminal 3: Products
-./gradlew :products:bootRun
-
-# Terminal 4: Billing
-./gradlew :billing:bootRun
-```
-
-### 5. Verify Deployment
-
-```bash
-# Check Eureka
-curl http://localhost:8761
-
-# Test Products API
-curl http://localhost:8080/products/products
-
-# Create Product
-curl -X POST http://localhost:8080/products/products \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Test","price":99.99}'
-```
-
-## Best Practices
-
-### Event Sourcing
-
-- ✅ Events are immutable
-- ✅ Events capture intent (ProductCreated, not ProductUpdated)
-- ✅ Store complete event data
-- ✅ Version events for schema evolution
-
-### CQRS
-
-- ✅ Separate models for reads and writes
-- ✅ Optimize queries independently
-- ✅ Use DTOs for API responses
-- ✅ Keep command handlers focused
-
-### Aggregates
-
-- ✅ Enforce business invariants
-- ✅ Keep aggregates small
-- ✅ Use value objects
-- ✅ Raise domain events
-
-### Microservices
-
-- ✅ One database per service
-- ✅ Async communication via events
-- ✅ Independent deployment
-- ✅ Service discovery
-
-## Future Enhancements
-
-- [ ] Event replay functionality
-- [ ] Snapshot support for aggregates
-- [ ] Distributed tracing (Zipkin/Jaeger)
-- [ ] Circuit breakers (Resilience4j)
-- [ ] API versioning
-- [ ] Rate limiting
-- [ ] Caching layer (Redis)
-- [ ] Kubernetes deployment
-- [ ] Monitoring (Prometheus/Grafana)
-
-## References
-
-- [Event Sourcing Pattern](https://martinfowler.com/eaaDev/EventSourcing.html)
-- [CQRS Pattern](https://martinfowler.com/bliki/CQRS.html)
-- [SAGA Pattern](https://microservices.io/patterns/data/saga.html)
-- [Spring Cloud Documentation](https://spring.io/projects/spring-cloud)
-- [MongoDB Event Store](https://www.mongodb.com/blog/post/event-sourcing-with-mongodb)
+See `docs/adr/` for detailed trade-off analyses:
+- [ADR-001](adr/ADR-001-cqrs-event-sourcing-over-crud.md): CQRS + Event Sourcing over CRUD
+- [ADR-002](adr/ADR-002-choreographed-saga-over-orchestrated.md): Choreographed SAGA
+- [ADR-003](adr/ADR-003-virtual-threads-over-reactive.md): Virtual Threads
