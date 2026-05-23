@@ -2,6 +2,78 @@
 # In production, never hardcode secrets — use Vault or a secrets manager.
 
 services:
+
+  eureka-server:
+    build:
+      context: .
+      dockerfile: eureka-server/Dockerfile
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    networks:
+      - microservices-network
+
+  products:
+    build:
+      context: .
+      dockerfile: products/Dockerfile
+    container_name: products-service
+    ports:
+      - "8081:8080"
+    environment:
+      SERVER_PORT: "8080"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_DATA_MONGODB_HOST: mongodb
+      SPRING_DATA_MONGODB_USERNAME: admin
+      SPRING_DATA_MONGODB_PASSWORD: ${MONGO_PASSWORD:-password}
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PASSWORD: ${REDIS_PASSWORD:-redispassword}
+      SPRING_CLOUD_VAULT_ENABLED: "false"
+    depends_on:
+      - eureka-server
+      - mongodb
+      - kafka
+      - redis
+    networks:
+      - microservices-network
+
+  billing:
+    build:
+      context: .
+      dockerfile: billing/Dockerfile
+    container_name: billing-service
+    ports:
+      - "8082:8080"
+    environment:
+      SERVER_PORT: "8080"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_DATA_MONGODB_HOST: mongodb
+      SPRING_DATA_MONGODB_USERNAME: admin
+      SPRING_DATA_MONGODB_PASSWORD: ${MONGO_PASSWORD:-password}
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SPRING_CLOUD_VAULT_ENABLED: "false"
+    depends_on:
+      - eureka-server
+      - mongodb
+      - kafka
+    networks:
+      - microservices-network
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: api-gateway/Dockerfile
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_CLOUD_VAULT_ENABLED: "false"
+    depends_on:
+      - eureka-server
+    networks:
+      - microservices-network
   mongodb:
     image: mongo:latest
     container_name: mongodb-poc

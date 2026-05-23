@@ -1,0 +1,15 @@
+#!/bin/sh
+# Pre-push hook: run full Gradle build (compilation + tests).
+# Aborts push if build fails.
+
+echo "=== Pre-push: Running gradle build ==="
+./gradlew build --no-daemon
+EXIT_CODE=$?
+
+if [ $EXIT_CODE -ne 0 ]; then
+  echo "=== BUILD FAILED (exit code $EXIT_CODE) — Push aborted ==="
+  exit 1
+fi
+
+echo "=== Build passed — Proceeding with push ==="
+exit 0

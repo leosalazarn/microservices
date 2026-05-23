@@ -1,0 +1,12 @@
+.git
+.gitignore
+.gradle
+.idea
+build
+node_modules
+postman
+scripts
+docs
+*.md
+*.bat
+*.env

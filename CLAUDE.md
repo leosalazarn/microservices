@@ -73,4 +73,16 @@ To get the most out of Claude in this project:
 
 ---
 
+## 🪝 Git Hooks
+
+A pre-push hook at `.githooks/pre-push` runs `./gradlew build` before every push.
+Docker-dependent integration tests (tagged `@Tag("docker")`) are excluded from the default build.
+
+To enable locally:
+```bash
+git config core.hooksPath .githooks
+```
+
+---
+
 **Claude is your partner in building production-grade distributed systems.** 🚀
