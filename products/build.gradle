@@ -112,7 +112,9 @@ sourceSets {
 compileJava.dependsOn tasks.openApiGenerate
 
 test {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        excludeTags "docker"
+    }
     testLogging {
         events "passed", "skipped", "failed"
         showStandardStreams = false
