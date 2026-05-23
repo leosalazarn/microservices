@@ -6,7 +6,7 @@ spring:
   application:
     name: products
   config:
-    import: vault://
+    import: optional:vault://
   cloud:
     vault:
       uri: http://localhost:8200

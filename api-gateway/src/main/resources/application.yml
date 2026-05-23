@@ -47,6 +47,18 @@ spring:
             - Path=/billing/actuator/**
           filters:
             - RewritePath=/billing/(?<segment>.*), /$\{segment}
+        - id: products-api
+          uri: lb://products
+          predicates:
+            - Path=/products/**
+          filters:
+            - RewritePath=/products/(?<segment>.*), /$\{segment}
+        - id: billing-api
+          uri: lb://billing
+          predicates:
+            - Path=/billing/**
+          filters:
+            - RewritePath=/billing/(?<segment>.*), /$\{segment}
 
 eureka:
   client:

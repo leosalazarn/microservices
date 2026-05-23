@@ -27,15 +27,15 @@ and no CI/CD/containerization.
 
 ## Findings Summary
 
-| Priority        | Task                                      | Hrs     | ROI    | Status          |
-|-----------------|-------------------------------------------|---------|--------|-----------------|
-| 🔴 Phase 1      | P0 Blocking CVEs (15)                     | —       | 🟢     | ✅ Fixed         |
-| 🟠 Phase 2      | P1 Before-GA CVEs (42 closed / 6 rem.)    | —       | 🟢     | 🟡 Ongoing      |
-| 🟡 Phase 3      | Logging & Robustness (2 tasks)            | 1h      | 🟡     | ✅ Complete      |
-| **🟢 Phase 4**  | **Event Sourcing Completeness (6 tasks)** | **10h** | **🟢** | **✅ Complete**  |
+| Priority        | Task                                      | Hrs     | ROI    | Status         |
+|-----------------|-------------------------------------------|---------|--------|----------------|
+| 🔴 Phase 1      | P0 Blocking CVEs (15)                     | —       | 🟢     | ✅ Fixed        |
+| 🟠 Phase 2      | P1 Before-GA CVEs (42 closed / 6 rem.)    | —       | 🟢     | 🟡 Ongoing     |
+| 🟡 Phase 3      | Logging & Robustness (2 tasks)            | 1h      | 🟡     | ✅ Complete     |
+| **🟢 Phase 4**  | **Event Sourcing Completeness (6 tasks)** | **10h** | **🟢** | **✅ Complete** |
 | **🟢 Phase 5**  | **Billing Persistence + Docker + Docs**   | **5h**  | **🟢** | **✅ Complete** |
-| 🟢 ADRs         | Decision Records (3 docs)                 | 1h      | 🟢     | ✅ Complete      |
-| 🔵 Code Cleanup | Low-priority cleanup (5 items)            | —       | 🔵     | ⬜               |
+| 🟢 ADRs         | Decision Records (3 docs)                 | 1h      | 🟢     | ✅ Complete     |
+| 🔵 Code Cleanup | Low-priority cleanup (5 items)            | —       | 🔵     | ⬜              |
 
 ---
 

@@ -26,9 +26,9 @@ services:
       SPRING_DATA_MONGODB_HOST: mongodb
       SPRING_DATA_MONGODB_USERNAME: admin
       SPRING_DATA_MONGODB_PASSWORD: ${MONGO_PASSWORD:-password}
-      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      SPRING_REDIS_HOST: redis
-      SPRING_REDIS_PASSWORD: ${REDIS_PASSWORD:-redispassword}
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:19092
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PASSWORD: ${REDIS_PASSWORD:-redispassword}
       SPRING_CLOUD_VAULT_ENABLED: "false"
     depends_on:
       - eureka-server
@@ -51,7 +51,7 @@ services:
       SPRING_DATA_MONGODB_HOST: mongodb
       SPRING_DATA_MONGODB_USERNAME: admin
       SPRING_DATA_MONGODB_PASSWORD: ${MONGO_PASSWORD:-password}
-      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:19092
       SPRING_CLOUD_VAULT_ENABLED: "false"
     depends_on:
       - eureka-server
