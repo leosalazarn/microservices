@@ -31,12 +31,12 @@ class InvoiceQueryControllerTest {
     @BeforeEach
     void setUp() {
         Invoice invoice1 = new Invoice();
-        invoice1.setId(1L);
+        invoice1.setId("1");
         invoice1.setCustomerId(123L);
         invoice1.setAmount(100.0);
 
         Invoice invoice2 = new Invoice();
-        invoice2.setId(2L);
+        invoice2.setId("2");
         invoice2.setCustomerId(456L);
         invoice2.setAmount(200.0);
 

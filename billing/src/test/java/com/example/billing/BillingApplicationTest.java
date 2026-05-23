@@ -6,25 +6,18 @@ import org.springframework.test.context.TestPropertySource;
 
 @SpringBootTest
 @TestPropertySource(properties = {
-    "eureka.client.register-with-eureka=false",
-    "eureka.client.fetch-registry=false",
-    "server.port=0",
-    "spring.kafka.bootstrap-servers=localhost:9092",
-    "spring.cloud.vault.enabled=false"
+    "eureka.client.enabled=false",
+    "spring.cloud.vault.enabled=false",
+    "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration,org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration"
 })
 class BillingApplicationTest {
 
     @Test
     void contextLoads() {
-        // This test verifies that the Spring Boot application context loads successfully
     }
 
     @Test
     void main() {
-        // Test that main method can be called without exceptions
-        String[] args = {};
-        // We don't actually call main() to avoid starting the server
-        // Just verify the class structure is correct
         BillingApplication.class.getDeclaredMethods();
     }
 }

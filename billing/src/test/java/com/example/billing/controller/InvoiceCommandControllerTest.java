@@ -34,7 +34,7 @@ class InvoiceCommandControllerTest {
         inputInvoice.setAmount(100.0);
 
         createdInvoice = new Invoice();
-        createdInvoice.setId(1L);
+        createdInvoice.setId("1");
         createdInvoice.setCustomerId(123L);
         createdInvoice.setAmount(100.0);
     }
