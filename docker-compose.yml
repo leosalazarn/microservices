@@ -75,7 +75,7 @@ services:
     networks:
       - microservices-network
   mongodb:
-    image: mongo:latest
+    image: mongo:7.0
     container_name: mongodb-poc
     restart: unless-stopped
     ports:
@@ -89,7 +89,7 @@ services:
       - microservices-network
 
   kafka:
-    image: apache/kafka:latest
+    image: apache/kafka:3.9.2
     container_name: kafka-poc
     restart: unless-stopped
     ports:
@@ -116,7 +116,7 @@ services:
     user: "0:0"
 
   vault:
-    image: hashicorp/vault:latest
+    image: hashicorp/vault:1.21.4
     container_name: vault-poc
     restart: unless-stopped
     ports:
