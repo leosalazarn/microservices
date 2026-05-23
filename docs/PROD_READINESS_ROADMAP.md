@@ -2,7 +2,8 @@
 
 **Date**: 2026-05-22  
 **Prod Readiness**: 🟡 **29 Alerts Remain** (5 High, 15 Moderate, 9 Low) — 42 of 71 closed.  
-**Architecture**: Java 21 — Spring Boot 3.4, CQRS, Event Sourcing, SAGA, Kafka EDA, MongoDB, Redis, Virtual Threads (ADR-003)  
+**Architecture**: Java 21 — Spring Boot 3.4, CQRS, Event Sourcing, SAGA, Kafka EDA, MongoDB, Redis, Virtual Threads (
+ADR-003)  
 **Auditor**: AI Assistant (Claude)
 
 ---
@@ -16,7 +17,8 @@ A comprehensive audit was performed on the Enterprise Microservices Architecture
 sophisticated patterns but has material issues preventing production readiness.
 
 **Overall Assessment**: Architecture is mature and well-designed, but the codebase is **not production-ready** due to
-hardcoded secrets (✅ fixed), Event Sourcing (✅ complete), mock data in Billing service, missing error handling (✅ fixed),
+hardcoded secrets (✅ fixed), Event Sourcing (✅ complete), mock data in Billing service, missing error handling (✅
+fixed),
 and no CI/CD/containerization.
 
 ---
@@ -25,15 +27,15 @@ and no CI/CD/containerization.
 
 ## Findings Summary
 
-| Priority        | Task                                      | Hrs     | ROI    | Status         |
-|-----------------|-------------------------------------------|---------|--------|----------------|
-| 🔴 Phase 1      | P0 Blocking CVEs (15)                     | —       | 🟢     | ✅ Fixed        |
-| 🟠 Phase 2      | P1 Before-GA CVEs (42 closed / 6 rem.)    | —       | 🟢     | 🟡 Ongoing     |
-| 🟡 Phase 3      | Logging & Robustness (2 tasks)            | 1h      | 🟡     | ✅ Complete     |
-| **🟢 Phase 4**  | **Event Sourcing Completeness (6 tasks)** | **10h** | **🟢** | **✅ Complete** |
-| **🟢 Phase 5**  | **Billing Persistence + Docker + Docs**   | **5h**  | **🟢** | **⬜ Next**     |
-| 🟢 ADRs         | Decision Records (3 docs)                 | 1h      | 🟢     | ✅ Complete     |
-| 🔵 Code Cleanup | Low-priority cleanup (5 items)            | —       | 🔵     | ⬜              |
+| Priority        | Task                                      | Hrs     | ROI    | Status          |
+|-----------------|-------------------------------------------|---------|--------|-----------------|
+| 🔴 Phase 1      | P0 Blocking CVEs (15)                     | —       | 🟢     | ✅ Fixed         |
+| 🟠 Phase 2      | P1 Before-GA CVEs (42 closed / 6 rem.)    | —       | 🟢     | 🟡 Ongoing      |
+| 🟡 Phase 3      | Logging & Robustness (2 tasks)            | 1h      | 🟡     | ✅ Complete      |
+| **🟢 Phase 4**  | **Event Sourcing Completeness (6 tasks)** | **10h** | **🟢** | **✅ Complete**  |
+| **🟢 Phase 5**  | **Billing Persistence + Docker + Docs**   | **5h**  | **🟢** | **🔄 5.5 Next** |
+| 🟢 ADRs         | Decision Records (3 docs)                 | 1h      | 🟢     | ✅ Complete      |
+| 🔵 Code Cleanup | Low-priority cleanup (5 items)            | —       | 🔵     | ⬜               |
 
 ---
 
@@ -190,10 +192,10 @@ Kafka 3.7.x→3.9.2.
 
 | #   | Task                                                           | Files                                                                                             | Hrs      | ROI | Status |
 |-----|----------------------------------------------------------------|---------------------------------------------------------------------------------------------------|----------|-----|--------|
-| 5.1 | **Billing persistence (OpenAPI spec, entity, repo, handlers)** | 8 files across billing module                                                                     | **2h**   | 🟢  | ⬜      |
-| 5.2 | **Wire SAGA consumer in Billing**                              | `ProductCreatedEventHandler.java`                                                                 | **1h**   | 🟢  | ⬜      |
-| 5.3 | **Create multi-stage Dockerfiles**                             | `products/Dockerfile`, `billing/Dockerfile`, `eureka-server/Dockerfile`, `api-gateway/Dockerfile` | **2h**   | 🟢  | ⬜      |
-| 5.4 | **Overhaul README.md**                                         | `README.md`                                                                                       | **0.5h** | 🟢  | ⬜      |
+| 5.1 | **Billing persistence (OpenAPI spec, entity, repo, handlers)** | 8 files across billing module                                                                     | **2h**   | 🟢  | ✅      |
+| 5.2 | **Wire SAGA consumer in Billing**                              | `ProductCreatedEventHandler.java`                                                                 | **1h**   | 🟢  | ✅      |
+| 5.3 | **Create multi-stage Dockerfiles**                             | `products/Dockerfile`, `billing/Dockerfile`, `eureka-server/Dockerfile`, `api-gateway/Dockerfile` | **2h**   | 🟢  | ✅      |
+| 5.4 | **Overhaul README.md + ARCHITECTURE.md (Mermaid diagrams)**    | `README.md`, `docs/ARCHITECTURE.md`                                                               | **0.5h** | 🟢  | ✅      |
 | 5.5 | Logging polish (audit remaining `@Slf4j`)                      | All service classes                                                                               | **1h**   | 🟡  | ⬜      |
 | 5.6 | Pin Docker image versions                                      | `docker-compose.yml`                                                                              | —        | 🟢  | ⬜      |
 
@@ -213,8 +215,6 @@ Test-scope, theoretical, or requires non-default config. Fix opportunistically d
 | json-smart Uncontrolled Recursion (#11)           | Requires deeply nested JSON                           |
 | rhino DoS via toFixed() (#44)                     | Rhino JS engine unlikely in microservice runtime path |
 | commons-configuration Resource Consumption (#17)  | Requires config parsing of untrusted source           |
-
-
 
 ## 🚦 Risk Triage — Prod Release Labels
 
@@ -439,7 +439,8 @@ consume these topics independently — no need to mix stacks or create a monorep
 
 - `UpdateProductCommandHandler` directly modified `ProductEntity`.
 - Did NOT raise `ProductUpdatedEvent`, save to EventStore, or publish to Kafka.
-- **Fix**: Rewritten via `ProductAggregate` → `applyProductUpdated()` with old/new tracking → `EventStore.saveAll()` → `DomainEventPublisher` → Kafka.
+- **Fix**: Rewritten via `ProductAggregate` → `applyProductUpdated()` with old/new tracking → `EventStore.saveAll()` →
+  `DomainEventPublisher` → Kafka.
 
 **Status**: ✅ Fixed
 
