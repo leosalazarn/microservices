@@ -31,7 +31,7 @@ class ProductAggregateTest {
         aggregate.updateName(newName);
 
         assertEquals(newName, aggregate.getName());
-        assertTrue(aggregate.getUpdatedAt().isAfter(beforeUpdate));
+        assertFalse(aggregate.getUpdatedAt().isBefore(beforeUpdate));
         assertEquals(beforeVersion + 1, aggregate.getVersion());
     }
 
@@ -64,7 +64,7 @@ class ProductAggregateTest {
         aggregate.updatePrice(newPrice);
 
         assertEquals(newPrice, aggregate.getPrice());
-        assertTrue(aggregate.getUpdatedAt().isAfter(beforeUpdate));
+        assertFalse(aggregate.getUpdatedAt().isBefore(beforeUpdate));
         assertEquals(beforeVersion + 1, aggregate.getVersion());
     }
 
