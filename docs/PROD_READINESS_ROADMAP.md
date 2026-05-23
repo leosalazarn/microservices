@@ -25,16 +25,16 @@ and no CI/CD/containerization.
 
 ## Findings Summary
 
-| Priority       | Task                                      | Hrs     | ROI    | Status     |
-|----------------|-------------------------------------------|---------|--------|------------|
-| 🔴 Phase 1     | P0 Blocking CVEs (15)                     | —       | 🟢     | ✅ Fixed    |
-| 🟠 Phase 2     | P1 Before-GA CVEs (42 closed / 6 rem.)    | —       | 🟢     | 🟡 Ongoing |
-| 🟡 Phase 3     | Logging & Robustness (2 tasks)            | 1h      | 🟡     | ✅ Complete |
-| **🟢 Phase 4** | **Event Sourcing Completeness (4 tasks)** | **10h** | **🟢** | **⬜ Next** |
-| 🔵 Phase 5a    | Code Cleanup (5 tasks)                    | —       | 🔵     | ⬜          |
-| 🔵 Phase 5b    | Dockerfiles (4) + README                  | 2.5h    | 🟢     | ⬜          |
-| 🟢 ADRs        | Decision Records (3 docs)                 | 1h      | 🟢     | ✅ Complete |
-| 🔵 Backlog     | Billing persistence                       | —       | 🔵     | ❌ Reverted |
+| Priority       | Task                                      | Hrs     | ROI    | Status         |
+|----------------|-------------------------------------------|---------|--------|----------------|
+| 🔴 Phase 1     | P0 Blocking CVEs (15)                     | —       | 🟢     | ✅ Fixed        |
+| 🟠 Phase 2     | P1 Before-GA CVEs (42 closed / 6 rem.)    | —       | 🟢     | 🟡 Ongoing     |
+| 🟡 Phase 3     | Logging & Robustness (2 tasks)            | 1h      | 🟡     | ✅ Complete     |
+| **🟢 Phase 4** | **Event Sourcing Completeness (6 tasks)** | **10h** | **🟢** | **✅ Complete** |
+| 🔵 Phase 5a    | Code Cleanup (5 tasks)                    | —       | 🔵     | ⬜              |
+| 🔵 Phase 5b    | Dockerfiles (4) + README                  | 2.5h    | 🟢     | ⬜              |
+| 🟢 ADRs        | Decision Records (3 docs)                 | 1h      | 🟢     | ✅ Complete     |
+| 🔵 Backlog     | Billing persistence                       | —       | 🔵     | ❌ Reverted     |
 
 ---
 
@@ -162,19 +162,25 @@ Kafka 3.7.x→3.9.2.
 
 ---
 
-### 🟢 Phase 4 — Event Sourcing Completeness — 🔴 **NEXT — 10h **
+### 🟢 Phase 4 — Event Sourcing Completeness — ✅ **COMPLETE**
 
-> **Critical for Kafka bridging**: `UpdateProductCommandHandler` bypasses Event Sourcing entirely. Future Python AI
-> microservices (separate repo) will consume from the same Kafka topics — products must publish events for updates just
-> as
-> they do for creates.
+> **Critical for Kafka bridging**: `UpdateProductCommandHandler` bypassed Event Sourcing entirely. The fix publishes
+> `ProductUpdatedEvent` with old/new value tracking to Event Store + Kafka, completing the CQRS write path.
 
-| #   | Task                                                       | Files                              | Est. Effort |
-|-----|------------------------------------------------------------|------------------------------------|-------------|
-| 4.1 | Complete `UpdateProductCommandHandler` with Event Sourcing | `UpdateProductCommandHandler.java` | 1-2 hrs     |
-| 4.2 | Create `ProductUpdatedEvent` domain event                  | New: `ProductUpdatedEvent.java`    | 30 min      |
-| 4.3 | Update `DomainEventPublisher` for `ProductUpdatedEvent`    | `DomainEventPublisher.java`        | 30 min      |
-| 4.4 | Add Kafka producer for `ProductUpdatedEvent`               | `EventPublisher.java`              | 1 hr        |
+| #   | Task                                                             | Files                                           | Est. Effort | Status |
+|-----|------------------------------------------------------------------|-------------------------------------------------|-------------|--------|
+| 4.1 | Complete `UpdateProductCommandHandler` with Event Sourcing       | `UpdateProductCommandHandler.java`              | 1-2 hrs     | ✅      |
+| 4.2 | Create `ProductUpdatedEvent` domain event                        | `ProductUpdatedEvent.java`                      | 30 min      | ✅      |
+| 4.3 | Update `DomainEventPublisher` for `ProductUpdatedEvent`          | `DomainEventPublisher.java`                     | 30 min      | ✅      |
+| 4.4 | Add Kafka producer for `ProductUpdatedEvent`                     | `EventPublisher.java`                           | 1 hr        | ✅      |
+| 4.5 | Fix stale Redis cache on update (missing `@CacheEvict` listener) | `CacheInvalidationEventHandler.java`            | —           | ✅      |
+| 4.6 | Add manual cache eviction endpoint (contract-first via OpenAPI)  | `products-api.yaml`, `ProductCommandController` | —           | ✅      |
+
+> [!NOTE]
+> The cache invalidation uses `@EventListener` with `ApplicationEventPublisher` — an in-process event bus. This is
+> **correct for single-instance** POC usage. In **production with multiple instances**, only the instance handling the
+> write evicts its local cache. The other instances serve stale data until TTL expiry. Fix: evict via the same Kafka
+> event or Redis Pub/Sub so all instances react.
 
 ---
 

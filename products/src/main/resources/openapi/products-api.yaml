@@ -102,6 +102,20 @@ paths:
                 $ref: '#/components/schemas/Product'
         '404':
           description: Product not found
+  /cache/evict:
+    post:
+      tags:
+        - Products Command
+      summary: Evict all caches
+      description: Clears Redis cache for products (forces fresh read from database)
+      operationId: evictCaches
+      responses:
+        '200':
+          description: Caches evicted
+          content:
+            text/plain:
+              schema:
+                type: string
 components:
   schemas:
     Product:

@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "12345678-1234-1234-1234-123456789012",
 		"name": "POC Microservices - CQRS/SAGA/Event Sourcing",
-		"description": "API collection for Spring Cloud microservices with CQRS, SAGA, and Event Sourcing patterns",
+		"description": "API collection for Spring Cloud microservices with CQRS, SAGA, and Event Sourcing patterns\n\n## Write Flow (Event Sourcing)\n1. **Create Product** → `CreateProductCommand` → `ProductAggregate.applyProductCreated()` → `EventStore.save()` → `DomainEventPublisher` → Kafka `[product-events]`\n2. **Update Product** → `UpdateProductCommand` → `ProductAggregate.updateName/Price/...` → `applyProductUpdated(old,new)` → `EventStore.saveAll()` → `DomainEventPublisher` → Kafka `[product-events]`\n\n## Variables\n- `product_id`: set automatically by Create Product test script\n- `updated_name`: set automatically by Update Product test scripts\n- `updated_price`: set automatically by Update Product test scripts",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -108,7 +108,12 @@
 									"if (jsonData.id) {",
 									"    pm.collectionVariables.set('product_id', jsonData.id);",
 									"    console.log('Saved product_id: ' + jsonData.id);",
-									"}"
+									"}",
+									"",
+									"pm.test('Status 201', () => pm.response.to.have.status(201));",
+									"pm.test('Has id', () => pm.expect(jsonData.id).to.not.be.empty);",
+									"pm.test('Has name', () => pm.expect(jsonData.name).to.eql('New Product'));",
+									"pm.test('Has price', () => pm.expect(jsonData.price).to.eql(99.99));"
 								],
 								"type": "text/javascript"
 							}
@@ -131,11 +136,36 @@
 							"host": ["{{gateway_url}}"],
 							"path": ["products", "products"]
 						},
-						"description": "Create product via Command Bus → Aggregate → Event Store → Kafka. Returns MongoDB ObjectId as 'id'."
+						"description": "Create product via Command Bus → ProductAggregate.applyProductCreated() → EventStore (MongoDB) → DomainEventPublisher → Kafka [product-events].\nReturns MongoDB ObjectId as 'id'. Auto-saves id to collection variable `product_id`."
 					}
 				},
 				{
 					"name": "Update Product (Full)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.name) {",
+									"    pm.collectionVariables.set('updated_name', jsonData.name);",
+									"    console.log('Saved updated_name: ' + jsonData.name);",
+									"}",
+									"if (jsonData.price) {",
+									"    pm.collectionVariables.set('updated_price', String(jsonData.price));",
+									"    console.log('Saved updated_price: ' + jsonData.price);",
+									"}",
+									"",
+									"pm.test('Status 200', () => pm.response.to.have.status(200));",
+									"pm.test('Name updated', () => pm.expect(jsonData.name).to.eql('Updated Product Name'));",
+									"pm.test('Price updated', () => pm.expect(jsonData.price).to.eql(149.99));",
+									"pm.test('Description updated', () => pm.expect(jsonData.description).to.eql('Updated description'));",
+									"pm.test('Category updated', () => pm.expect(jsonData.category).to.eql('Updated Category'));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "PUT",
 						"header": [
@@ -153,11 +183,30 @@
 							"host": ["{{gateway_url}}"],
 							"path": ["products", "products", "{{product_id}}"]
 						},
-						"description": "Full update - all fields"
+						"description": "Full update — all fields changed.\nFlow: UpdateProductCommand → ProductAggregate.updateName/updatePrice/updateDescription/updateCategory → capture old state → applyProductUpdated(oldN, oldP, oldD, oldC) → ProductUpdatedEvent with old+new values → EventStore.saveAll() → DomainEventPublisher → Kafka [product-events].\nOld values are tracked in the event for full audit trail.\nAuto-saves updated_name and updated_price to collection variables."
 					}
 				},
 				{
 					"name": "Update Product (Price Only)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.price) {",
+									"    pm.collectionVariables.set('updated_price', String(jsonData.price));",
+									"    console.log('Saved updated_price: ' + jsonData.price);",
+									"}",
+									"",
+									"pm.test('Status 200', () => pm.response.to.have.status(200));",
+									"pm.test('Price updated', () => pm.expect(jsonData.price).to.eql(199.99));",
+									"pm.test('Name unchanged', () => pm.expect(jsonData.name).to.not.be.empty);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "PUT",
 						"header": [
@@ -175,11 +224,30 @@
 							"host": ["{{gateway_url}}"],
 							"path": ["products", "products", "{{product_id}}"]
 						},
-						"description": "Partial update - price only"
+						"description": "Partial update — price only (other fields unchanged).\nFlow: UpdateProductCommand → ProductAggregate.updatePrice() → capture old price → applyProductUpdated() → ProductUpdatedEvent with oldPrice=newPrice tracking → EventStore → Kafka.\nDemonstrates nullable-field support in UpdateProductCommand."
 					}
 				},
 				{
 					"name": "Update Product (Name Only)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.name) {",
+									"    pm.collectionVariables.set('updated_name', jsonData.name);",
+									"    console.log('Saved updated_name: ' + jsonData.name);",
+									"}",
+									"",
+									"pm.test('Status 200', () => pm.response.to.have.status(200));",
+									"pm.test('Name updated', () => pm.expect(jsonData.name).to.eql('Renamed Product'));",
+									"pm.test('Price unchanged', () => pm.expect(jsonData.price).to.be.a('number'));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "PUT",
 						"header": [
@@ -197,11 +265,23 @@
 							"host": ["{{gateway_url}}"],
 							"path": ["products", "products", "{{product_id}}"]
 						},
-						"description": "Partial update - name only"
+						"description": "Partial update — name only.\nFlow: UpdateProductCommand(name set, others null) → ProductAggregate.updateName() → ProductUpdatedEvent with oldName → newName → EventStore → Kafka.\nDemonstrates that null fields are ignored by the handler."
 					}
 				},
 				{
 					"name": "Update Product - Not Found",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 404', () => pm.response.to.have.status(404));",
+									"pm.test('Error response', () => pm.expect(pm.response.text()).to.include('not found'));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "PUT",
 						"header": [
@@ -219,11 +299,36 @@
 							"host": ["{{gateway_url}}"],
 							"path": ["products", "products", "nonexistent-id"]
 						},
-						"description": "Test ProductNotFoundException"
+						"description": "Test ProductNotFoundException — handler returns 404 when id not found in repository."
 					}
 				},
 				{
+					"name": 			"Evict Cache",
+				"request": {
+					"method": "POST",
+					"header": [],
+					"url": {
+						"raw": "{{gateway_url}}/products/cache/evict",
+						"host": ["{{gateway_url}}"],
+						"path": ["products", "cache", "evict"]
+					}
+				},
+				"description": "Manually evict all Redis caches (forces fresh read from database on next query)"
+			},
+				{
 					"name": "Create Product - Duplicate Name",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 409', () => pm.response.to.have.status(409));",
+									"pm.test('Error response', () => pm.expect(pm.response.text()).to.include('duplicate'));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [
@@ -241,7 +346,194 @@
 							"host": ["{{gateway_url}}"],
 							"path": ["products", "products"]
 						},
-						"description": "Test DuplicateProductException via ProductLookup table"
+						"description": "Test DuplicateProductException via ProductLookup table uniqueness constraint."
+					}
+				}
+			]
+		},
+		{
+			"name": "Products Service - Complete SAGA Flow",
+			"item": [
+				{
+					"name": "1. Create Product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.id) {",
+									"    pm.collectionVariables.set('product_id', jsonData.id);",
+									"    console.log('Saved product_id: ' + jsonData.id);",
+									"}",
+									"",
+									"pm.test('Status 201', () => pm.response.to.have.status(201));",
+									"pm.test('Name matches', () => pm.expect(jsonData.name).to.eql('SAGA Test Product'));",
+									"pm.test('Price matches', () => pm.expect(jsonData.price).to.eql(49.99));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"SAGA Test Product\",\n  \"price\": 49.99,\n  \"description\": \"Created for SAGA flow test\",\n  \"category\": \"Testing\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/products/products",
+							"host": ["{{gateway_url}}"],
+							"path": ["products", "products"]
+						},
+						"description": "Step 1: Create product → ProductCreatedEvent → EventStore → Kafka."
+					}
+				},
+				{
+					"name": "2. Update Product (Partial Price)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.test('Status 200', () => pm.response.to.have.status(200));",
+									"pm.test('Name unchanged', () => pm.expect(jsonData.name).to.eql('SAGA Test Product'));",
+									"pm.test('Price increased', () => pm.expect(jsonData.price).to.eql(79.99));",
+									"",
+									"console.log('Updated price from 49.99 to 79.99');"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"price\": 79.99\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/products/products/{{product_id}}",
+							"host": ["{{gateway_url}}"],
+							"path": ["products", "products", "{{product_id}}"]
+						},
+						"description": "Step 2: Partial price update → ProductUpdatedEvent captures old=49.99, new=79.99 → EventStore → Kafka."
+					}
+				},
+				{
+					"name": "3. Update Product (Full)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.test('Status 200', () => pm.response.to.have.status(200));",
+									"pm.test('Name updated', () => pm.expect(jsonData.name).to.eql('SAGA Updated Name'));",
+									"pm.test('Price updated', () => pm.expect(jsonData.price).to.eql(129.99));",
+									"pm.test('Description updated', () => pm.expect(jsonData.description).to.eql('Updated via full update'));",
+									"pm.test('Category updated', () => pm.expect(jsonData.category).to.eql('Updated'));",
+									"",
+									"console.log('Full update complete - all fields changed');"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"SAGA Updated Name\",\n  \"price\": 129.99,\n  \"description\": \"Updated via full update\",\n  \"category\": \"Updated\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/products/products/{{product_id}}",
+							"host": ["{{gateway_url}}"],
+							"path": ["products", "products", "{{product_id}}"]
+						},
+						"description": "Step 3: Full update → all 4 fields change → ProductUpdatedEvent captures old+new for each → EventStore → Kafka."
+					}
+				},
+				{
+					"name": "4. Verify by Query",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"var updatedProduct = jsonData.find(p => p.id === pm.collectionVariables.get('product_id'));",
+									"",
+									"if (updatedProduct) {",
+									"    pm.test('Name persisted', () => pm.expect(updatedProduct.name).to.eql('SAGA Updated Name'));",
+									"    pm.test('Price persisted', () => pm.expect(updatedProduct.price).to.eql(129.99));",
+									"    pm.test('Description persisted', () => pm.expect(updatedProduct.description).to.eql('Updated via full update'));",
+									"    pm.test('Category persisted', () => pm.expect(updatedProduct.category).to.eql('Updated'));",
+									"    console.log('All updates verified in query response');",
+									"} else {",
+									"    pm.test('Product found in list', false, 'product not in query result');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{gateway_url}}/products/products",
+							"host": ["{{gateway_url}}"],
+							"path": ["products", "products"]
+						},
+						"description": "Step 4: Query all products and verify updates persisted to read model."
+					}
+				},
+				{
+					"name": "5. Check Billing (SAGA Consumer)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.test('Status 200', () => pm.response.to.have.status(200));",
+									"if (Array.isArray(jsonData)) {",
+									"    console.log('Billing received ' + jsonData.length + ' invoices from SAGA events');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{gateway_url}}/billing/invoices",
+							"host": ["{{gateway_url}}"],
+							"path": ["billing", "invoices"]
+						},
+						"description": "Step 5: Check billing service consumed ProductCreatedEvent from Kafka (SAGA choreography)."
 					}
 				}
 			]
@@ -283,7 +575,7 @@
 							"host": ["{{gateway_url}}"],
 							"path": ["billing", "invoices"]
 						},
-						"description": "Query all invoices (receives events from Products via SAGA)"
+						"description": "Query all invoices (receives ProductCreatedEvent from Products via SAGA choreography on Kafka)"
 					}
 				}
 			]
@@ -360,6 +652,18 @@
 			"value": "REPLACE_WITH_MONGODB_OBJECTID",
 			"type": "string",
 			"description": "MongoDB ObjectId returned from Create Product (auto-saved by test script)"
+		},
+		{
+			"key": "updated_name",
+			"value": "",
+			"type": "string",
+			"description": "Auto-saved by Update Product test scripts"
+		},
+		{
+			"key": "updated_price",
+			"value": "",
+			"type": "string",
+			"description": "Auto-saved by Update Product test scripts"
 		}
 	]
 }

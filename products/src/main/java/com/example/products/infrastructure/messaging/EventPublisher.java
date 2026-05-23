@@ -1,6 +1,7 @@
 package com.example.products.infrastructure.messaging;
 
 import com.example.products.domain.event.ProductCreatedEvent;
+import com.example.products.domain.event.ProductUpdatedEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +35,23 @@ public class EventPublisher {
             kafkaTemplate.send(message);
         } catch (Exception e) {
             log.error("Failed to publish ProductCreatedEvent", e);
+        }
+    }
+
+    public void publishProductUpdatedEvent(ProductUpdatedEvent event) {
+        try {
+            String eventJson = objectMapper.writeValueAsString(event);
+
+            Message<String> message = MessageBuilder
+                .withPayload(eventJson)
+                .setHeader(KafkaHeaders.TOPIC, PRODUCT_EVENTS_TOPIC)
+                .setHeader(KafkaHeaders.KEY, "product.updated")
+                .setHeader("eventType", "ProductUpdatedEvent")
+                .build();
+
+            kafkaTemplate.send(message);
+        } catch (Exception e) {
+            log.error("Failed to publish ProductUpdatedEvent", e);
         }
     }
 }

@@ -2,6 +2,7 @@ package com.example.products.infrastructure.messaging;
 
 import com.example.products.domain.event.DomainEvent;
 import com.example.products.domain.event.ProductCreatedEvent;
+import com.example.products.domain.event.ProductUpdatedEvent;
 import com.example.products.infrastructure.interceptor.MessageDispatcherInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -28,6 +29,8 @@ public class DomainEventPublisher {
             // Publish to Kafka for SAGA orchestration
             if (event instanceof ProductCreatedEvent) {
                 eventPublisher.publishProductCreatedEvent((ProductCreatedEvent) event);
+            } else if (event instanceof ProductUpdatedEvent) {
+                eventPublisher.publishProductUpdatedEvent((ProductUpdatedEvent) event);
             }
             
             // Publish locally for event-driven side effects (cache invalidation, lookup, etc.)

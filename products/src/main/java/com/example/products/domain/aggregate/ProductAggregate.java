@@ -2,6 +2,7 @@ package com.example.products.domain.aggregate;
 
 import com.example.products.domain.event.DomainEvent;
 import com.example.products.domain.event.ProductCreatedEvent;
+import com.example.products.domain.event.ProductUpdatedEvent;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -136,8 +137,19 @@ public class ProductAggregate {
         
         uncommittedEvents.add(event);
     }
-    
-    // Get uncommitted events for SAGA
+
+    public void applyProductUpdated(String oldName, Double oldPrice, String oldDescription, String oldCategory) {
+        ProductUpdatedEvent event = ProductUpdatedEvent.of(
+            this.id,
+            oldName, this.name,
+            oldPrice, this.price,
+            oldDescription, this.description,
+            oldCategory, this.category,
+            this.version
+        );
+        uncommittedEvents.add(event);
+    }
+
     public List<DomainEvent> getUncommittedEvents() {
         return new ArrayList<>(uncommittedEvents);
     }

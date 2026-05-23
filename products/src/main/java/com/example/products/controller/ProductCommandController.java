@@ -7,14 +7,20 @@ import com.example.products.command.UpdateProductCommand;
 import com.example.products.model.Product;
 import com.example.products.model.ProductUpdate;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Objects;
+
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class ProductCommandController implements ProductsCommandApi {
     
     private final CommandBus commandBus;
+    private final CacheManager cacheManager;
     
     @Override
     public ResponseEntity<Product> createProduct(Product product) {
@@ -41,5 +47,17 @@ public class ProductCommandController implements ProductsCommandApi {
         
         Product updatedProduct = commandBus.dispatch(command);
         return ResponseEntity.ok(updatedProduct);
+    }
+    
+    @Override
+    public ResponseEntity<String> evictCaches() {
+        cacheManager.getCacheNames().stream()
+                .map(cacheManager::getCache)
+                .filter(Objects::nonNull)
+                .forEach(cache -> {
+                    log.info("Evicting cache: {}", cache.getName());
+                    cache.clear();
+                });
+        return ResponseEntity.ok("All caches evicted");
     }
 }
