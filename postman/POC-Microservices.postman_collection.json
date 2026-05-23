@@ -303,18 +303,18 @@
 					}
 				},
 				{
-					"name": 			"Evict Cache",
-				"request": {
-					"method": "POST",
-					"header": [],
-					"url": {
-						"raw": "{{gateway_url}}/products/cache/evict",
-						"host": ["{{gateway_url}}"],
-						"path": ["products", "cache", "evict"]
-					}
+					"name": "Evict Cache",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{gateway_url}}/products/cache/evict",
+							"host": ["{{gateway_url}}"],
+							"path": ["products", "cache", "evict"]
+						}
+					},
+					"description": "Manually evict all Redis caches (forces fresh read from database on next query)"
 				},
-				"description": "Manually evict all Redis caches (forces fresh read from database on next query)"
-			},
 				{
 					"name": "Create Product - Duplicate Name",
 					"event": [
