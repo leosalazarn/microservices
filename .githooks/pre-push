@@ -2,7 +2,20 @@
 # Pre-push hook: run full Gradle build (compilation + tests).
 # Aborts push if build fails.
 
-echo "=== Pre-push: Running gradle build ==="
+if [ -z "$JAVA_HOME" ]; then
+  for dir in "$HOME/.jdks" "/c/Users/$USER/.jdks" "/c/Users/$(whoami)/.jdks"; do
+    if [ -d "$dir" ]; then
+      for jdk in "$dir"/*; do
+        if [ -x "$jdk/bin/java" ]; then
+          export JAVA_HOME="$jdk"
+          break 2
+        fi
+      done
+    fi
+  done
+fi
+
+echo "=== Pre-push: Running gradle build (JAVA_HOME=$JAVA_HOME) ==="
 ./gradlew build --no-daemon
 EXIT_CODE=$?
 
