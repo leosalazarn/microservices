@@ -33,7 +33,7 @@ and no CI/CD/containerization.
 | 🟠 Phase 2      | P1 Before-GA CVEs (42 closed / 6 rem.)    | —       | 🟢     | 🟡 Ongoing      |
 | 🟡 Phase 3      | Logging & Robustness (2 tasks)            | 1h      | 🟡     | ✅ Complete      |
 | **🟢 Phase 4**  | **Event Sourcing Completeness (6 tasks)** | **10h** | **🟢** | **✅ Complete**  |
-| **🟢 Phase 5**  | **Billing Persistence + Docker + Docs**   | **5h**  | **🟢** | **🔄 5.5 Next** |
+| **🟢 Phase 5**  | **Billing Persistence + Docker + Docs**   | **5h**  | **🟢** | **🔄 4/6 (5.5 next)** |
 | 🟢 ADRs         | Decision Records (3 docs)                 | 1h      | 🟢     | ✅ Complete      |
 | 🔵 Code Cleanup | Low-priority cleanup (5 items)            | —       | 🔵     | ⬜               |
 
@@ -185,10 +185,10 @@ Kafka 3.7.x→3.9.2.
 
 ---
 
-### 🟢 Phase 5 — Billing Persistence, Docker & Docs — 🔴 **NEXT (~5h)**
+### 🟢 Phase 5 — Billing Persistence, Docker & Docs — 🟢 **4/6 Done (~1h remaining)**
 
-> Billing uses mock data and empty SAGA handler. This phase adds real MongoDB persistence, wires the Kafka
-> `ProductCreatedEvent` consumer, creates Dockerfiles, and updates documentation.
+> Adds real MongoDB persistence, SAGA consumer, Dockerfiles, and documentation. 5.5 (logging) and 5.6 (Docker pinning)
+> remain.
 
 | #   | Task                                                           | Files                                                                                             | Hrs      | ROI | Status |
 |-----|----------------------------------------------------------------|---------------------------------------------------------------------------------------------------|----------|-----|--------|

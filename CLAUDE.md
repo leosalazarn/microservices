@@ -10,10 +10,10 @@ architectural review, documentation maintenance, and infrastructure troubleshoot
 
 Claude maintains a deep understanding of this project's specific tech stack and architectural choices:
 
-- **Language**: Java 21 (LTS)
-- **Framework**: Spring Boot 3.4.0 & Spring Cloud 2024.0.0
+- **Language**: Java 21 (LTS) with Virtual Threads (ADR-003)
+- **Framework**: Spring Boot 3.4.5 & Spring Cloud 2024.0.1
 - **Patterns**: Event Sourcing, CQRS, SAGA, Command Bus, and DDD
-- **Infrastructure**: MongoDB 8.0, Kafka 4.0, Redis 7, HashiCorp Vault, and Netflix Eureka
+- **Infrastructure**: MongoDB 8.0, Kafka 3.9.2, Redis 7, HashiCorp Vault, and Netflix Eureka
 - **API Strategy**: Contract-first with OpenAPI 3.0 and Swagger UI
 
 ## 🧠 Architectural Awareness
@@ -56,6 +56,10 @@ You can interact with Claude for:
 
 ## 📝 Recent AI Contributions
 
+- **Phase 5.1 (Billing Persistence)**: MongoDB entities, repository, rewritten handlers with real MongoDB, wired SAGA consumer.
+- **Phase 5.3 (Multi-stage Dockerfiles)**: Dockerfiles for all 4 services with `.dockerignore`, updated `docker-compose.yml`.
+- **Phase 5.4 (Documentation Overhaul)**: README → landing page (98 lines), ARCHITECTURE.md with 4 Mermaid diagrams (C4 context, CQRS, SAGA, cache invalidation).
+- **Pre-push Git Hook**: Auto-detects `JAVA_HOME` from `$HOME/.jdks/`, runs `./gradlew build` before every push.
 - **Documentation Indexing**: Assisted in the comprehensive review and indexing of all project documentation.
 - **Kafka Configuration**: Refined Kafka consumer settings like `AUTO_OFFSET_RESET_CONFIG`.
 - **Architectural Mapping**: Validated the 3-layer validation strategy and Command Bus implementation.
