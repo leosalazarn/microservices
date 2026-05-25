@@ -527,8 +527,7 @@ class name, backward-compatible with existing stored events.
 - ~~Docker images use `latest` tags — no reproducibility.~~ ✅ **Fixed** (Phase 5.6).
 - ~~No Dockerfiles for microservices, no CI/CD, no Kubernetes manifests.~~ ✅ **Fixed** — multi-stage Dockerfiles
   created (Phase 5.3).
-- ~~No circuit breaker (Resilience4j), retry/backoff, or distributed tracing.~~ ✅ **Phase 7 — retry + tracing
-  implemented; circuit breaker omitted by design** (see Phase 7 rationale).
+- No circuit breaker (Resilience4j), retry/backoff, or distributed tracing — **⬜ Phase 7 planned** (retry + tracing). Circuit breaker omitted by design (see Phase 7 rationale).
 
 ### 🔵 Low
 
