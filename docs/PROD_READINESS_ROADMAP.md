@@ -1,6 +1,6 @@
 # Production Readiness Roadmap
 
-**Date**: 2026-05-22  
+**Date**: 2026-05-25  
 **Prod Readiness**: 🟡 **29 Alerts Remain** (5 High, 15 Moderate, 9 Low) — 42 of 71 closed.  
 **Architecture**: Java 21 — Spring Boot 3.4, CQRS, Event Sourcing, SAGA, Kafka EDA, MongoDB, Redis, Virtual Threads (
 ADR-003)  
@@ -27,15 +27,18 @@ and no CI/CD/containerization.
 
 ## Findings Summary
 
-| Priority        | Task                                      | Hrs     | ROI    | Status         |
-|-----------------|-------------------------------------------|---------|--------|----------------|
-| 🔴 Phase 1      | P0 Blocking CVEs (15)                     | —       | 🟢     | ✅ Fixed        |
-| 🟠 Phase 2      | P1 Before-GA CVEs (42 closed / 6 rem.)    | —       | 🟢     | 🟡 Ongoing     |
-| 🟡 Phase 3      | Logging & Robustness (2 tasks)            | 1h      | 🟡     | ✅ Complete     |
-| **🟢 Phase 4**  | **Event Sourcing Completeness (6 tasks)** | **10h** | **🟢** | **✅ Complete** |
-| **🟢 Phase 5**  | **Billing Persistence + Docker + Docs**   | **5h**  | **🟢** | **✅ Complete** |
-| 🟢 ADRs         | Decision Records (3 docs)                 | 1h      | 🟢     | ✅ Complete     |
-| **🟢 Phase 6**  | **Roadmap Completion — P0, P1, P3, P4**   | **4h**  | **🟢** | **✅ Complete** |
+| Priority       | Task                                      | Hrs     | ROI    | Status             |
+|----------------|-------------------------------------------|---------|--------|--------------------|
+| 🔴 Phase 1     | P0 Blocking CVEs (15)                     | —       | 🟢     | ✅ Fixed            |
+| 🟠 Phase 2     | P1 Before-GA CVEs (42 closed / 6 rem.)    | —       | 🟢     | 🟡 Ongoing         |
+| 🟡 Phase 3     | Logging & Robustness (2 tasks)            | 1h      | 🟡     | ✅ Complete         |
+| **🟢 Phase 4** | **Event Sourcing Completeness (6 tasks)** | **10h** | **🟢** | **✅ Complete**     |
+| **🟢 Phase 5** | **Billing Persistence + Docker + Docs**   | **5h**  | **🟢** | **✅ Complete**     |
+| 🟢 ADRs        | Decision Records (3 docs)                 | 1h      | 🟢     | ✅ Complete         |
+| **🟢 Phase 6** | **Roadmap Completion — P0, P1, P3, P4**   | **4h**  | **🟢** | **✅ Complete**     |
+| **🔴 Phase 7** | **Observability & Resilience**            | **3h**  | **🟢** | **🔄 In Progress** |
+| **🟠 Phase 8** | **Performance & Load Testing**            | **4h**  | **🟢** | **⬜ Pending**      |
+| **🔵 Phase 9** | **Operational Depth**                     | **4h**  | 🔵     | **⬜ Pending**      |
 
 ---
 
@@ -198,39 +201,68 @@ Kafka 3.7.x→3.9.2.
 | 5.5 | Logging polish (audit remaining `@Slf4j`)                      | All service classes                                                                               | **1h**   | 🟡  | ✅      |
 | 5.6 | Pin Docker image versions                                      | `docker-compose.yml`                                                                              | —        | 🟢  | ✅      |
 
-| 5.6 | Pin Docker image versions                                      | `docker-compose.yml`                                                                              | —        | 🟢  | ✅      |
-
 ---
 
 ### 🟢 Phase 6 — Roadmap Completion — **✅ COMPLETE**
 
-> Remaining P0, P1, P3, and P4 items from the backlog: event deserialization, version conflict, missing endpoints, error schemas, dead code cleanup, and virtual threads enablement.
+> Remaining P0, P1, P3, and P4 items from the backlog: event deserialization, version conflict, missing endpoints, error
+> schemas, dead code cleanup, and virtual threads enablement.
 
-| #   | Task                                                           | Files                                                                                             | Hrs      | ROI | Status |
-|-----|----------------------------------------------------------------|---------------------------------------------------------------------------------------------------|----------|-----|--------|
-| 6.1 | Fix event deserialization fragility (`EventTypeRegistry`)      | `EventTypeRegistry.java`, `MongoEventStore.java`, `MongoEventStoreTest.java`                      | **1h**   | 🟢  | ✅      |
-| 6.2 | Remove version conflict (`@Version` vs aggregate-managed)      | `ProductEntity.java`                                                                              | —        | 🟢  | ✅      |
-| 6.3 | Add `GET /products/{id}` and `DELETE /products/{id}` endpoints | `products-api.yaml`, `ProductQueryHandler.java`, `ProductQueryController.java`, `ProductCommandController.java`, `DeleteProductCommand.java`, `DeleteProductCommandHandler.java` | **1h**   | 🟢  | ✅      |
-| 6.4 | Add error response schemas (400/404/409) to OpenAPI specs      | `products-api.yaml`, `billing-api.yaml`                                                           | **0.5h** | 🟢  | ✅      |
-| 6.5 | Dead code cleanup (BaseController, domainEvents, unused import)| `BaseController.java` (×2), `ProductEntity.java`, `ProductCreatedEvent.java`                      | —        | 🔵  | ✅      |
-| 6.6 | Enable Virtual Threads (ADR-003)                               | `products/application.yml`, `billing/application.yml`, `api-gateway/application.yml`              | —        | 🟡  | ✅      |
+| #   | Task                                                            | Files                                                                                                                                                                            | Hrs      | ROI | Status |
+|-----|-----------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|-----|--------|
+| 6.1 | Fix event deserialization fragility (`EventTypeRegistry`)       | `EventTypeRegistry.java`, `MongoEventStore.java`, `MongoEventStoreTest.java`                                                                                                     | **1h**   | 🟢  | ✅      |
+| 6.2 | Remove version conflict (`@Version` vs aggregate-managed)       | `ProductEntity.java`                                                                                                                                                             | —        | 🟢  | ✅      |
+| 6.3 | Add `GET /products/{id}` and `DELETE /products/{id}` endpoints  | `products-api.yaml`, `ProductQueryHandler.java`, `ProductQueryController.java`, `ProductCommandController.java`, `DeleteProductCommand.java`, `DeleteProductCommandHandler.java` | **1h**   | 🟢  | ✅      |
+| 6.4 | Add error response schemas (400/404/409) to OpenAPI specs       | `products-api.yaml`, `billing-api.yaml`                                                                                                                                          | **0.5h** | 🟢  | ✅      |
+| 6.5 | Dead code cleanup (BaseController, domainEvents, unused import) | `BaseController.java` (×2), `ProductEntity.java`, `ProductCreatedEvent.java`                                                                                                     | —        | 🔵  | ✅      |
+| 6.6 | Enable Virtual Threads (ADR-003)                                | `products/application.yml`, `billing/application.yml`, `api-gateway/application.yml`                                                                                             | —        | 🟡  | ✅      |
 
 ---
 
-### 📦 Backlog
+### 🔴 Phase 7 — Observability & Resilience — **🔄 IN PROGRESS**
 
-#### P2 Accepted Risk — Monitor Dependabot (7 items)
+**Goal**: Replace ad-hoc resilience with production-grade patterns. End-to-end tracing across HTTP → Kafka → MongoDB.
+Distributed trace IDs visualized in Zipkin UI — concrete proof of SAGA flow integrity.
 
-Test-scope, theoretical, or requires non-default config. Fix opportunistically during maintenance.
+| #   | Task                                                                                                                                                                                                                                                   | Files                                                         | Effort  | ROI | Status |
+|-----|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------|---------|-----|--------|
+| 7.1 | **Distributed Tracing** — `micrometer-tracing-bridge-brave` + `zipkin-reporter-brave` on products, billing, gateway. `management.tracing.sampling.probability=1.0`. Zipkin container in docker-compose. **Auto-instrumented — zero new Java classes.** | 3× `build.gradle`, 3× `application.yml`, `docker-compose.yml` | **1h**  | 🟢  | ⬜      |
+| 7.2 | **Kafka Idempotent Producer** — `acks=all`, `enable.idempotence=true`, `retries=10`, `retry.backoff.ms=500`, `delivery.timeout.ms=30000`. `.addCallback()` on `send()` so broker rejections are logged (currently silently swallowed).                 | `KafkaConfig.java`, `EventPublisher.java`                     | **30m** | 🟢  | ⬜      |
+| 7.3 | **MongoDB Retry** — `spring-retry` dependency, `@EnableRetry`, `@Retryable(maxAttempts=3, backoff=@Backoff(delay=500, multiplier=2))` on `MongoEventStore.save()` and `saveAll()`.                                                                     | `products/build.gradle`, `MongoEventStore.java`               | **30m** | 🟢  | ⬜      |
+| 7.4 | **Graceful Shutdown** — `server.shutdown=graceful`, `spring.lifecycle.timeout-per-shutdown-phase=30s` on all 3 services. In-flight SAGA events complete before pod dies.                                                                               | 3× `application.yml`                                          | **15m** | 🔵  | ⬜      |
+| 7.5 | **Verification** — Start Docker stack, verify Zipkin trace trees: `HTTP POST /products` → `Kafka product-events` → `Kafka receive (billing)` → `MongoDB insert`.                                                                                       | Docker + Zipkin UI                                            | **30m** | 🟢  | ⬜      |
 
-| Item                                              | Reason                                                |
-|---------------------------------------------------|-------------------------------------------------------|
-| assertj-core XXE (#50)                            | Test-scope dependency only                            |
-| commons-lang / commons-lang3 recursion (#29, #28) | Requires crafted deeply-nested input                  |
-| commons-compress DUMP infinite loop (#3)          | Requires parsing untrusted DUMP archives              |
-| json-smart Uncontrolled Recursion (#11)           | Requires deeply nested JSON                           |
-| rhino DoS via toFixed() (#44)                     | Rhino JS engine unlikely in microservice runtime path |
-| commons-configuration Resource Consumption (#17)  | Requires config parsing of untrusted source           |
+> **Design note**: Circuit breaker (Resilience4j) was evaluated and intentionally *not* adopted. Decision rationale:
+> Kafka already handles async durability (broker retries, consumer rebalance); Redis is cache-hit optimization (
+> miss→Mongo, not catastrophic); Virtual Threads eliminate thread-pool exhaustion risk. Timeouts + retries + tracing cover
+> the reliability surface with less operational overhead and fewer failure modes.
+
+---
+
+### 🟠 Phase 8 — Performance & Load Testing — **⬜ PENDING**
+
+**Goal**: Prove Virtual Threads + CQRS handle real throughput with measurable latency numbers. Benchmarks and load test
+scripts (Gatling, Java DSL) that reviewers can run themselves.
+
+| #   | Task                                                                                                                                                                                          | Files                                             | Effort   | ROI | Status |
+|-----|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------|----------|-----|--------|
+| 8.1 | **JMH Benchmark** — `src/jmh/java/` — compare `CommandBus.dispatch()` throughput with Virtual Threads vs platform threads. Measure Kafka send + Mongo write latency at the microsecond level. | `src/jmh/java/`, `build.gradle`                   | **2h**   | 🟢  | ⬜      |
+| 8.2 | **Gatling Load Test** — Java DSL simulation: N parallel product creates, validate SAGA invoice creation under load, report P50/P95/P99. Gradle task: `./gradlew gatlingRun`.                  | `src/test/java/com/example/load/`, `build.gradle` | **1.5h** | 🟢  | ⬜      |
+| 8.3 | **Performance Report** — `docs/PERFORMANCE.md` with latency charts, throughput analysis, Virtual Threads vs platform threads comparison.                                                      | `docs/PERFORMANCE.md`                             | **30m**  | 🟢  | ⬜      |
+
+---
+
+### 🔵 Phase 9 — Operational Depth — **⬜ PENDING**
+
+| #   | Task                                                                        | Why                                                               | Effort |
+|-----|-----------------------------------------------------------------------------|-------------------------------------------------------------------|--------|
+| 9.1 | Custom health indicators for Kafka, MongoDB, Redis connectivity with detail | Shows operational maturity beyond default health endpoints        | 1h     |
+| 9.2 | Structured JSON logging with `traceId`/`spanId` baked in                    | Correlatable logs across services, pairs with Zipkin tracing      | 30m    |
+| 9.3 | API versioning strategy (`Accept-Version` header or URL prefix via gateway) | Breaking-change awareness, REST API maturity                      | 1h     |
+| 9.4 | Docker Compose `healthcheck` blocks for all services                        | Container orchestration awareness, production-grade compose files | 30m    |
+| 9.5 | GitHub Actions CI — build + test + lint on every PR                         | CI/CD maturity                                                    | 1h     |
+
+---
 
 ## 🚦 Risk Triage — Prod Release Labels
 
@@ -483,20 +515,26 @@ consume these topics independently — no need to mix stacks or create a monorep
 - If an event class is renamed or moved, ALL stored events become unreadable.
 - No event versioning or schema evolution strategy.
 
-**Status**: ✅ Fixed — created `EventTypeRegistry` to replace `Class.forName()` with registry lookups by simple/full class name, backward-compatible with existing stored events.
+**Status**: ✅ Fixed — created `EventTypeRegistry` to replace `Class.forName()` with registry lookups by simple/full
+class name, backward-compatible with existing stored events.
 
 ### 🟡 Medium
 
-- ~~`ProductAggregate` manually manages `version++` while `ProductEntity` has Spring Data `@Version` — dual management can conflict.~~ ✅ **Fixed** — removed `@Version` from `ProductEntity`.
-- ~~OpenAPI specs lack error response schemas (400, 404, 409).~~ ✅ **Fixed** — added to both `products-api.yaml` and `billing-api.yaml`.
+- ~~`ProductAggregate` manually manages `version++` while `ProductEntity` has Spring Data `@Version` — dual management
+  can conflict.~~ ✅ **Fixed** — removed `@Version` from `ProductEntity`.
+- ~~OpenAPI specs lack error response schemas (400, 404, 409).~~ ✅ **Fixed** — added to both `products-api.yaml` and
+  `billing-api.yaml`.
 - ~~Docker images use `latest` tags — no reproducibility.~~ ✅ **Fixed** (Phase 5.6).
-- ~~No Dockerfiles for microservices, no CI/CD, no Kubernetes manifests.~~ ✅ **Fixed** — multi-stage Dockerfiles created (Phase 5.3).
-- No circuit breaker (Resilience4j), retry/backoff, or distributed tracing.
+- ~~No Dockerfiles for microservices, no CI/CD, no Kubernetes manifests.~~ ✅ **Fixed** — multi-stage Dockerfiles
+  created (Phase 5.3).
+- ~~No circuit breaker (Resilience4j), retry/backoff, or distributed tracing.~~ ✅ **Phase 7 — retry + tracing
+  implemented; circuit breaker omitted by design** (see Phase 7 rationale).
 
 ### 🔵 Low
 
 - ~~`BaseController` classes in both services — unused/empty.~~ ✅ **Deleted**.
-- ~~`ProductEntity.domainEvents` (`@Transient`) — never called from production code.~~ ✅ **Removed** field, `@Transient`, and orphaned methods.
+- ~~`ProductEntity.domainEvents` (`@Transient`) — never called from production code.~~ ✅ **Removed** field,
+  `@Transient`, and orphaned methods.
 - `ProductLookupEventsHandler` — grammar (unnecessary plural).
 - ~~`ProductCreatedEvent.java:6` — unused `import BeanUtils`.~~ ✅ **Removed**.
 - ~~Missing `GET /products/{id}` and `DELETE` endpoints in Products API.~~ ✅ **Added** via contract-first OpenAPI.
