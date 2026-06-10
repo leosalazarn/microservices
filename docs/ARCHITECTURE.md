@@ -175,10 +175,13 @@ sequenceDiagram
 ```
 
 > **Cache invalidation strategy (dual-path)**:
-> - **Path 1 (in-process)**: `@EventListener` fires synchronously via `ApplicationEventPublisher`. Zero latency. Guarantees the writing instance sees fresh data immediately. Works even if Redis is down.
-> - **Path 2 (Redis Pub/Sub)**: `RedisTemplate.convertAndSend()` broadcasts to all instances. Other instances evict their local cache via `MessageListener`. ~1-5ms latency. Redis already in docker-compose — zero new infrastructure.
+> - **Path 1 (in-process)**: `@EventListener` fires synchronously via `ApplicationEventPublisher`. Zero latency.
+    Guarantees the writing instance sees fresh data immediately. Works even if Redis is down.
+> - **Path 2 (Redis Pub/Sub)**: `RedisTemplate.convertAndSend()` broadcasts to all instances. Other instances evict
+    their local cache via `MessageListener`. ~1-5ms latency. Redis already in docker-compose — zero new infrastructure.
 > - **TTL as safety net**: 10-min cache TTL recovers from dropped Redis messages.
-> - **Why not Redis-only?**: In-process path adds zero cost, provides Redis-independent correctness for the writing instance, and keeps dev/single-instance mode fast.
+> - **Why not Redis-only?**: In-process path adds zero cost, provides Redis-independent correctness for the writing
+    instance, and keeps dev/single-instance mode fast.
 >
 > See `CacheInvalidationEventHandler.java` and Phase 9.6 in the roadmap.
 
@@ -235,19 +238,19 @@ Spring Cloud Gateway and Spring Kafka auto-instrument — no custom Observation 
 
 ## Tech Stack
 
-| Layer              | Technology                                      |
-|--------------------|-------------------------------------------------|
-| Framework          | Spring Boot 3.4.5 / Spring Cloud 2024.0.1       |
-| Language           | Java 21 (Virtual Threads — ADR-003)             |
-| Service Discovery  | Netflix Eureka                                  |
-| API Gateway        | Spring Cloud Gateway                            |
-| Database           | MongoDB 8.0                                     |
-| Event Streaming    | Apache Kafka 3.9.2 (gzip compression)           |
-| Cache              | Redis 7                                         |
-| Secrets            | HashiCorp Vault                                 |
-| Tracing            | Zipkin · Micrometer Tracing Bridge Brave        |
-| Kafka Tools        | Kafdrop · Kafka UI                              |
-| API Docs           | OpenAPI 3.0.3 / Swagger UI / SpringDoc          |
+| Layer             | Technology                                |
+|-------------------|-------------------------------------------|
+| Framework         | Spring Boot 3.4.5 / Spring Cloud 2024.0.1 |
+| Language          | Java 21 (Virtual Threads — ADR-003)       |
+| Service Discovery | Netflix Eureka                            |
+| API Gateway       | Spring Cloud Gateway                      |
+| Database          | MongoDB 8.0                               |
+| Event Streaming   | Apache Kafka 3.9.2 (gzip compression)     |
+| Cache             | Redis 7                                   |
+| Secrets           | HashiCorp Vault                           |
+| Tracing           | Zipkin · Micrometer Tracing Bridge Brave  |
+| Kafka Tools       | Kafdrop · Kafka UI                        |
+| API Docs          | OpenAPI 3.0.3 / Swagger UI / SpringDoc    |
 
 ## ADRs
 

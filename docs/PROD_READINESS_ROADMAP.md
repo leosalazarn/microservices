@@ -349,16 +349,16 @@ pattern. Extends GitHub Actions foundation.
 ### 🔵 Phase 9 — Operational Depth — **⬜ PENDING**
 
 **Goal**: Production-grade operational polish — custom health checks, structured logging, API versioning, container
-healthchecks, CI automation, and cross-instance cache consistency.
+health checks, CI automation, and cross-instance cache consistency.
 
-| #   | Task                                                                                   | Why                                                                                               | Effort |
-|-----|----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|--------|
-| 9.1 | Custom health indicators for Kafka, MongoDB, Redis connectivity with detail            | Shows operational maturity beyond default health endpoints                                        | 1h     |
-| 9.2 | Structured JSON logging with `traceId`/`spanId` baked in                               | Correlatable logs across services, pairs with Zipkin tracing                                      | 30m    |
-| 9.3 | API versioning strategy (`Accept-Version` header or URL prefix via gateway)            | Breaking-change awareness, REST API maturity                                                      | 1h     |
-| 9.4 | Docker Compose `healthcheck` blocks for all services                                   | Container orchestration awareness, production-grade compose files                                 | 30m    |
-| 9.5 | GitHub Actions CI — build + test + lint on every PR                                    | CI/CD maturity                                                                                    | 1h     |
-| 9.6 | Redis Pub/Sub cross-instance cache invalidation                                        | `@EventListener` only evicts the writing instance. Other instances serve stale data for up to TTL. Use Redis Pub/Sub channel to broadcast eviction to all instances. Redis already in docker-compose — zero new infra. | 1h     |
+| #   | Task                                                                        | Why                                                                                                                                                                                                                    | Effort |
+|-----|-----------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------|
+| 9.1 | Custom health indicators for Kafka, MongoDB, Redis connectivity with detail | Shows operational maturity beyond default health endpoints                                                                                                                                                             | 1h     |
+| 9.2 | Structured JSON logging with `traceId`/`spanId` baked in                    | Correlatable logs across services, pairs with Zipkin tracing                                                                                                                                                           | 30m    |
+| 9.3 | API versioning strategy (`Accept-Version` header or URL prefix via gateway) | Breaking-change awareness, REST API maturity                                                                                                                                                                           | 1h     |
+| 9.4 | Docker Compose `healthcheck` blocks for all services                        | Container orchestration awareness, production-grade compose files                                                                                                                                                      | 30m    |
+| 9.5 | GitHub Actions CI — build + test + lint on every PR                         | CI/CD maturity                                                                                                                                                                                                         | 1h     |
+| 9.6 | Redis Pub/Sub cross-instance cache invalidation                             | `@EventListener` only evicts the writing instance. Other instances serve stale data for up to TTL. Use Redis Pub/Sub channel to broadcast eviction to all instances. Redis already in docker-compose — zero new infra. | 1h     |
 
 ## 🚦 Risk Triage — Prod Release Labels
 
