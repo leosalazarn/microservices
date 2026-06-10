@@ -126,32 +126,61 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    participant Client
-    participant CmdCtrl as "CommandController"
-    participant Bus as "CommandBus"
-    participant Aggregate as "ProductAggregate"
-    participant Pub as "DomainEventPublisher"
-    participant Listener as "CacheInvalidationEventHandler"
-    participant Redis
+    box Instance A (writing)
+        participant Client
+        participant CmdCtrl as "CommandController"
+        participant Bus as "CommandBus"
+        participant Aggregate as "ProductAggregate"
+        participant Pub as "DomainEventPublisher"
+        participant Listener as "CacheInvalidationEventHandler"
+        participant CacheA as "Local Redis Cache"
+    end
+
+    box Redis
+        participant Channel as "Redis Pub/Sub<br/>(cache-invalidation)"
+    end
+
+    box Instance B (other)
+        participant ListenerB as "CacheInvalidationEventHandler"
+        participant CacheB as "Local Redis Cache"
+    end
 
     Client->>CmdCtrl: POST /products
     CmdCtrl->>Bus: dispatch(CreateProductCommand)
     Bus->>Aggregate: process(command)
     Aggregate->>Pub: publish event
     Pub->>Pub: Kafka producer
-    Pub->>Listener: ApplicationEventPublisher
-    Listener->>Redis: CacheManager.clear("products")
-    Note over Redis: products::all cleared
-    Aggregate-->>Bus: result
-    Bus-->>CmdCtrl: result
-    CmdCtrl-->>Client: response
 
-    Note over Client,Redis: Next GET rebuilds cache
+    Note over Pub,Listener: Dual-path invalidation (Phase 9.6)
+
+    rect rgb(220, 240, 220)
+        Note over Pub,Listener: Path 1 — In-process (instant)
+        Pub->>Listener: ApplicationEventPublisher
+        Listener->>CacheA: CacheManager.clear("products")
+    end
+
+    rect rgb(200, 230, 255)
+        Note over Pub,ListenerB: Path 2 — Redis Pub/Sub (broadcast)
+        Pub->>Channel: RedisTemplate.convertAndSend()
+        Channel-->>ListenerB: message received
+        ListenerB->>CacheB: CacheManager.clear("products")
+    end
+
+    rect rgb(200, 230, 255)
+        Channel-->>Listener: message received
+        Listener->>CacheA: CacheManager.clear("products")
+    end
+
+    Note over CacheA,CacheB: All instances evicted — next GET rebuilds from MongoDB
 ```
 
-> **Note**: Cache eviction uses direct `CacheManager` calls instead of `@CacheEvict` annotation
-> because Spring calls `@EventListener` methods directly (bypassing AOP proxies).
-> For multi-instance production, use Kafka/Redis Pub/Sub for cross-instance eviction.
+> **Cache invalidation strategy (dual-path)**:
+> - **Path 1 (in-process)**: `@EventListener` fires synchronously via `ApplicationEventPublisher`. Zero latency. Guarantees the writing instance sees fresh data immediately. Works even if Redis is down.
+> - **Path 2 (Redis Pub/Sub)**: `RedisTemplate.convertAndSend()` broadcasts to all instances. Other instances evict their local cache via `MessageListener`. ~1-5ms latency. Redis already in docker-compose — zero new infrastructure.
+> - **TTL as safety net**: 10-min cache TTL recovers from dropped Redis messages.
+> - **Why not Redis-only?**: In-process path adds zero cost, provides Redis-independent correctness for the writing instance, and keeps dev/single-instance mode fast.
+>
+> See `CacheInvalidationEventHandler.java` and Phase 9.6 in the roadmap.
 
 ---
 
