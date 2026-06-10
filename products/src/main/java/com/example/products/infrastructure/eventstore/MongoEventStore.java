@@ -4,6 +4,10 @@ import com.example.products.domain.event.DomainEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -12,6 +16,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
+@EnableRetry
 @RequiredArgsConstructor
 public class MongoEventStore implements EventStore {
 
@@ -20,6 +25,10 @@ public class MongoEventStore implements EventStore {
     private final EventTypeRegistry eventTypeRegistry;
 
     @Override
+    @Retryable(
+            retryFor = DataAccessException.class,
+            backoff = @Backoff(delay = 500, multiplier = 2)
+    )
     public void save(DomainEvent event) {
         EventStoreEntity entity = new EventStoreEntity();
         entity.setAggregateId(event.getAggregateId());
@@ -33,8 +42,22 @@ public class MongoEventStore implements EventStore {
     }
 
     @Override
+    @Retryable(
+            retryFor = DataAccessException.class,
+            backoff = @Backoff(delay = 500, multiplier = 2)
+    )
     public void saveAll(List<DomainEvent> events) {
-        events.forEach(this::save);
+        for (DomainEvent event : events) {
+            EventStoreEntity entity = new EventStoreEntity();
+            entity.setAggregateId(event.getAggregateId());
+            entity.setEventType(eventTypeRegistry.resolve(event.getClass()));
+            entity.setEventData(serializeEvent(event));
+            entity.setVersion(event.getVersion());
+            entity.setOccurredAt(event.getOccurredAt());
+            entity.setStoredAt(LocalDateTime.now());
+
+            repository.save(entity);
+        }
     }
 
     @Override

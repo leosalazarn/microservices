@@ -234,7 +234,8 @@ Distributed trace IDs visualized in Zipkin UI — concrete proof of SAGA flow in
 
 > **Design note**: Circuit breaker (Resilience4j) was evaluated and intentionally *not* adopted. Decision rationale:
 > Kafka already handles async durability (broker retries, consumer rebalance); Redis is cache-hit optimization (
-> miss→Mongo, not catastrophic); Virtual Threads eliminate thread-pool exhaustion risk. Timeouts + retries + tracing cover
+> miss→Mongo, not catastrophic); Virtual Threads eliminate thread-pool exhaustion risk. Timeouts + retries + tracing
+> cover
 > the reliability surface with less operational overhead and fewer failure modes.
 
 ---
@@ -527,7 +528,8 @@ class name, backward-compatible with existing stored events.
 - ~~Docker images use `latest` tags — no reproducibility.~~ ✅ **Fixed** (Phase 5.6).
 - ~~No Dockerfiles for microservices, no CI/CD, no Kubernetes manifests.~~ ✅ **Fixed** — multi-stage Dockerfiles
   created (Phase 5.3).
-- No circuit breaker (Resilience4j), retry/backoff, or distributed tracing — **⬜ Phase 7 planned** (retry + tracing). Circuit breaker omitted by design (see Phase 7 rationale).
+- No circuit breaker (Resilience4j), retry/backoff, or distributed tracing — **⬜ Phase 7 planned** (retry + tracing).
+  Circuit breaker omitted by design (see Phase 7 rationale).
 
 ### 🔵 Low
 

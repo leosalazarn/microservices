@@ -48,7 +48,8 @@ class EventPublisherTest {
     @Test
     void publishProductCreatedEvent_JsonProcessingException_ShouldHandleGracefully() throws JsonProcessingException {
         when(objectMapper.writeValueAsString(event))
-                .thenThrow(new JsonProcessingException("Serialization error") {});
+                .thenThrow(new JsonProcessingException("Serialization error") {
+                });
 
         // Should not throw - exception is caught and logged
         eventPublisher.publishProductCreatedEvent(event);
@@ -59,12 +60,10 @@ class EventPublisherTest {
 
     @Test
     void publishProductCreatedEvent_NullEvent_ShouldHandleGracefully() throws JsonProcessingException {
-        when(objectMapper.writeValueAsString(null)).thenReturn("null");
-
         eventPublisher.publishProductCreatedEvent(null);
 
-        verify(objectMapper).writeValueAsString(null);
-        verify(kafkaTemplate).send(any(Message.class));
+        verify(objectMapper, never()).writeValueAsString(any());
+        verify(kafkaTemplate, never()).send(any(Message.class));
     }
 
     @Test

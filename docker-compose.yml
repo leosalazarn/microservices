@@ -30,11 +30,13 @@ services:
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PASSWORD: ${REDIS_PASSWORD:-redispassword}
       SPRING_CLOUD_VAULT_ENABLED: "false"
+      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
     depends_on:
       - eureka-server
       - mongodb
       - kafka
       - redis
+      - zipkin
     networks:
       - microservices-network
 
@@ -53,10 +55,12 @@ services:
       SPRING_DATA_MONGODB_PASSWORD: ${MONGO_PASSWORD:-password}
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:19092
       SPRING_CLOUD_VAULT_ENABLED: "false"
+      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
     depends_on:
       - eureka-server
       - mongodb
       - kafka
+      - zipkin
     networks:
       - microservices-network
 
@@ -70,6 +74,7 @@ services:
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
       SPRING_CLOUD_VAULT_ENABLED: "false"
+      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
     depends_on:
       - eureka-server
     networks:
@@ -150,6 +155,41 @@ services:
       interval: 10s
       timeout: 3s
       retries: 5
+
+  zipkin:
+    image: openzipkin/zipkin:3.4
+    container_name: zipkin-poc
+    restart: unless-stopped
+    ports:
+      - "9411:9411"
+    networks:
+      - microservices-network
+
+  kafdrop:
+    image: obsidiandynamics/kafdrop:latest
+    container_name: kafdrop
+    depends_on:
+      - kafka
+    ports:
+      - "9000:9000"
+    environment:
+      KAFKA_BROKERCONNECT: kafka:19092
+      JVM_OPTS: "-Xms32M -Xmx64M"
+    networks:
+      - microservices-network
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    depends_on:
+      - kafka
+    ports:
+      - "8090:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: microservices-cluster
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:19092
+    networks:
+      - microservices-network
 
 volumes:
   mongodb_data:

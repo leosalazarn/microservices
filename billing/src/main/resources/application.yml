@@ -1,6 +1,7 @@
 server:
   port: 0
   forward-headers-strategy: framework
+  shutdown: graceful
 
 spring:
   application:
@@ -8,6 +9,8 @@ spring:
   threads:
     virtual:
       enabled: true
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
   config:
     import: optional:vault://
   cloud:
@@ -47,6 +50,12 @@ management:
   info:
     env:
       enabled: true
+  tracing:
+    sampling:
+      probability: 1.0
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans
 
 info:
   app:
