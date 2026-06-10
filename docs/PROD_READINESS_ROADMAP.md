@@ -34,7 +34,6 @@ and no CI/CD/containerization.
 | 🟡 Phase 3      | Logging & Robustness (2 tasks)            | 1h      | 🟡     | ✅ Complete     |
 | **🟢 Phase 4**  | **Event Sourcing Completeness (6 tasks)** | **10h** | **🟢** | **✅ Complete** |
 | **🟢 Phase 5**  | **Billing Persistence + Docker + Docs**   | **5h**  | **🟢** | **✅ Complete** |
-| 🟢 ADRs         | Decision Records (3 docs)                 | 1h      | 🟢     | ✅ Complete     |
 | **🟢 Phase 6**  | **Roadmap Completion — P0, P1, P3, P4**   | **4h**  | **🟢** | **✅ Complete** |
 | **🟢 Phase 7**  | **Observability & Resilience**            | **3h**  | **🟢** | **✅ Complete** |
 | **🟠 Phase 10** | **Kafka Streams**                         | **8h**  | 🟢     | **⬜ Pending**  |
@@ -250,38 +249,6 @@ Distributed trace IDs visualized in Zipkin UI — concrete proof of SAGA flow in
 
 ---
 
-### 🟠 Phase 8 — Performance & Load Testing — **⬜ PENDING**
-
-**Goal**: Prove Virtual Threads + CQRS handle real throughput with measurable latency numbers. Benchmarks and load test
-scripts (Gatling, Java DSL) that reviewers can run themselves.
-
-**Why**: Recent performance-sensitive changes (retry, tracing, snappy→gzip) need a
-latency/throughput baseline before adding more Kafka complexity. Quickest win (2h).
-
-| #   | Task                                                                                                                                                                                          | Files                                             | Effort  | ROI | Status |
-|-----|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------|---------|-----|--------|
-| 8.1 | **JMH Benchmark** — `src/jmh/java/` — compare `CommandBus.dispatch()` throughput with Virtual Threads vs platform threads. Measure Kafka send + Mongo write latency at the microsecond level. | `src/jmh/java/`, `build.gradle`                   | **1h**  | 🟢  | ⬜      |
-| 8.2 | **Gatling Load Test** — Java DSL simulation: N parallel product creates, validate SAGA invoice creation under load, report P50/P95/P99. Gradle task: `./gradlew gatlingRun`.                  | `src/test/java/com/example/load/`, `build.gradle` | **30m** | 🟢  | ⬜      |
-| 8.3 | **Performance Report** — `docs/PERFORMANCE.md` with latency charts, throughput analysis, Virtual Threads vs platform threads comparison.                                                      | `docs/PERFORMANCE.md`                             | **30m** | 🟢  | ⬜      |
-
----
-
-### 🔵 Phase 9 — Operational Depth — **⬜ PENDING**
-
-**Goal**: Production-grade operational polish — custom health checks, structured logging, API versioning, container
-health checks, CI automation, and cross-instance cache consistency.
-
-| #   | Task                                                                                   | Why                                                                                               | Effort |
-|-----|----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|--------|
-| 9.1 | Custom health indicators for Kafka, MongoDB, Redis connectivity with detail            | Shows operational maturity beyond default health endpoints                                        | 1h     |
-| 9.2 | Structured JSON logging with `traceId`/`spanId` baked in                               | Correlatable logs across services, pairs with Zipkin tracing                                      | 30m    |
-| 9.3 | API versioning strategy (`Accept-Version` header or URL prefix via gateway)            | Breaking-change awareness, REST API maturity                                                      | 1h     |
-| 9.4 | Docker Compose `healthcheck` blocks for all services                                   | Container orchestration awareness, production-grade compose files                                 | 30m    |
-| 9.5 | GitHub Actions CI — build + test + lint on every PR                                    | CI/CD maturity                                                                                    | 1h     |
-| 9.6 | Redis Pub/Sub cross-instance cache invalidation                                        | `@EventListener` only evicts the writing instance. Other instances serve stale data for up to TTL. Use Redis Pub/Sub channel to broadcast eviction to all instances. Redis already in docker-compose — zero new infra. | 1h     |
-
----
-
 ### 🟠 Phase 10 — Kafka Streams — **⬜ PENDING**
 
 **Goal**: Add Kafka Streams processing module for real-time event aggregation. Demonstrate KStream/KTable semantics,
@@ -319,17 +286,19 @@ patterns without invasive code changes.
 
 ---
 
-### 🟡 Phase 12 — Kafka Security — **⬜ PENDING**
+### 🟠 Phase 8 — Performance & Load Testing — **⬜ PENDING**
 
-**Goal**: Harden Kafka with SASL/SCRAM authentication, TLS encryption, and ACL-based authorization. Provide
-`docker-compose.security.yml` override for isolated testing.
+**Goal**: Prove Virtual Threads + CQRS handle real throughput with measurable latency numbers. Benchmarks and load test
+scripts (Gatling, Java DSL) that reviewers can run themselves.
 
-| #    | Task                                                                                                                                                                 | Files                                          | Effort | ROI | Status |
-|------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------|--------|-----|--------|
-| 12.1 | **SASL/SCRAM auth** — Configure Kafka broker with `SASL_PLAINTEXT` listener, create user credentials. Override in `docker-compose.security.yml`.                     | `docker-compose.security.yml`                  | **1h** | 🟢  | ⬜      |
-| 12.2 | **TLS encryption** — Self-signed certificate generation script (`.githooks/gen-certs.sh`). Configure broker and clients with `SSL` listener.                         | `scripts/gen-certs.sh`                         | **1h** | 🟢  | ⬜      |
-| 12.3 | **ACL authorization** — Script to grant minimal ACLs per service (products: write `product-events`, billing: read `product-events`). `authorizer.class.name` config. | `scripts/setup-acls.sh`                        | **1h** | 🟢  | ⬜      |
-| 12.4 | **Client configuration** — Update `KafkaConfig.java` and billing consumer config with SASL/TLS properties. `.env.example` with required variables.                   | `KafkaConfig.java`, `billing/`, `.env.example` | **1h** | 🟢  | ⬜      |
+**Why**: Recent performance-sensitive changes (retry, tracing, snappy→gzip) need a latency/throughput baseline before
+adding more Kafka complexity. Quickest win (2h).
+
+| #   | Task                                                                                                                                                                                          | Files                                             | Effort  | ROI | Status |
+|-----|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------|---------|-----|--------|
+| 8.1 | **JMH Benchmark** — `src/jmh/java/` — compare `CommandBus.dispatch()` throughput with Virtual Threads vs platform threads. Measure Kafka send + Mongo write latency at the microsecond level. | `src/jmh/java/`, `build.gradle`                   | **1h**  | 🟢  | ⬜      |
+| 8.2 | **Gatling Load Test** — Java DSL simulation: N parallel product creates, validate SAGA invoice creation under load, report P50/P95/P99. Gradle task: `./gradlew gatlingRun`.                  | `src/test/java/com/example/load/`, `build.gradle` | **30m** | 🟢  | ⬜      |
+| 8.3 | **Performance Report** — `docs/PERFORMANCE.md` with latency charts, throughput analysis, Virtual Threads vs platform threads comparison.                                                      | `docs/PERFORMANCE.md`                             | **30m** | 🟢  | ⬜      |
 
 ---
 
@@ -352,6 +321,20 @@ consumer lag, and throughput.
 
 ---
 
+### 🟡 Phase 12 — Kafka Security — **⬜ PENDING**
+
+**Goal**: Harden Kafka with SASL/SCRAM authentication, TLS encryption, and ACL-based authorization. Provide
+`docker-compose.security.yml` override for isolated testing.
+
+| #    | Task                                                                                                                                                                 | Files                                          | Effort | ROI | Status |
+|------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------|--------|-----|--------|
+| 12.1 | **SASL/SCRAM auth** — Configure Kafka broker with `SASL_PLAINTEXT` listener, create user credentials. Override in `docker-compose.security.yml`.                     | `docker-compose.security.yml`                  | **1h** | 🟢  | ⬜      |
+| 12.2 | **TLS encryption** — Self-signed certificate generation script (`.githooks/gen-certs.sh`). Configure broker and clients with `SSL` listener.                         | `scripts/gen-certs.sh`                         | **1h** | 🟢  | ⬜      |
+| 12.3 | **ACL authorization** — Script to grant minimal ACLs per service (products: write `product-events`, billing: read `product-events`). `authorizer.class.name` config. | `scripts/setup-acls.sh`                        | **1h** | 🟢  | ⬜      |
+| 12.4 | **Client configuration** — Update `KafkaConfig.java` and billing consumer config with SASL/TLS properties. `.env.example` with required variables.                   | `KafkaConfig.java`, `billing/`, `.env.example` | **1h** | 🟢  | ⬜      |
+
+---
+
 ### 🟡 Phase 14 — CI/CD for Kafka — **⬜ PENDING**
 
 **Goal**: Integrate Kafka-aware CI/CD: schema compatibility checks, consumer lag validation, and canary deployment
@@ -364,6 +347,22 @@ pattern. Extends GitHub Actions foundation.
 | 14.1 | **Schema compatibility check** — GitHub Actions workflow step: push Avro schema to Schema Registry with `FULL_TRANSITIVE` compatibility validation. Fail build on breaking change. | `.github/workflows/schema-check.yml` | **30m** | 🟢  | ⬜      |
 | 14.2 | **Consumer lag gate** — Post-deployment step: check consumer lag via Kafka CLI after deploy. Rollback if lag exceeds threshold after timeout.                                      | `.github/workflows/deploy.yml`       | **30m** | 🟢  | ⬜      |
 | 14.3 | **Canary deployment** — Script: deploy new consumer version alongside existing, route 10% traffic, validate metrics, then full rollout or rollback.                                | `scripts/canary-deploy.sh`           | **1h**  | 🟢  | ⬜      |
+
+---
+
+### 🔵 Phase 9 — Operational Depth — **⬜ PENDING**
+
+**Goal**: Production-grade operational polish — custom health checks, structured logging, API versioning, container
+health checks, CI automation, and cross-instance cache consistency.
+
+| #   | Task                                                                                   | Why                                                                                               | Effort |
+|-----|----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|--------|
+| 9.1 | Custom health indicators for Kafka, MongoDB, Redis connectivity with detail            | Shows operational maturity beyond default health endpoints                                        | 1h     |
+| 9.2 | Structured JSON logging with `traceId`/`spanId` baked in                               | Correlatable logs across services, pairs with Zipkin tracing                                      | 30m    |
+| 9.3 | API versioning strategy (`Accept-Version` header or URL prefix via gateway)            | Breaking-change awareness, REST API maturity                                                      | 1h     |
+| 9.4 | Docker Compose `healthcheck` blocks for all services                                   | Container orchestration awareness, production-grade compose files                                 | 30m    |
+| 9.5 | GitHub Actions CI — build + test + lint on every PR                                    | CI/CD maturity                                                                                    | 1h     |
+| 9.6 | Redis Pub/Sub cross-instance cache invalidation                                        | `@EventListener` only evicts the writing instance. Other instances serve stale data for up to TTL. Use Redis Pub/Sub channel to broadcast eviction to all instances. Redis already in docker-compose — zero new infra. | 1h     |
 
 ## 🚦 Risk Triage — Prod Release Labels
 
