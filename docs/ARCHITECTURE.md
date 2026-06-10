@@ -19,7 +19,7 @@ graph TB
     BS["Billing Service"]
 
     MONGO[("MongoDB :27017")]
-    KAFKA["Kafka :9092"]
+    KAFKA["Kafka :19092"]
     REDIS[("Redis :6379")]
     VAULT["Vault :8200"]
 
@@ -140,7 +140,7 @@ sequenceDiagram
     Aggregate->>Pub: publish event
     Pub->>Pub: Kafka producer
     Pub->>Listener: ApplicationEventPublisher
-    Listener->>Redis: @CacheEvict("products")
+    Listener->>Redis: CacheManager.clear("products")
     Note over Redis: products::all cleared
     Aggregate-->>Bus: result
     Bus-->>CmdCtrl: result
@@ -148,6 +148,10 @@ sequenceDiagram
 
     Note over Client,Redis: Next GET rebuilds cache
 ```
+
+> **Note**: Cache eviction uses direct `CacheManager` calls instead of `@CacheEvict` annotation
+> because Spring calls `@EventListener` methods directly (bypassing AOP proxies).
+> For multi-instance production, use Kafka/Redis Pub/Sub for cross-instance eviction.
 
 ---
 
@@ -178,31 +182,43 @@ Distributed transactions via event choreography over Kafka:
 
 - Products publishes `ProductCreatedEvent` → Kafka `product-events` topic
 - Billing consumes event → creates `Invoice`
+- Idempotent producer (`acks=all`, `retries=10`) + gzip compression for reliable delivery
 
 ### Event-Driven Cache Invalidation
 
 ```
-Write → DomainEvent → ApplicationEventPublisher → @EventListener → @CacheEvict → Redis cleared
+Write → DomainEvent → ApplicationEventPublisher → @EventListener → CacheManager.clear("products") → Redis cleared
 ```
 
 > **Note**: In-process `@EventListener` works for single-instance POC. Multi-instance production needs Kafka/Redis
-> Pub/Sub for cross-instance eviction.
+> Pub/Sub for cross-instance eviction. See `CacheInvalidationEventHandler.java` for the `CacheManager`-based approach.
+
+### Distributed Tracing
+
+```
+HTTP request → Gateway → Products/Billing → Zipkin collector (Micrometer Tracing + Brave)
+```
+
+Every service emits traces with `traceId` and `spanId`. All traces are collected by Zipkin at `http://localhost:9411`.
+Spring Cloud Gateway and Spring Kafka auto-instrument — no custom Observation handlers needed.
 
 ---
 
 ## Tech Stack
 
-| Layer             | Technology                                |
-|-------------------|-------------------------------------------|
-| Framework         | Spring Boot 3.4.5 / Spring Cloud 2024.0.1 |
-| Language          | Java 21 (Virtual Threads — ADR-003)       |
-| Service Discovery | Netflix Eureka                            |
-| API Gateway       | Spring Cloud Gateway                      |
-| Database          | MongoDB 8.0                               |
-| Event Streaming   | Apache Kafka 3.9.2                        |
-| Cache             | Redis 7                                   |
-| Secrets           | HashiCorp Vault                           |
-| API Docs          | OpenAPI 3.0.3 / Swagger UI / SpringDoc    |
+| Layer              | Technology                                      |
+|--------------------|-------------------------------------------------|
+| Framework          | Spring Boot 3.4.5 / Spring Cloud 2024.0.1       |
+| Language           | Java 21 (Virtual Threads — ADR-003)             |
+| Service Discovery  | Netflix Eureka                                  |
+| API Gateway        | Spring Cloud Gateway                            |
+| Database           | MongoDB 8.0                                     |
+| Event Streaming    | Apache Kafka 3.9.2 (gzip compression)           |
+| Cache              | Redis 7                                         |
+| Secrets            | HashiCorp Vault                                 |
+| Tracing            | Zipkin · Micrometer Tracing Bridge Brave        |
+| Kafka Tools        | Kafdrop · Kafka UI                              |
+| API Docs           | OpenAPI 3.0.3 / Swagger UI / SpringDoc          |
 
 ## ADRs
 

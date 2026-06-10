@@ -17,27 +17,36 @@ MongoDB, and Redis.
 | [Quick Start](docs/QUICKSTART.md)         | Get running in 5 minutes                  |
 | [Architecture](docs/ARCHITECTURE.md)      | System design, patterns, diagrams         |
 | [Docker Setup](docs/DOCKER.md)            | Infrastructure + service containerization |
-| [ADR Library](docs/adr/)                  | Architecture Decision Records             |
+| [ADR Library](docs/adr)                   | Architecture Decision Records             |
 | [Roadmap](docs/PROD_READINESS_ROADMAP.md) | CVE remediation & production readiness    |
 
 ## Service Catalog
 
-| Service              | Purpose                                         | Port     |
-|----------------------|-------------------------------------------------|----------|
-| **Eureka Server**    | Service registry & discovery                    | `:8761`  |
-| **API Gateway**      | Centralized routing (Spring Cloud Gateway)      | `:8080`  |
-| **Products Service** | Product CRUD, Event Sourcing, CQRS, Redis cache | dynamic  |
-| **Billing Service**  | Invoice management, SAGA consumer               | dynamic  |
-| **MongoDB**          | Document DB + Event Store                       | `:27017` |
-| **Kafka**            | Event streaming for SAGA choreography           | `:9092`  |
-| **Redis**            | Distributed query cache                         | `:6379`  |
-| **Vault**            | Secrets management                              | `:8200`  |
+| Service              | Purpose                                          | Port     |
+|----------------------|--------------------------------------------------|----------|
+| **Eureka Server**    | Service registry & discovery                     | `:8761`  |
+| **API Gateway**      | Centralized routing (Spring Cloud Gateway)       | `:8080`  |
+| **Products Service** | Product CRUD, Event Sourcing, CQRS, Redis cache  | dynamic  |
+| **Billing Service**  | Invoice management, SAGA consumer                | dynamic  |
+| **MongoDB**          | Document DB + Event Store                        | `:27017` |
+| **Kafka**            | Event streaming for SAGA choreography            | `:9092`  |
+| **Redis**            | Distributed query cache                          | `:6379`  |
+| **Vault**            | Secrets management                               | `:8200`  |
+| **Zipkin**           | Distributed tracing (Micrometer Tracing + Brave) | `:9411`  |
+| **Kafdrop**          | Kafka topic browser                              | `:9000`  |
+| **Kafka UI**         | Kafka management UI                              | `:8090`  |
 
 ## Tech Stack
 
 **Core**: Java 21 (Virtual Threads) · Spring Boot 3.4.5 · Spring Cloud 2024.0.1 · Gradle 8.11.1
 
 **Infrastructure**: MongoDB 8.0 · Apache Kafka 3.9.2 · Redis 7 · HashiCorp Vault · Netflix Eureka
+
+**Observability**: Zipkin (distributed tracing) · Micrometer Tracing Bridge Brave · Prometheus (planned) · Grafana (
+planned)
+
+**Messaging**: Kafka with gzip compression · idempotent producer (`acks=all`, `enable.idempotence=true`) · Spring Retry
+on MongoDB writes
 
 **API**: OpenAPI 3.0 (contract-first) · Swagger UI · SpringDoc
 

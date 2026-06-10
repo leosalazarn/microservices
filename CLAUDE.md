@@ -76,6 +76,19 @@ You can interact with Claude for:
 - **Kafka Configuration**: Refined Kafka consumer settings like `AUTO_OFFSET_RESET_CONFIG`.
 - **Architectural Mapping**: Validated the 3-layer validation strategy and Command Bus implementation.
 - **Assistant Integration**: Documenting the role of AI partners (Gemini and Claude) in the development lifecycle.
+- **Phase 7 (Observability & Resilience, June 2026)**: Distributed tracing via Micrometer Tracing + Brave + Zipkin on
+  products, billing, and gateway. Kafka idempotent producer with `acks=all`, `retries=10`, `enable.idempotence=true`.
+  MongoDB retry with `@Retryable` (3 attempts, exponential backoff) on `MongoEventStore`. Graceful shutdown (30s
+  timeout) on all 3 services. Added Kafdrop and Kafka UI for topic inspection.
+- **Cache invalidation bug fix**: `@CacheEvict` + `@EventListener` was a Spring AOP no-op (event listeners bypass
+  proxying). Replaced with direct `CacheManager` calls in `CacheInvalidationEventHandler.java`.
+- **DeleteProductCommandHandler fix**: Missing from `CommandBusConfig.registerHandlers()` — registered the handler.
+- **Snappy→gzip compression fix (June 2026)**: `compression.type=snappy` requires glibc (`ld-linux-x86-64.so.2`),
+  unavailable on Alpine Docker images. Changed to `gzip` (pure Java `java.util.zip`) — restored broken SAGA event
+  flow.
+- **Roadmap reprioritization**: Reordered pending phases by ROI and critical gaps: Phase 8 (load testing) → Phase 13
+  (monitoring) → Phase 10 (Kafka Streams) → Phase 11 (Kafka Connect) → Phase 12 (security) → Phase 14 (CI/CD) →
+  Phase 9 (operational depth). Total 30h remaining.
 
 ## 📖 How to Interact
 

@@ -1,6 +1,6 @@
 # Production Readiness Roadmap
 
-**Date**: 2026-05-25  
+**Date**: 2026-06-10  
 **Prod Readiness**: 🟡 **29 Alerts Remain** (5 High, 15 Moderate, 9 Low) — 42 of 71 closed.  
 **Architecture**: Java 21 — Spring Boot 3.4, CQRS, Event Sourcing, SAGA, Kafka EDA, MongoDB, Redis, Virtual Threads (
 ADR-003)  
@@ -235,7 +235,7 @@ Distributed trace IDs visualized in Zipkin UI — concrete proof of SAGA flow in
 | 7.2 | **Kafka Idempotent Producer** — `acks=all`, `enable.idempotence=true`, `retries=10`, `retry.backoff.ms=500`, `delivery.timeout.ms=30000`. `.addCallback()` on `send()` so broker rejections are logged (currently silently swallowed).                 | `KafkaConfig.java`, `EventPublisher.java`                     | **30m** | 🟢  | ✅      |
 | 7.3 | **MongoDB Retry** — `spring-retry` dependency, `@EnableRetry`, `@Retryable(maxAttempts=3, backoff=@Backoff(delay=500, multiplier=2))` on `MongoEventStore.save()` and `saveAll()`.                                                                     | `products/build.gradle`, `MongoEventStore.java`               | **30m** | 🟢  | ✅      |
 | 7.4 | **Graceful Shutdown** — `server.shutdown=graceful`, `spring.lifecycle.timeout-per-shutdown-phase=30s` on all 3 services. In-flight SAGA events complete before pod dies.                                                                               | 3× `application.yml`                                          | **15m** | 🔵  | ✅      |
-| 7.5 | **Verification** — Start Docker stack, verify Zipkin trace trees: `HTTP POST /products` → `Kafka product-events` → `Kafka receive (billing)` → `MongoDB insert`.                                                                                       | Docker + Zipkin UI                                            | **30m** | 🟢  | ⬜      |
+| 7.5 | **Verification** — Start Docker stack, verify Zipkin trace trees: `HTTP POST /products` → `Kafka product-events` → `Kafka receive (billing)` → `MongoDB insert`.                                                                                       | Docker + Zipkin UI                                            | **30m** | 🟢  | ✅      |
 
 > **Design note**: Circuit breaker (Resilience4j) was evaluated and intentionally *not* adopted. Decision rationale:
 > Kafka already handles async durability (broker retries, consumer rebalance); Redis is cache-hit optimization (

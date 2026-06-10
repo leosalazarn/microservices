@@ -66,6 +66,14 @@ You can interact with Gemini for:
 - **SAGA Flow Fixes (May 2026)**: Fixed deserialization — aligned `ProductEvent` fields with `ProductCreatedEvent`
   JSON (`productId`), registered `JavaTimeModule`. Fixed Kafka Docker networking — containers use `kafka:19092`. Fixed
   gateway routing — added catch-all routes with `RewritePath`.
+- **Phase 7 (Observability & Resilience, June 2026)**: Distributed tracing with Micrometer Tracing + Brave + Zipkin.
+  Kafka idempotent producer with `acks=all`, `retries=10`, `enable.idempotence=true`. MongoDB retry with `@Retryable`.
+  Graceful shutdown (30s) on all services.
+- **Bug fixes (June 2026)**: Cache invalidation no-op (`@CacheEvict` + `@EventListener`) fixed via `CacheManager`.
+  Missing `DeleteProductCommandHandler` registered in `CommandBusConfig`.
+- **Snappy→gzip compression fix**: Alpine Docker images lack glibc for snappy native lib. Changed to `gzip` (pure Java).
+- **Roadmap reprioritized**: Phases reordered by ROI: load testing → monitoring → Kafka Streams → Kafka Connect →
+  security → CI/CD → operational depth.
 
 ## 📖 How to Interact
 
