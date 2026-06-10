@@ -36,13 +36,13 @@ and no CI/CD/containerization.
 | **🟢 Phase 5**  | **Billing Persistence + Docker + Docs**   | **5h**  | **🟢** | **✅ Complete** |
 | **🟢 Phase 6**  | **Roadmap Completion — P0, P1, P3, P4**   | **4h**  | **🟢** | **✅ Complete** |
 | **🟢 Phase 7**  | **Observability & Resilience**            | **3h**  | **🟢** | **✅ Complete** |
-| **🟠 Phase 10** | **Kafka Streams**                         | **8h**  | 🟢     | **⬜ Pending**  |
-| **🟠 Phase 11** | **Kafka Connect**                         | **6h**  | 🟢     | **⬜ Pending**  |
-| **🟠 Phase 8**  | **Performance & Load Testing**            | **2h**  | **🟢** | **⬜ Pending**  |
-| **🟡 Phase 13** | **Monitoring + Infrastructure**           | **4h**  | 🟢     | **⬜ Pending**  |
+| **🟠 Phase 8**  | **Kafka Streams**                         | **8h**  | 🟢     | **⬜ Pending**  |
+| **🟠 Phase 9**  | **Kafka Connect**                         | **6h**  | 🟢     | **⬜ Pending**  |
+| **🟠 Phase 10** | **Performance & Load Testing**            | **2h**  | **🟢** | **⬜ Pending**  |
+| **🟡 Phase 11** | **Monitoring + Infrastructure**           | **4h**  | 🟢     | **⬜ Pending**  |
 | **🟡 Phase 12** | **Kafka Security**                        | **4h**  | 🟢     | **⬜ Pending**  |
-| **🟡 Phase 14** | **CI/CD for Kafka**                       | **2h**  | 🟢     | **⬜ Pending**  |
-| **🔵 Phase 9**  | **Operational Depth**                     | **5h**  | 🔵     | **⬜ Pending**  |
+| **🟡 Phase 13** | **CI/CD for Kafka**                       | **2h**  | 🟢     | **⬜ Pending**  |
+| **🔵 Phase 14** | **Operational Depth**                     | **5h**  | 🔵     | **⬜ Pending**  |
 
 ---
 
@@ -249,7 +249,7 @@ Distributed trace IDs visualized in Zipkin UI — concrete proof of SAGA flow in
 
 ---
 
-### 🟠 Phase 10 — Kafka Streams — **⬜ PENDING**
+### 🟠 Phase 8 — Kafka Streams — **⬜ PENDING**
 
 **Goal**: Add Kafka Streams processing module for real-time event aggregation. Demonstrate KStream/KTable semantics,
 windowed operations, and state stores within the existing Java/Gradle stack.
@@ -257,18 +257,18 @@ windowed operations, and state stores within the existing Java/Gradle stack.
 **Why**: Core Kafka knowledge gap. Streams API enables real-time aggregation and stateful processing of
 `product-events` without external systems.
 
-| #    | Task                                                                                                                                                                | Files                                                | Effort   | ROI | Status |
-|------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------|----------|-----|--------|
-| 10.1 | **Kafka Streams dependency** — Add `kafka-streams` to `build.gradle`, create `streams/` package with `StreamsConfig` and topology beans.                            | `products/build.gradle`, `streams/*.java`            | **1h**   | 🟢  | ⬜      |
-| 10.2 | **KStream/KTable topology** — Read from `product-events`, group by product ID, compute real-time stats (count per category, price aggregates).                      | `streams/ProductStatsTopology.java`                  | **2h**   | 🟢  | ⬜      |
-| 10.3 | **Windowed operations** — Tumbling window (hourly product creation count), hopping window (15-min sliding stats). Demonstrate window configuration and suppression. | `streams/WindowedStatsTopology.java`                 | **2h**   | 🟢  | ⬜      |
-| 10.4 | **State store (RocksDB)** — Configure persistent state store, Interactive Queries (IQ) REST endpoint to query current state (e.g., running category counts).        | `streams/InteractiveQueriesController.java`          | **1.5h** | 🟢  | ⬜      |
-| 10.5 | **Exactly-once semantics** — Configure `processing.guarantee=exactly_once_v2`. TopologyTestDriver unit tests for each topology.                                     | `streams/*.java`, `src/test/java/streams/*Test.java` | **1h**   | 🟢  | ⬜      |
-| 10.6 | **Docker Compose** — Add streams service or embed within existing products service.                                                                                 | `docker-compose.yml`                                 | **30m**  | 🔵  | ⬜      |
+| #   | Task                                                                                                                                                                | Files                                                | Effort   | ROI | Status |
+|-----|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------|----------|-----|--------|
+| 8.1 | **Kafka Streams dependency** — Add `kafka-streams` to `build.gradle`, create `streams/` package with `StreamsConfig` and topology beans.                            | `products/build.gradle`, `streams/*.java`            | **1h**   | 🟢  | ⬜      |
+| 8.2 | **KStream/KTable topology** — Read from `product-events`, group by product ID, compute real-time stats (count per category, price aggregates).                      | `streams/ProductStatsTopology.java`                  | **2h**   | 🟢  | ⬜      |
+| 8.3 | **Windowed operations** — Tumbling window (hourly product creation count), hopping window (15-min sliding stats). Demonstrate window configuration and suppression. | `streams/WindowedStatsTopology.java`                 | **2h**   | 🟢  | ⬜      |
+| 8.4 | **State store (RocksDB)** — Configure persistent state store, Interactive Queries (IQ) REST endpoint to query current state (e.g., running category counts).        | `streams/InteractiveQueriesController.java`          | **1.5h** | 🟢  | ⬜      |
+| 8.5 | **Exactly-once semantics** — Configure `processing.guarantee=exactly_once_v2`. TopologyTestDriver unit tests for each topology.                                     | `streams/*.java`, `src/test/java/streams/*Test.java` | **1h**   | 🟢  | ⬜      |
+| 8.6 | **Docker Compose** — Add streams service or embed within existing products service.                                                                                 | `docker-compose.yml`                                 | **30m**  | 🔵  | ⬜      |
 
 ---
 
-### 🟠 Phase 11 — Kafka Connect — **⬜ PENDING**
+### 🟠 Phase 9 — Kafka Connect — **⬜ PENDING**
 
 **Goal**: Add Kafka Connect worker and Debezium CDC connector for MongoDB, demonstrating source/sink connector
 configuration with Schema Registry (Avro). All config-based, zero custom connector code.
@@ -276,17 +276,17 @@ configuration with Schema Registry (Avro). All config-based, zero custom connect
 **Why**: CDC from Event Store to Kafka unlocks schema evolution, audit, and downstream consumer
 patterns without invasive code changes.
 
-| #    | Task                                                                                                                                               | Files                                                 | Effort   | ROI | Status |
-|------|----------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------|----------|-----|--------|
-| 11.1 | **Schema Registry** — Add `confluentinc/cp-schema-registry` container to `docker-compose`.                                                         | `docker-compose.yml`                                  | **30m**  | 🟢  | ⬜      |
-| 11.2 | **Kafka Connect worker** — Add `confluentinc/cp-kafka-connect` container with Debezium MongoDB plugin. JSON config file for the connector.         | `docker-compose.yml`, `connect/debezium-mongodb.json` | **1.5h** | 🟢  | ⬜      |
-| 11.3 | **Debezium CDC** — Source connector captures `event_store` collection changes → `event-store-cdc` topic. Verify events appear in Kafka UI/Kafdrop. | `connect/debezium-mongodb.json`                       | **1h**   | 🟢  | ⬜      |
-| 11.4 | **Avro serialization** — Register Avro schema for `ProductCreatedEvent` in Schema Registry. Produce/consume with Avro instead of JSON.             | `products/`, `billing/` Avro schemas                  | **2h**   | 🟢  | ⬜      |
-| 11.5 | **Sink connector** — JDBC sink or MongoDB sink that materializes events into a read-optimized collection.                                          | `connect/mongodb-sink.json`                           | **1h**   | 🟢  | ⬜      |
+| #   | Task                                                                                                                                               | Files                                                 | Effort   | ROI | Status |
+|-----|----------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------|----------|-----|--------|
+| 9.1 | **Schema Registry** — Add `confluentinc/cp-schema-registry` container to `docker-compose`.                                                         | `docker-compose.yml`                                  | **30m**  | 🟢  | ⬜      |
+| 9.2 | **Kafka Connect worker** — Add `confluentinc/cp-kafka-connect` container with Debezium MongoDB plugin. JSON config file for the connector.         | `docker-compose.yml`, `connect/debezium-mongodb.json` | **1.5h** | 🟢  | ⬜      |
+| 9.3 | **Debezium CDC** — Source connector captures `event_store` collection changes → `event-store-cdc` topic. Verify events appear in Kafka UI/Kafdrop. | `connect/debezium-mongodb.json`                       | **1h**   | 🟢  | ⬜      |
+| 9.4 | **Avro serialization** — Register Avro schema for `ProductCreatedEvent` in Schema Registry. Produce/consume with Avro instead of JSON.             | `products/`, `billing/` Avro schemas                  | **2h**   | 🟢  | ⬜      |
+| 9.5 | **Sink connector** — JDBC sink or MongoDB sink that materializes events into a read-optimized collection.                                          | `connect/mongodb-sink.json`                           | **1h**   | 🟢  | ⬜      |
 
 ---
 
-### 🟠 Phase 8 — Performance & Load Testing — **⬜ PENDING**
+### 🟠 Phase 10 — Performance & Load Testing — **⬜ PENDING**
 
 **Goal**: Prove Virtual Threads + CQRS handle real throughput with measurable latency numbers. Benchmarks and load test
 scripts (Gatling, Java DSL) that reviewers can run themselves.
@@ -294,15 +294,15 @@ scripts (Gatling, Java DSL) that reviewers can run themselves.
 **Why**: Recent performance-sensitive changes (retry, tracing, snappy→gzip) need a latency/throughput baseline before
 adding more Kafka complexity. Quickest win (2h).
 
-| #   | Task                                                                                                                                                                                          | Files                                             | Effort  | ROI | Status |
-|-----|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------|---------|-----|--------|
-| 8.1 | **JMH Benchmark** — `src/jmh/java/` — compare `CommandBus.dispatch()` throughput with Virtual Threads vs platform threads. Measure Kafka send + Mongo write latency at the microsecond level. | `src/jmh/java/`, `build.gradle`                   | **1h**  | 🟢  | ⬜      |
-| 8.2 | **Gatling Load Test** — Java DSL simulation: N parallel product creates, validate SAGA invoice creation under load, report P50/P95/P99. Gradle task: `./gradlew gatlingRun`.                  | `src/test/java/com/example/load/`, `build.gradle` | **30m** | 🟢  | ⬜      |
-| 8.3 | **Performance Report** — `docs/PERFORMANCE.md` with latency charts, throughput analysis, Virtual Threads vs platform threads comparison.                                                      | `docs/PERFORMANCE.md`                             | **30m** | 🟢  | ⬜      |
+| #    | Task                                                                                                                                                                                          | Files                                             | Effort  | ROI | Status |
+|------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------|---------|-----|--------|
+| 10.1 | **JMH Benchmark** — `src/jmh/java/` — compare `CommandBus.dispatch()` throughput with Virtual Threads vs platform threads. Measure Kafka send + Mongo write latency at the microsecond level. | `src/jmh/java/`, `build.gradle`                   | **1h**  | 🟢  | ⬜      |
+| 10.2 | **Gatling Load Test** — Java DSL simulation: N parallel product creates, validate SAGA invoice creation under load, report P50/P95/P99. Gradle task: `./gradlew gatlingRun`.                  | `src/test/java/com/example/load/`, `build.gradle` | **30m** | 🟢  | ⬜      |
+| 10.3 | **Performance Report** — `docs/PERFORMANCE.md` with latency charts, throughput analysis, Virtual Threads vs platform threads comparison.                                                      | `docs/PERFORMANCE.md`                             | **30m** | 🟢  | ⬜      |
 
 ---
 
-### 🟡 Phase 13 — Monitoring + Infrastructure — **⬜ PENDING**
+### 🟡 Phase 11 — Monitoring + Infrastructure — **⬜ PENDING**
 
 **Goal**: Deploy full Kafka observability stack (Prometheus + Grafana + JMX exporter) and provide broker ops docs.
 Includes broker sizing guide, partition rebalancing scripts, and debugging playbooks.
@@ -312,12 +312,12 @@ consumer lag, and throughput.
 
 | #    | Task                                                                                                                                                                                    | Files                                             | Effort  | ROI | Status |
 |------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------|---------|-----|--------|
-| 13.1 | **JMX exporter** — Add `prometheus/jmx-exporter` sidecar to Kafka broker. Config YAML exposing broker metrics (under-replicated partitions, request handler idle, bytes in/out).        | `monitoring/jmx-exporter-config.yml`              | **1h**  | 🟢  | ⬜      |
-| 13.2 | **Prometheus** — Prometheus container in `docker-compose.monitoring.yml` scraping Kafka broker + services.                                                                              | `docker-compose.monitoring.yml`, `prometheus.yml` | **1h**  | 🟢  | ⬜      |
-| 13.3 | **Grafana** — Grafana container with pre-built dashboard JSON (Kafka broker metrics, consumer lag, producer throughput).                                                                | `monitoring/grafana-dashboard.json`               | **1h**  | 🟢  | ⬜      |
-| 13.4 | **Alert rules** — Prometheus alerting rules: `UnderReplicatedPartitions > 0`, `ConsumerLag > 10000`, `DiskUsage > 80%`.                                                                 | `monitoring/alerts.yml`                           | **30m** | 🔵  | ⬜      |
-| 13.5 | **Broker ops docs** — Broker sizing guide (throughput calc), partition rebalancing scripts (`kafka-reassign-partitions` wrapper), upgrade procedure (rolling restart steps).            | `docs/KAFKA_OPS.md`                               | **1h**  | 🔵  | ⬜      |
-| 13.6 | **Debugging playbooks** — Consumer lag diagnosis, under-replicated partitions, producer timeouts, cluster out-of-disk. Each with `kafka-consumer-groups` / `kafka-topics` CLI commands. | `docs/KAFKA_OPS.md`                               | **30m** | 🔵  | ⬜      |
+| 11.1 | **JMX exporter** — Add `prometheus/jmx-exporter` sidecar to Kafka broker. Config YAML exposing broker metrics (under-replicated partitions, request handler idle, bytes in/out).        | `monitoring/jmx-exporter-config.yml`              | **1h**  | 🟢  | ⬜      |
+| 11.2 | **Prometheus** — Prometheus container in `docker-compose.monitoring.yml` scraping Kafka broker + services.                                                                              | `docker-compose.monitoring.yml`, `prometheus.yml` | **1h**  | 🟢  | ⬜      |
+| 11.3 | **Grafana** — Grafana container with pre-built dashboard JSON (Kafka broker metrics, consumer lag, producer throughput).                                                                | `monitoring/grafana-dashboard.json`               | **1h**  | 🟢  | ⬜      |
+| 11.4 | **Alert rules** — Prometheus alerting rules: `UnderReplicatedPartitions > 0`, `ConsumerLag > 10000`, `DiskUsage > 80%`.                                                                 | `monitoring/alerts.yml`                           | **30m** | 🔵  | ⬜      |
+| 11.5 | **Broker ops docs** — Broker sizing guide (throughput calc), partition rebalancing scripts (`kafka-reassign-partitions` wrapper), upgrade procedure (rolling restart steps).            | `docs/KAFKA_OPS.md`                               | **1h**  | 🔵  | ⬜      |
+| 11.6 | **Debugging playbooks** — Consumer lag diagnosis, under-replicated partitions, producer timeouts, cluster out-of-disk. Each with `kafka-consumer-groups` / `kafka-topics` CLI commands. | `docs/KAFKA_OPS.md`                               | **30m** | 🔵  | ⬜      |
 
 ---
 
@@ -335,34 +335,34 @@ consumer lag, and throughput.
 
 ---
 
-### 🟡 Phase 14 — CI/CD for Kafka — **⬜ PENDING**
+### 🟡 Phase 13 — CI/CD for Kafka — **⬜ PENDING**
 
 **Goal**: Integrate Kafka-aware CI/CD: schema compatibility checks, consumer lag validation, and canary deployment
 pattern. Extends GitHub Actions foundation.
 
-**Why**: Depends on Schema Registry from Phase 11 for compatibility checks.
+**Why**: Depends on Schema Registry from Phase 9 for compatibility checks.
 
 | #    | Task                                                                                                                                                                               | Files                                | Effort  | ROI | Status |
 |------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------|---------|-----|--------|
-| 14.1 | **Schema compatibility check** — GitHub Actions workflow step: push Avro schema to Schema Registry with `FULL_TRANSITIVE` compatibility validation. Fail build on breaking change. | `.github/workflows/schema-check.yml` | **30m** | 🟢  | ⬜      |
-| 14.2 | **Consumer lag gate** — Post-deployment step: check consumer lag via Kafka CLI after deploy. Rollback if lag exceeds threshold after timeout.                                      | `.github/workflows/deploy.yml`       | **30m** | 🟢  | ⬜      |
-| 14.3 | **Canary deployment** — Script: deploy new consumer version alongside existing, route 10% traffic, validate metrics, then full rollout or rollback.                                | `scripts/canary-deploy.sh`           | **1h**  | 🟢  | ⬜      |
+| 13.1 | **Schema compatibility check** — GitHub Actions workflow step: push Avro schema to Schema Registry with `FULL_TRANSITIVE` compatibility validation. Fail build on breaking change. | `.github/workflows/schema-check.yml` | **30m** | 🟢  | ⬜      |
+| 13.2 | **Consumer lag gate** — Post-deployment step: check consumer lag via Kafka CLI after deploy. Rollback if lag exceeds threshold after timeout.                                      | `.github/workflows/deploy.yml`       | **30m** | 🟢  | ⬜      |
+| 13.3 | **Canary deployment** — Script: deploy new consumer version alongside existing, route 10% traffic, validate metrics, then full rollout or rollback.                                | `scripts/canary-deploy.sh`           | **1h**  | 🟢  | ⬜      |
 
 ---
 
-### 🔵 Phase 9 — Operational Depth — **⬜ PENDING**
+### 🔵 Phase 14 — Operational Depth — **⬜ PENDING**
 
 **Goal**: Production-grade operational polish — custom health checks, structured logging, API versioning, container
 health checks, CI automation, and cross-instance cache consistency.
 
-| #   | Task                                                                                   | Why                                                                                               | Effort |
-|-----|----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|--------|
-| 9.1 | Custom health indicators for Kafka, MongoDB, Redis connectivity with detail            | Shows operational maturity beyond default health endpoints                                        | 1h     |
-| 9.2 | Structured JSON logging with `traceId`/`spanId` baked in                               | Correlatable logs across services, pairs with Zipkin tracing                                      | 30m    |
-| 9.3 | API versioning strategy (`Accept-Version` header or URL prefix via gateway)            | Breaking-change awareness, REST API maturity                                                      | 1h     |
-| 9.4 | Docker Compose `healthcheck` blocks for all services                                   | Container orchestration awareness, production-grade compose files                                 | 30m    |
-| 9.5 | GitHub Actions CI — build + test + lint on every PR                                    | CI/CD maturity                                                                                    | 1h     |
-| 9.6 | Redis Pub/Sub cross-instance cache invalidation                                        | `@EventListener` only evicts the writing instance. Other instances serve stale data for up to TTL. Use Redis Pub/Sub channel to broadcast eviction to all instances. Redis already in docker-compose — zero new infra. | 1h     |
+| #   | Task                                                                        | Why                                                                                                                                                                                                                    | Effort |
+|-----|-----------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------|
+| 14.1 | Custom health indicators for Kafka, MongoDB, Redis connectivity with detail | Shows operational maturity beyond default health endpoints                                                                                                                                                             | 1h     |
+| 14.2 | Structured JSON logging with `traceId`/`spanId` baked in                    | Correlatable logs across services, pairs with Zipkin tracing                                                                                                                                                           | 30m    |
+| 14.3 | API versioning strategy (`Accept-Version` header or URL prefix via gateway) | Breaking-change awareness, REST API maturity                                                                                                                                                                           | 1h     |
+| 14.4 | Docker Compose `healthcheck` blocks for all services                        | Container orchestration awareness, production-grade compose files                                                                                                                                                      | 30m    |
+| 14.5 | GitHub Actions CI — build + test + lint on every PR                         | CI/CD maturity                                                                                                                                                                                                         | 1h     |
+| 14.6 | Redis Pub/Sub cross-instance cache invalidation                             | `@EventListener` only evicts the writing instance. Other instances serve stale data for up to TTL. Use Redis Pub/Sub channel to broadcast eviction to all instances. Redis already in docker-compose — zero new infra. | 1h     |
 
 ## 🚦 Risk Triage — Prod Release Labels
 
