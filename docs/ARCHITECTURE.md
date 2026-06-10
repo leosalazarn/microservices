@@ -151,7 +151,7 @@ sequenceDiagram
     Aggregate->>Pub: publish event
     Pub->>Pub: Kafka producer
 
-    Note over Pub,Listener: Dual-path invalidation (Phase 9.6)
+    Note over Pub,Listener: Dual-path invalidation (Phase 14.6)
 
     rect rgb(220, 240, 220)
         Note over Pub,Listener: Path 1 — In-process (instant)
@@ -183,7 +183,7 @@ sequenceDiagram
 > - **Why not Redis-only?**: In-process path adds zero cost, provides Redis-independent correctness for the writing
     instance, and keeps dev/single-instance mode fast.
 >
-> See `CacheInvalidationEventHandler.java` and Phase 9.6 in the roadmap.
+> See `CacheInvalidationEventHandler.java` and Phase 14.6 in the roadmap.
 
 ---
 

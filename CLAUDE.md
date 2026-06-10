@@ -86,9 +86,10 @@ You can interact with Claude for:
 - **Snappy→gzip compression fix (June 2026)**: `compression.type=snappy` requires glibc (`ld-linux-x86-64.so.2`),
   unavailable on Alpine Docker images. Changed to `gzip` (pure Java `java.util.zip`) — restored broken SAGA event
   flow.
-- **Roadmap reprioritization**: Reordered pending phases by ROI and critical gaps: Phase 8 (load testing) → Phase 13
-  (monitoring) → Phase 10 (Kafka Streams) → Phase 11 (Kafka Connect) → Phase 12 (security) → Phase 14 (CI/CD) →
-  Phase 9 (operational depth). Total 30h remaining.
+- **Roadmap renumbered**: All 14 phases now in sequential priority order. Pending: Phase 8 (Kafka Streams, 8h) → Phase 9
+  (Kafka Connect, 6h) → Phase 10 (Load Testing, 2h) → Phase 11 (Monitoring, 4h) → Phase 12 (Kafka Security, 4h) → Phase
+  13
+  (CI/CD, 2h) → Phase 14 (Operational Depth, 5h). Total 31h remaining.
 
 ## 📖 How to Interact
 
