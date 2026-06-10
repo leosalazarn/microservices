@@ -255,7 +255,7 @@ Distributed trace IDs visualized in Zipkin UI — concrete proof of SAGA flow in
 **Goal**: Prove Virtual Threads + CQRS handle real throughput with measurable latency numbers. Benchmarks and load test
 scripts (Gatling, Java DSL) that reviewers can run themselves.
 
-**Execution priority: 3rd** — Recent performance-sensitive changes (retry, tracing, snappy→gzip) need a
+**Why**: Recent performance-sensitive changes (retry, tracing, snappy→gzip) need a
 latency/throughput baseline before adding more Kafka complexity. Quickest win (2h).
 
 | #   | Task                                                                                                                                                                                          | Files                                             | Effort  | ROI | Status |
@@ -270,8 +270,6 @@ latency/throughput baseline before adding more Kafka complexity. Quickest win (2
 
 **Goal**: Production-grade operational polish — custom health checks, structured logging, API versioning, container
 health checks, CI automation, and cross-instance cache consistency.
-
-**Execution priority: 7th** — Lowest ROI. Basic health endpoints + tracing already in place.
 
 | #   | Task                                                                                   | Why                                                                                               | Effort |
 |-----|----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|--------|
@@ -289,8 +287,8 @@ health checks, CI automation, and cross-instance cache consistency.
 **Goal**: Add Kafka Streams processing module for real-time event aggregation. Demonstrate KStream/KTable semantics,
 windowed operations, and state stores within the existing Java/Gradle stack.
 
-**Execution priority: 1st** — Core Kafka knowledge gap. Streams API enables real-time aggregation and stateful
-processing of `product-events` without external systems.
+**Why**: Core Kafka knowledge gap. Streams API enables real-time aggregation and stateful processing of
+`product-events` without external systems.
 
 | #    | Task                                                                                                                                                                | Files                                                | Effort   | ROI | Status |
 |------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------|----------|-----|--------|
@@ -308,7 +306,7 @@ processing of `product-events` without external systems.
 **Goal**: Add Kafka Connect worker and Debezium CDC connector for MongoDB, demonstrating source/sink connector
 configuration with Schema Registry (Avro). All config-based, zero custom connector code.
 
-**Execution priority: 2nd** — CDC from Event Store to Kafka unlocks schema evolution, audit, and downstream consumer
+**Why**: CDC from Event Store to Kafka unlocks schema evolution, audit, and downstream consumer
 patterns without invasive code changes.
 
 | #    | Task                                                                                                                                               | Files                                                 | Effort   | ROI | Status |
@@ -326,8 +324,6 @@ patterns without invasive code changes.
 **Goal**: Harden Kafka with SASL/SCRAM authentication, TLS encryption, and ACL-based authorization. Provide
 `docker-compose.security.yml` override for isolated testing.
 
-**Execution priority: 5th**
-
 | #    | Task                                                                                                                                                                 | Files                                          | Effort | ROI | Status |
 |------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------|--------|-----|--------|
 | 12.1 | **SASL/SCRAM auth** — Configure Kafka broker with `SASL_PLAINTEXT` listener, create user credentials. Override in `docker-compose.security.yml`.                     | `docker-compose.security.yml`                  | **1h** | 🟢  | ⬜      |
@@ -342,8 +338,8 @@ patterns without invasive code changes.
 **Goal**: Deploy full Kafka observability stack (Prometheus + Grafana + JMX exporter) and provide broker ops docs.
 Includes broker sizing guide, partition rebalancing scripts, and debugging playbooks.
 
-**Execution priority: 4th** — Zipkin provides traces but zero metrics. Cannot operate Kafka without visibility into
-broker health, consumer lag, and throughput.
+**Why**: Zipkin provides traces but zero metrics. Cannot operate Kafka without visibility into broker health,
+consumer lag, and throughput.
 
 | #    | Task                                                                                                                                                                                    | Files                                             | Effort  | ROI | Status |
 |------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------|---------|-----|--------|
@@ -361,7 +357,7 @@ broker health, consumer lag, and throughput.
 **Goal**: Integrate Kafka-aware CI/CD: schema compatibility checks, consumer lag validation, and canary deployment
 pattern. Extends GitHub Actions foundation.
 
-**Execution priority: 6th**
+**Why**: Depends on Schema Registry from Phase 11 for compatibility checks.
 
 | #    | Task                                                                                                                                                                               | Files                                | Effort  | ROI | Status |
 |------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------|---------|-----|--------|
