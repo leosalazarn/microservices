@@ -31,7 +31,7 @@ public class KafkaConfig {
         configProps.put(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, 30000);
         configProps.put(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, 5000);
         configProps.put(ProducerConfig.LINGER_MS_CONFIG, 5);
-        configProps.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "snappy");
+        configProps.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "gzip");
         configProps.put(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, 5);
         return new DefaultKafkaProducerFactory<>(configProps);
     }
