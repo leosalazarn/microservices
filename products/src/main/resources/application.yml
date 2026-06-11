@@ -35,6 +35,16 @@ spring:
       password: redispassword
   kafka:
     bootstrap-servers: localhost:9092
+    streams:
+      application-id: product-stats-app
+      properties:
+        processing.guarantee: exactly_once_v2
+        state.dir: /tmp/kafka-streams
+        commit.interval.ms: 1000
+        cache.max.bytes.buffering: 10485760
+      default:
+        key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+        value.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
 
 eureka:
   client:
