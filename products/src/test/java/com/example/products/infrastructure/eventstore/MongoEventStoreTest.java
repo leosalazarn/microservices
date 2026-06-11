@@ -39,9 +39,9 @@ class MongoEventStoreTest {
 
     @BeforeEach
     void setUp() {
-        event = ProductCreatedEvent.of("test-id", "Test Product", 100.0, 1L);
+        event = ProductCreatedEvent.of("test-id", "Test Product", 100.0, null, null, 1L);
         lenient().when(eventTypeRegistry.resolve(event.getClass())).thenReturn("ProductCreatedEvent");
-        
+
         entity = new EventStoreEntity();
         entity.setId("entity-id");
         entity.setAggregateId("test-id");
@@ -54,7 +54,7 @@ class MongoEventStoreTest {
     @Test
     void save_ValidEvent_ShouldSaveSuccessfully() throws JsonProcessingException {
         String eventJson = "{\"productId\":\"test-id\"}";
-        
+
         when(objectMapper.writeValueAsString(event)).thenReturn(eventJson);
         when(repository.save(any(EventStoreEntity.class))).thenReturn(entity);
 
@@ -67,7 +67,8 @@ class MongoEventStoreTest {
     @Test
     void save_JsonProcessingException_ShouldThrowRuntimeException() throws JsonProcessingException {
         when(objectMapper.writeValueAsString(event))
-                .thenThrow(new JsonProcessingException("Serialization error") {});
+                .thenThrow(new JsonProcessingException("Serialization error") {
+                });
 
         assertThrows(RuntimeException.class, () -> eventStore.save(event));
 
@@ -77,10 +78,10 @@ class MongoEventStoreTest {
 
     @Test
     void saveAll_ValidEvents_ShouldSaveAllSuccessfully() throws JsonProcessingException {
-        ProductCreatedEvent event2 = ProductCreatedEvent.of("test-id-2", "Test Product 2", 200.0, 1L);
+        ProductCreatedEvent event2 = ProductCreatedEvent.of("test-id-2", "Test Product 2", 200.0, null, null, 1L);
         List<DomainEvent> events = Arrays.asList(event, event2);
         String eventJson = "{\"productId\":\"test-id\"}";
-        
+
         when(objectMapper.writeValueAsString(any())).thenReturn(eventJson);
         when(repository.save(any(EventStoreEntity.class))).thenReturn(entity);
 
@@ -113,7 +114,7 @@ class MongoEventStoreTest {
     @Test
     void save_RepositoryException_ShouldPropagateException() throws JsonProcessingException {
         String eventJson = "{\"productId\":\"test-id\"}";
-        
+
         when(objectMapper.writeValueAsString(event)).thenReturn(eventJson);
         when(repository.save(any(EventStoreEntity.class)))
                 .thenThrow(new RuntimeException("Database error"));

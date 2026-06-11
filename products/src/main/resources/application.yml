@@ -37,6 +37,7 @@ spring:
     bootstrap-servers: localhost:9092
     streams:
       application-id: product-stats-app
+      auto-offset-reset: earliest
       properties:
         processing.guarantee: exactly_once_v2
         state.dir: /tmp/kafka-streams

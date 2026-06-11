@@ -1,4 +1,4 @@
-package com.example.billing.domain.event;
+package com.example.products.streams;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Builder;
@@ -15,5 +15,12 @@ public class ProductEvent {
     String productId;
     String name;
     Double price;
+    String description;
+    String category;
+    Double oldPrice;
+    Double newPrice;
+    String oldCategory;
+    String newCategory;
     LocalDateTime occurredAt;
+    Long version;
 }

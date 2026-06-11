@@ -31,7 +31,7 @@ class EventPublisherTest {
 
     @BeforeEach
     void setUp() {
-        event = ProductCreatedEvent.of("test-id", "Test Product", 100.0, 1L);
+        event = ProductCreatedEvent.of("test-id", "Test Product", 100.0, null, null, 1L);
     }
 
     @Test

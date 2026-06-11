@@ -1,31 +1,31 @@
 package com.example.products.domain.event;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Builder;
+import lombok.Value;
+import lombok.extern.jackson.Jacksonized;
 
 import java.time.LocalDateTime;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Value
+@Builder
+@Jacksonized
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ProductCreatedEvent implements DomainEvent {
-    private String productId;
-    private String name;
-    private Double price;
-    private LocalDateTime occurredAt;
-    private Long version;
-    
-    public static ProductCreatedEvent of(String productId, String name, Double price, Long version) {
-        ProductCreatedEvent event = new ProductCreatedEvent();
-        event.setProductId(productId);
-        event.setName(name);
-        event.setPrice(price);
-        event.setOccurredAt(LocalDateTime.now());
-        event.setVersion(version);
-        return event;
+    String productId;
+    String name;
+    Double price;
+    String description;
+    String category;
+    LocalDateTime occurredAt;
+    Long version;
+
+    public static ProductCreatedEvent of(String productId, String name, Double price,
+                                         String description, String category, Long version) {
+        return new ProductCreatedEvent(productId, name, price, description, category,
+                LocalDateTime.now(), version);
     }
-    
+
     @Override
     public String getAggregateId() {
         return productId;

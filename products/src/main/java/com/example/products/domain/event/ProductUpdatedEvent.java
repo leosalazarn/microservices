@@ -1,45 +1,37 @@
 package com.example.products.domain.event;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Builder;
+import lombok.Value;
+import lombok.extern.jackson.Jacksonized;
 
 import java.time.LocalDateTime;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Value
+@Builder
+@Jacksonized
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ProductUpdatedEvent implements DomainEvent {
-    private String productId;
-    private String oldName;
-    private String newName;
-    private Double oldPrice;
-    private Double newPrice;
-    private String oldDescription;
-    private String newDescription;
-    private String oldCategory;
-    private String newCategory;
-    private LocalDateTime occurredAt;
-    private Long version;
+    String productId;
+    String oldName;
+    String newName;
+    Double oldPrice;
+    Double newPrice;
+    String oldDescription;
+    String newDescription;
+    String oldCategory;
+    String newCategory;
+    LocalDateTime occurredAt;
+    Long version;
 
     public static ProductUpdatedEvent of(String productId, String oldName, String newName,
-                                          Double oldPrice, Double newPrice,
-                                          String oldDescription, String newDescription,
-                                          String oldCategory, String newCategory,
-                                          Long version) {
-        ProductUpdatedEvent event = new ProductUpdatedEvent();
-        event.setProductId(productId);
-        event.setOldName(oldName);
-        event.setNewName(newName);
-        event.setOldPrice(oldPrice);
-        event.setNewPrice(newPrice);
-        event.setOldDescription(oldDescription);
-        event.setNewDescription(newDescription);
-        event.setOldCategory(oldCategory);
-        event.setNewCategory(newCategory);
-        event.setOccurredAt(LocalDateTime.now());
-        event.setVersion(version);
-        return event;
+                                         Double oldPrice, Double newPrice,
+                                         String oldDescription, String newDescription,
+                                         String oldCategory, String newCategory,
+                                         Long version) {
+        return new ProductUpdatedEvent(productId, oldName, newName, oldPrice, newPrice,
+                oldDescription, newDescription, oldCategory, newCategory,
+                LocalDateTime.now(), version);
     }
 
     @Override
