@@ -27,22 +27,22 @@ and no CI/CD/containerization.
 
 ## Findings Summary
 
-| Priority        | Task                                      | Hrs     | ROI    | Status         |
-|-----------------|-------------------------------------------|---------|--------|----------------|
-| 🔴 Phase 1      | P0 Blocking CVEs (15)                     | —       | 🟢     | ✅ Fixed        |
-| 🟠 Phase 2      | P1 Before-GA CVEs (42 closed / 6 rem.)    | —       | 🟢     | 🟡 Ongoing     |
-| 🟡 Phase 3      | Logging & Robustness (2 tasks)            | 1h      | 🟡     | ✅ Complete     |
-| **🟢 Phase 4**  | **Event Sourcing Completeness (6 tasks)** | **10h** | **🟢** | **✅ Complete** |
-| **🟢 Phase 5**  | **Billing Persistence + Docker + Docs**   | **5h**  | **🟢** | **✅ Complete** |
-| **🟢 Phase 6**  | **Roadmap Completion — P0, P1, P3, P4**   | **4h**  | **🟢** | **✅ Complete** |
-| **🟢 Phase 7**  | **Observability & Resilience**            | **3h**  | **🟢** | **✅ Complete** |
-| **🟠 Phase 8**  | **Kafka Streams**                         | **8h**  | 🟢     | **🟡 In Progress**  |
-| **🟠 Phase 9**  | **Kafka Connect**                         | **6h**  | 🟢     | **⬜ Pending**  |
-| **🟠 Phase 10** | **Performance & Load Testing**            | **2h**  | **🟢** | **⬜ Pending**  |
-| **🟡 Phase 11** | **Monitoring + Infrastructure**           | **4h**  | 🟢     | **⬜ Pending**  |
-| **🟡 Phase 12** | **Kafka Security**                        | **4h**  | 🟢     | **⬜ Pending**  |
-| **🟡 Phase 13** | **CI/CD for Kafka**                       | **2h**  | 🟢     | **⬜ Pending**  |
-| **🔵 Phase 14** | **Operational Depth**                     | **5h**  | 🔵     | **⬜ Pending**  |
+| Priority        | Task                                      | Hrs     | ROI    | Status             |
+|-----------------|-------------------------------------------|---------|--------|--------------------|
+| 🔴 Phase 1      | P0 Blocking CVEs (15)                     | —       | 🟢     | ✅ Fixed            |
+| 🟠 Phase 2      | P1 Before-GA CVEs (42 closed / 6 rem.)    | —       | 🟢     | 🟡 Ongoing         |
+| 🟡 Phase 3      | Logging & Robustness (2 tasks)            | 1h      | 🟡     | ✅ Complete         |
+| **🟢 Phase 4**  | **Event Sourcing Completeness (6 tasks)** | **10h** | **🟢** | **✅ Complete**     |
+| **🟢 Phase 5**  | **Billing Persistence + Docker + Docs**   | **5h**  | **🟢** | **✅ Complete**     |
+| **🟢 Phase 6**  | **Roadmap Completion — P0, P1, P3, P4**   | **4h**  | **🟢** | **✅ Complete**     |
+| **🟢 Phase 7**  | **Observability & Resilience**            | **3h**  | **🟢** | **✅ Complete**     |
+| **🟠 Phase 8**  | **Kafka Streams**                         | **8h**  | 🟢     | **🟡 In Progress** |
+| **🟠 Phase 9**  | **Kafka Connect**                         | **6h**  | 🟢     | **⬜ Pending**      |
+| **🟠 Phase 10** | **Performance & Load Testing**            | **2h**  | **🟢** | **⬜ Pending**      |
+| **🟡 Phase 11** | **Monitoring + Infrastructure**           | **4h**  | 🟢     | **⬜ Pending**      |
+| **🟡 Phase 12** | **Kafka Security**                        | **4h**  | 🟢     | **⬜ Pending**      |
+| **🟡 Phase 13** | **CI/CD for Kafka**                       | **2h**  | 🟢     | **⬜ Pending**      |
+| **🔵 Phase 14** | **Operational Depth**                     | **5h**  | 🔵     | **⬜ Pending**      |
 
 ---
 
@@ -261,14 +261,14 @@ windowed operations, and state stores within the existing Java/Gradle stack.
 All event classes and aggregate values (`CategoryStats`) use `@Value` + `@Builder` + `@Jacksonized` — zero setters,
 constructor-based deserialization. See commit `c4812a3`.
 
-| #   | Task                                                                                                                                                                | Files                                                | Effort   | ROI | Status |
-|-----|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------|----------|-----|--------|
-| 8.1 | **Kafka Streams dependency** — Add `kafka-streams` to `build.gradle`, create `streams/` package with `KafkaStreamsConfig` and topology beans.                      | `products/build.gradle`, `streams/*.java`            | **1h**   | 🟢  | ✅      |
+| #   | Task                                                                                                                                                                      | Files                                                                          | Effort   | ROI | Status |
+|-----|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------|----------|-----|--------|
+| 8.1 | **Kafka Streams dependency** — Add `kafka-streams` to `build.gradle`, create `streams/` package with `KafkaStreamsConfig` and topology beans.                             | `products/build.gradle`, `streams/*.java`                                      | **1h**   | 🟢  | ✅      |
 | 8.2 | **KStream/KTable topology** — Read from `product-events`, parse JSON → filter → selectKey(category) → groupBy → aggregate → materialize RocksDB → output `product-stats`. | `streams/ProductStatsTopology.java`, `CategoryStats.java`, `ProductEvent.java` | **2h**   | 🟢  | ✅      |
-| 8.3 | **Windowed operations** — Tumbling window (hourly product creation count), hopping window (15-min sliding stats). Demonstrate window configuration and suppression. | `streams/WindowedStatsTopology.java`                 | **2h**   | 🟢  | ⬜      |
-| 8.4 | **State store (RocksDB)** — Configure persistent state store, Interactive Queries (IQ) REST endpoint to query current state (e.g., running category counts).        | `streams/InteractiveQueriesController.java`          | **1.5h** | 🟢  | ⬜      |
-| 8.5 | **Exactly-once semantics** — Configure `processing.guarantee=exactly_once_v2`. TopologyTestDriver unit tests for each topology.                                     | `streams/*.java`, `src/test/java/streams/*Test.java` | **1h**   | 🟢  | ⬜      |
-| 8.6 | **Docker Compose** — Embed within existing products service (no new container).                                                                                     | (already embedded)                                   | **30m**  | 🔵  | ✅      |
+| 8.3 | **Windowed operations** — Tumbling window (hourly product creation count), hopping window (15-min sliding stats). Demonstrate window configuration and suppression.       | `streams/WindowedStatsTopology.java`                                           | **2h**   | 🟢  | ⬜      |
+| 8.4 | **State store (RocksDB)** — Configure persistent state store, Interactive Queries (IQ) REST endpoint to query current state (e.g., running category counts).              | `streams/InteractiveQueriesController.java`                                    | **1.5h** | 🟢  | ⬜      |
+| 8.5 | **Exactly-once semantics** — Configure `processing.guarantee=exactly_once_v2`. TopologyTestDriver unit tests for each topology.                                           | `streams/*.java`, `src/test/java/streams/*Test.java`                           | **1h**   | 🟢  | ⬜      |
+| 8.6 | **Docker Compose** — Embed within existing products service (no new container).                                                                                           | (already embedded)                                                             | **30m**  | 🔵  | ✅      |
 
 ---
 
