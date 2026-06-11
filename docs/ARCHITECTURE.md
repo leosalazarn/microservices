@@ -195,6 +195,13 @@ Captures all state changes as immutable events instead of storing just current s
 
 **Components**: `DomainEvent` interface, `ProductCreatedEvent`, `ProductUpdatedEvent`, `EventStore`, `EventStoreEntity`
 
+**Event immutability**: All event classes and aggregate values use `@Value` + `@Builder` + `@Jacksonized` — zero setters,
+constructor-based Jackson deserialization, pure factory methods. This is required because Kafka Streams changelog topics
+need `@Jacksonized` to provide Jackson with a property-based `@JsonCreator`. `@Builder` is mandatory for `@Jacksonized`
+to take effect. Computed properties (e.g. `CategoryStats.getAveragePrice()`) use `@JsonIgnore` to prevent Jackson
+serialization. See `CategoryStats.java`, `ProductCreatedEvent.java`, `ProductUpdatedEvent.java`, and `ProductEvent.java`
+(in both products and billing services).
+
 ### CQRS (Command Query Responsibility Segregation)
 
 - **Command Side** (Write): `CreateProductCommand` / `UpdateProductCommand` → Handler → Aggregate → Events

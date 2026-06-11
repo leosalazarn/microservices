@@ -86,6 +86,15 @@ You can interact with Claude for:
 - **Snappy→gzip compression fix (June 2026)**: `compression.type=snappy` requires glibc (`ld-linux-x86-64.so.2`),
   unavailable on Alpine Docker images. Changed to `gzip` (pure Java `java.util.zip`) — restored broken SAGA event
   flow.
+- **Immutable event classes (June 2026)**: Refactored `ProductCreatedEvent`, `ProductUpdatedEvent`, billing
+  `ProductEvent`,
+  streams `ProductEvent`, and `CategoryStats` to use `@Value`/`@Builder`/`@Jacksonized` — zero setters,
+  constructor-based
+  Jackson deserialization, pure factory methods. Required because Kafka Streams changelog topic serialization needs
+  `@Jacksonized` to provide Jackson with a property-based Creator. `@Builder` is required for `@Jacksonized` to take
+  effect. Added `@JsonIgnore` to `CategoryStats.getAveragePrice()` to prevent Jackson serialization of computed
+  property.
+  SAGA and Streams end-to-end verified after fix.
 - **Roadmap renumbered**: All 14 phases now in sequential priority order. Pending: Phase 8 (Kafka Streams, 8h) → Phase 9
   (Kafka Connect, 6h) → Phase 10 (Load Testing, 2h) → Phase 11 (Monitoring, 4h) → Phase 12 (Kafka Security, 4h) → Phase
   13
