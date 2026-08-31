@@ -18,7 +18,7 @@ MongoDB, and Redis.
 | [Architecture](docs/ARCHITECTURE.md)      | System design, patterns, diagrams         |
 | [Docker Setup](docs/DOCKER.md)            | Infrastructure + service containerization |
 | [ADR Library](docs/adr)                   | Architecture Decision Records             |
-| [Roadmap](docs/PROD_READINESS_ROADMAP.md) | CVE remediation & production readiness    |
+| [Roadmap](docs/ROADMAP.md) | Phases & feature roadmap — AI (RAG+MCP), Streams, Connect, etc. |
 
 ## Service Catalog
 

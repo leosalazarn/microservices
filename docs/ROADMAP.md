@@ -1,25 +1,24 @@
-# Production Readiness Roadmap
+# Roadmap — Microservices Portfolio
 
 **Date**: 2026-06-10  
-**Prod Readiness**: 🟡 **29 Alerts Remain** (5 High, 15 Moderate, 9 Low) — 42 of 71 closed.  
+**Status**: 🟡 **29 Alerts Remain** (5 High, 15 Moderate, 9 Low) — 42 of 71 closed. Portfolio POC (not prod deployment)  
 **Architecture**: Java 21 — Spring Boot 3.4, CQRS, Event Sourcing, SAGA, Kafka EDA, MongoDB, Redis, Virtual Threads (
-ADR-003)  
+ADR-003) + Spring AI 1.0 (RAG, MCP, Agents)  
 **Auditor**: AI Assistant (Claude)
 
 ---
 
 ## Overview
 
-This document tracks production readiness for a **Java 21 microservices POC** demonstrating CQRS, Event Sourcing, SAGA,
-Command Bus, DDD, Redis caching, and Virtual Threads (Project Loom) with Spring Boot 3.4.
+This document tracks the feature roadmap for this **Java 21 microservices portfolio POC** demonstrating CQRS, Event
+Sourcing, SAGA, Command Bus, DDD, Redis caching, Virtual Threads (Project Loom), and Spring AI (RAG, MCP, Agents) with
+Spring Boot 3.4.
 
 A comprehensive audit was performed on the Enterprise Microservices Architecture POC. The project demonstrates
-sophisticated patterns but has material issues preventing production readiness.
+sophisticated patterns and is structured as a portfolio showcase.
 
-**Overall Assessment**: Architecture is mature and well-designed, but the codebase is **not production-ready** due to
-hardcoded secrets (✅ fixed), Event Sourcing (✅ complete), mock data in Billing service, missing error handling (✅
-fixed),
-and no CI/CD/containerization.
+**Overall Assessment**: Architecture is mature and portfolio-ready. Completed: secrets externalization (✅), Event
+Sourcing (✅), Billing persistence (✅), Docker (✅), Observability (✅), AI scaffold (✅), immutable events (✅).
 
 ---
 
@@ -389,7 +388,7 @@ health checks, CI automation, and cross-instance cache consistency.
 | 14.5 | GitHub Actions CI — build + test + lint on every PR                         | CI/CD maturity                                                                                                                                                                                                         | 1h     |
 | 14.6 | Redis Pub/Sub cross-instance cache invalidation                             | `@EventListener` only evicts the writing instance. Other instances serve stale data for up to TTL. Use Redis Pub/Sub channel to broadcast eviction to all instances. Redis already in docker-compose — zero new infra. | 1h     |
 
-## 🚦 Risk Triage — Prod Release Labels
+## 🚦 Risk Triage — Release Labels
 
 | Label                 | Meaning                                                                                     | Action                                                        |
 |-----------------------|---------------------------------------------------------------------------------------------|---------------------------------------------------------------|
