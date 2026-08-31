@@ -79,6 +79,43 @@ services:
       - eureka-server
     networks:
       - microservices-network
+
+  ai-service:
+    build:
+      context: .
+      dockerfile: ai-service/Dockerfile
+    container_name: ai-service
+    ports:
+      - "8083:8080"
+    environment:
+      SERVER_PORT: "8080"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:19092
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PASSWORD: ${REDIS_PASSWORD:-redispassword}
+      OLLAMA_BASE_URL: http://ollama:11434
+      SPRING_CLOUD_VAULT_ENABLED: "false"
+      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
+    depends_on:
+      - eureka-server
+      - kafka
+      - redis
+      - ollama
+      - zipkin
+    networks:
+      - microservices-network
+
+  ollama:
+    image: ollama/ollama:0.5
+    container_name: ollama-poc
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - microservices-network
+    # Pull models on first start: docker exec ollama-poc ollama pull llama3.2 && ollama pull nomic-embed-text
+
   mongodb:
     image: mongo:7.0
     container_name: mongodb-poc
@@ -201,6 +238,8 @@ volumes:
   vault_config:
     driver: local
   redis_data:
+    driver: local
+  ollama_data:
     driver: local
 
 networks:

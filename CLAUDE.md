@@ -11,9 +11,9 @@ architectural review, documentation maintenance, and infrastructure troubleshoot
 Claude maintains a deep understanding of this project's specific tech stack and architectural choices:
 
 - **Language**: Java 21 (LTS) with Virtual Threads (ADR-003)
-- **Framework**: Spring Boot 3.4.5 & Spring Cloud 2024.0.1
-- **Patterns**: Event Sourcing, CQRS, SAGA, Command Bus, and DDD
-- **Infrastructure**: MongoDB 8.0, Kafka 3.9.2, Redis 7, HashiCorp Vault, and Netflix Eureka
+- **Framework**: Spring Boot 3.4.5 & Spring Cloud 2024.0.1 + Spring AI 1.0 (RAG, MCP, Agents)
+- **Patterns**: Event Sourcing, CQRS, SAGA, Command Bus, DDD, RAG, Model Context Protocol (MCP)
+- **Infrastructure**: MongoDB 8.0, Kafka 3.9.2, Redis 7 (Vector Store), HashiCorp Vault, Netflix Eureka, Ollama (llama3.2, nomic-embed-text)
 - **API Strategy**: Contract-first with OpenAPI 3.0 and Swagger UI
 
 ## 🧠 Architectural Awareness
@@ -43,6 +43,12 @@ Claude is configured to assist with the following core patterns implemented in t
 - Implementing `@Cacheable` and `@CacheEvict` strategies.
 - Designing event-driven cache invalidation to maintain loose coupling.
 - Monitoring Redis performance via CLI commands.
+
+### 5. AI — RAG, MCP, Agents (Spring AI + Ollama)
+
+- Building `ai-service` with `ChatClient`, `QuestionAnswerAdvisor`, `RedisVectorStore`, and MCP server/client.
+- Ingesting `product-events` (Kafka) → embeddings (`nomic-embed-text`) → vector store.
+- Exposing `POST /ai/chat` (RAG with citations) and agentic `@Tool`/`MCP` functions for products/billing.
 
 ## 🛠️ Development Workflows
 
@@ -95,10 +101,8 @@ You can interact with Claude for:
   effect. Added `@JsonIgnore` to `CategoryStats.getAveragePrice()` to prevent Jackson serialization of computed
   property.
   SAGA and Streams end-to-end verified after fix.
-- **Roadmap renumbered**: All 14 phases now in sequential priority order. Pending: Phase 8 (Kafka Streams, 8h) → Phase 9
-  (Kafka Connect, 6h) → Phase 10 (Load Testing, 2h) → Phase 11 (Monitoring, 4h) → Phase 12 (Kafka Security, 4h) → Phase
-  13
-  (CI/CD, 2h) → Phase 14 (Operational Depth, 5h). Total 31h remaining.
+- **Roadmap reprioritized (AI-first, Aug 2026)**: New **Phase 8 AI (Spring AI + RAG + MCP + Agents, 7h)** promoted to top priority per 2026 recruiter trends (RAG+MCP+Agents as #1 portfolio signal). Roadmap now 15 phases: Phase 8 AI (pending) → Phase 9 Kafka Streams (8h, in-progress 8.1/8.2/8.6 done) → Phase 10 Kafka Connect (6h) → 11 Load Testing (2h) → 12 Monitoring (4h) → 13 Kafka Security (4h) → 14 CI/CD (2h) → 15 Operational Depth (5h). Total ~34-35h remaining.
+- **Roadmap renumbered**: Was 14 phases sequential; now 15 with AI inserted at top.
 
 ## 📖 How to Interact
 

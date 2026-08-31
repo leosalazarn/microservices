@@ -36,13 +36,14 @@ and no CI/CD/containerization.
 | **🟢 Phase 5**  | **Billing Persistence + Docker + Docs**   | **5h**  | **🟢** | **✅ Complete**     |
 | **🟢 Phase 6**  | **Roadmap Completion — P0, P1, P3, P4**   | **4h**  | **🟢** | **✅ Complete**     |
 | **🟢 Phase 7**  | **Observability & Resilience**            | **3h**  | **🟢** | **✅ Complete**     |
-| **🟠 Phase 8**  | **Kafka Streams**                         | **8h**  | 🟢     | **🟡 In Progress** |
-| **🟠 Phase 9**  | **Kafka Connect**                         | **6h**  | 🟢     | **⬜ Pending**      |
-| **🟠 Phase 10** | **Performance & Load Testing**            | **2h**  | **🟢** | **⬜ Pending**      |
-| **🟡 Phase 11** | **Monitoring + Infrastructure**           | **4h**  | 🟢     | **⬜ Pending**      |
-| **🟡 Phase 12** | **Kafka Security**                        | **4h**  | 🟢     | **⬜ Pending**      |
-| **🟡 Phase 13** | **CI/CD for Kafka**                       | **2h**  | 🟢     | **⬜ Pending**      |
-| **🔵 Phase 14** | **Operational Depth**                     | **5h**  | 🔵     | **⬜ Pending**      |
+| **🔴 Phase 8**  | **AI — Spring AI + RAG + MCP + Agents**   | **7h**  | **🟢** | **⬜ Pending**      |
+| **🟠 Phase 9**  | **Kafka Streams**                         | **8h**  | 🟢     | **🟡 In Progress** |
+| **🟠 Phase 10** | **Kafka Connect**                         | **6h**  | 🟢     | **⬜ Pending**      |
+| **🟠 Phase 11** | **Performance & Load Testing**            | **2h**  | **🟢** | **⬜ Pending**      |
+| **🟡 Phase 12** | **Monitoring + Infrastructure**           | **4h**  | 🟢     | **⬜ Pending**      |
+| **🟡 Phase 13** | **Kafka Security**                        | **4h**  | 🟢     | **⬜ Pending**      |
+| **🟡 Phase 14** | **CI/CD for Kafka**                       | **2h**  | 🟢     | **⬜ Pending**      |
+| **🔵 Phase 15** | **Operational Depth**                     | **5h**  | 🔵     | **⬜ Pending**      |
 
 ---
 
@@ -249,7 +250,27 @@ Distributed trace IDs visualized in Zipkin UI — concrete proof of SAGA flow in
 
 ---
 
-### 🟠 Phase 8 — Kafka Streams — **🟡 IN PROGRESS**
+### 🔴 Phase 8 — AI — Spring AI + RAG + MCP + Agents — **⬜ PENDING** *(TOP PRIORITY — 2026 recruiter trends)*
+
+**Goal**: Add portfolio-differentiating AI layer with Spring AI 1.0, RAG, Model Context Protocol (MCP), and agentic tool calling. Local Ollama inference — zero API cost, fully reproducible via `docker-compose up`.
+
+**Why — 2026 trends**: RAG dominates production hiring over fine-tuning (cost/control), MCP is the 2026 standard for tool/resource interop (Spring AI is official MCP Java SDK contributor), agentic workflows are the #1 GenAI portfolio signal. Per Spring I/O 2026, NovelVista 2026 hiring guide, and RAG+MCP enterprise guide. Shows: vector DB, embeddings, prompt engineering, evaluation, and production observability — beyond toy demos.
+
+| #   | Task                                                                                                                                                           | Files                                                      | Effort | ROI | Status |
+|-----|----------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------|--------|-----|--------|
+| 8.1 | **Ollama + Spring AI deps** — `ollama/ollama` container (llama3.2), `spring-ai-ollama-spring-boot-starter`, `spring-ai-starter-mcp-server-webmvc` in new `ai-service` | `docker-compose.yml`, `ai-service/build.gradle`            | **1h** | 🟢  | ⬜      |
+| 8.2 | **Vector Store (Redis)** — Reuse Redis 7 as `RedisVectorStore` via Spring AI (no new infra). Embeddings via Ollama `nomic-embed-text`. Fallback: `SimpleVectorStore`. | `ai-service/.../config/VectorStoreConfig.java`             | **1h** | 🟢  | ⬜      |
+| 8.3 | **Ingestion — Kafka → Embeddings** — Listen `product-events` (Kafka), embed `name+description+category` → upsert to vector store with metadata | `ai-service/.../ingest/ProductEmbeddingService.java`       | **1.5h** | 🟢 | ⬜      |
+| 8.4 | **RAG Chat API** — `POST /ai/chat` with `ChatClient` + `QuestionAnswerAdvisor` + citations, `GET /ai/search?q=` semantic search | `ai-service/.../chat/AiChatController.java`                | **1.5h** | 🟢 | ⬜      |
+| 8.5 | **Agentic Tool Calling + MCP** — `@Tool` functions (`getProductById`, `searchByCategory`, `getInvoiceStatus`) + MCP server exposing products/billing as MCP tools | `ai-service/.../tools/ProductTools.java`, MCP config       | **1h** | 🟢  | ⬜      |
+| 8.6 | **Streaming, Memory & Eval** — Streaming chat (`/ai/chat/stream`), `ChatMemory` advisors (in-memory/JDBC), evaluation harness (accuracy/latency) + Zipkin traces | `ai-service/.../chat/*`, `docs/AI_INTEGRATION.md`         | **1h** | 🟢  | ⬜      |
+
+> **Demo**: `curl -X POST localhost:8080/ai/chat -H 'Content-Type: application/json' -d '{"message":"Find cheap electronics under $50"}'` → RAG answer with sources.
+> See `docs/ARCHITECTURE.md` AI section and `docs/AI_INTEGRATION.md` for E2E flow.
+
+---
+
+### 🟠 Phase 9 — Kafka Streams — **🟡 IN PROGRESS**
 
 **Goal**: Add Kafka Streams processing module for real-time event aggregation. Demonstrate KStream/KTable semantics,
 windowed operations, and state stores within the existing Java/Gradle stack.
@@ -263,16 +284,16 @@ constructor-based deserialization. See commit `c4812a3`.
 
 | #   | Task                                                                                                                                                                      | Files                                                                          | Effort   | ROI | Status |
 |-----|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------|----------|-----|--------|
-| 8.1 | **Kafka Streams dependency** — Add `kafka-streams` to `build.gradle`, create `streams/` package with `KafkaStreamsConfig` and topology beans.                             | `products/build.gradle`, `streams/*.java`                                      | **1h**   | 🟢  | ✅      |
-| 8.2 | **KStream/KTable topology** — Read from `product-events`, parse JSON → filter → selectKey(category) → groupBy → aggregate → materialize RocksDB → output `product-stats`. | `streams/ProductStatsTopology.java`, `CategoryStats.java`, `ProductEvent.java` | **2h**   | 🟢  | ✅      |
-| 8.3 | **Windowed operations** — Tumbling window (hourly product creation count), hopping window (15-min sliding stats). Demonstrate window configuration and suppression.       | `streams/WindowedStatsTopology.java`                                           | **2h**   | 🟢  | ⬜      |
-| 8.4 | **State store (RocksDB)** — Configure persistent state store, Interactive Queries (IQ) REST endpoint to query current state (e.g., running category counts).              | `streams/InteractiveQueriesController.java`                                    | **1.5h** | 🟢  | ⬜      |
-| 8.5 | **Exactly-once semantics** — Configure `processing.guarantee=exactly_once_v2`. TopologyTestDriver unit tests for each topology.                                           | `streams/*.java`, `src/test/java/streams/*Test.java`                           | **1h**   | 🟢  | ⬜      |
-| 8.6 | **Docker Compose** — Embed within existing products service (no new container).                                                                                           | (already embedded)                                                             | **30m**  | 🔵  | ✅      |
+| 9.1 | **Kafka Streams dependency** — Add `kafka-streams` to `build.gradle`, create `streams/` package with `KafkaStreamsConfig` and topology beans.                             | `products/build.gradle`, `streams/*.java`                                      | **1h**   | 🟢  | ✅      |
+| 9.2 | **KStream/KTable topology** — Read from `product-events`, parse JSON → filter → selectKey(category) → groupBy → aggregate → materialize RocksDB → output `product-stats`. | `streams/ProductStatsTopology.java`, `CategoryStats.java`, `ProductEvent.java` | **2h**   | 🟢  | ✅      |
+| 9.3 | **Windowed operations** — Tumbling window (hourly product creation count), hopping window (15-min sliding stats). Demonstrate window configuration and suppression.       | `streams/WindowedStatsTopology.java`                                           | **2h**   | 🟢  | ⬜      |
+| 9.4 | **State store (RocksDB)** — Configure persistent state store, Interactive Queries (IQ) REST endpoint to query current state (e.g., running category counts).              | `streams/InteractiveQueriesController.java`                                    | **1.5h** | 🟢  | ⬜      |
+| 9.5 | **Exactly-once semantics** — Configure `processing.guarantee=exactly_once_v2`. TopologyTestDriver unit tests for each topology.                                           | `streams/*.java`, `src/test/java/streams/*Test.java`                           | **1h**   | 🟢  | ⬜      |
+| 9.6 | **Docker Compose** — Embed within existing products service (no new container).                                                                                           | (already embedded)                                                             | **30m**  | 🔵  | ✅      |
 
 ---
 
-### 🟠 Phase 9 — Kafka Connect — **⬜ PENDING**
+### 🟠 Phase 10 — Kafka Connect — **⬜ PENDING**
 
 **Goal**: Add Kafka Connect worker and Debezium CDC connector for MongoDB, demonstrating source/sink connector
 configuration with Schema Registry (Avro). All config-based, zero custom connector code.
@@ -290,7 +311,7 @@ patterns without invasive code changes.
 
 ---
 
-### 🟠 Phase 10 — Performance & Load Testing — **⬜ PENDING**
+### 🟠 Phase 11 — Performance & Load Testing — **⬜ PENDING**
 
 **Goal**: Prove Virtual Threads + CQRS handle real throughput with measurable latency numbers. Benchmarks and load test
 scripts (Gatling, Java DSL) that reviewers can run themselves.
@@ -306,7 +327,7 @@ adding more Kafka complexity. Quickest win (2h).
 
 ---
 
-### 🟡 Phase 11 — Monitoring + Infrastructure — **⬜ PENDING**
+### 🟡 Phase 12 — Monitoring + Infrastructure — **⬜ PENDING**
 
 **Goal**: Deploy full Kafka observability stack (Prometheus + Grafana + JMX exporter) and provide broker ops docs.
 Includes broker sizing guide, partition rebalancing scripts, and debugging playbooks.
@@ -325,7 +346,7 @@ consumer lag, and throughput.
 
 ---
 
-### 🟡 Phase 12 — Kafka Security — **⬜ PENDING**
+### 🟡 Phase 13 — Kafka Security — **⬜ PENDING**
 
 **Goal**: Harden Kafka with SASL/SCRAM authentication, TLS encryption, and ACL-based authorization. Provide
 `docker-compose.security.yml` override for isolated testing.
@@ -339,7 +360,7 @@ consumer lag, and throughput.
 
 ---
 
-### 🟡 Phase 13 — CI/CD for Kafka — **⬜ PENDING**
+### 🟡 Phase 14 — CI/CD for Kafka — **⬜ PENDING**
 
 **Goal**: Integrate Kafka-aware CI/CD: schema compatibility checks, consumer lag validation, and canary deployment
 pattern. Extends GitHub Actions foundation.
@@ -354,7 +375,7 @@ pattern. Extends GitHub Actions foundation.
 
 ---
 
-### 🔵 Phase 14 — Operational Depth — **⬜ PENDING**
+### 🔵 Phase 15 — Operational Depth — **⬜ PENDING**
 
 **Goal**: Production-grade operational polish — custom health checks, structured logging, API versioning, container
 health checks, CI automation, and cross-instance cache consistency.

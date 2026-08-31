@@ -1,7 +1,7 @@
 # Architecture Documentation
 
-This microservices architecture implements **Event Sourcing**, **CQRS**, and **SAGA** patterns using Spring Cloud,
-MongoDB, Kafka, and Redis with Java 21 Virtual Threads.
+This microservices architecture implements **Event Sourcing**, **CQRS**, **SAGA**, and **AI (Spring AI + RAG + MCP)**
+patterns using Spring Cloud, MongoDB, Kafka, Redis, Ollama, and Java 21 Virtual Threads.
 
 ---
 
@@ -26,14 +26,22 @@ graph TB
     USER -->|HTTP| GW
     GW --> PS
     GW --> BS
+    GW --> AI
+    AI["AI Service :8083<br/>Spring AI + RAG + MCP"]
+    OLLAMA[("Ollama :11434<br/>llama3.2 / nomic-embed-text")]
     PS --> EU
     BS --> EU
+    AI --> EU
     PS --> MONGO
     PS --> KAFKA
     BS --> KAFKA
+    AI --> KAFKA
     PS --> REDIS
+    AI --> REDIS
+    AI --> OLLAMA
     PS --> VAULT
     BS --> VAULT
+    AI --> VAULT
 
     classDef infra fill:#f9f,stroke:#333,stroke-width:2px
     classDef service fill:#bbf,stroke:#333,stroke-width:2px
@@ -241,6 +249,50 @@ HTTP request → Gateway → Products/Billing → Zipkin collector (Micrometer T
 Every service emits traces with `traceId` and `spanId`. All traces are collected by Zipkin at `http://localhost:9411`.
 Spring Cloud Gateway and Spring Kafka auto-instrument — no custom Observation handlers needed.
 
+### AI — RAG + MCP + Agentic (Phase 8)
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Gateway
+    participant AI as "AI Service :8083"
+    participant VS as "Redis Vector Store"
+    participant Ollama as "Ollama :11434"
+    participant Kafka as "Kafka (product-events)"
+    participant Products as "Products Service"
+
+    Note over Kafka,AI: Ingestion (async)
+    Products->>Kafka: publish ProductCreatedEvent
+    Kafka-->>AI: consume event
+    AI->>Ollama: embed(name+description+category)
+    Ollama-->>AI: vector
+    AI->>VS: upsert(vector + metadata)
+
+    Note over Client,AI: RAG Query (sync)
+    Client->>Gateway: POST /ai/chat {"message":"cheap electronics under $50"}
+    Gateway->>AI: route
+    AI->>VS: similaritySearch(queryVector, topK=5)
+    VS-->>AI: relevant products
+    AI->>Ollama: chat(prompt + context + tools)
+    Ollama-->>AI: answer + citations
+    AI-->>Gateway: {answer, sources}
+    Gateway-->>Client: JSON
+
+    Note over AI,Ollama: Agentic Tool Calling / MCP
+    AI->>Products: @Tool getProductById / searchByCategory (MCP)
+    Products-->>AI: product data
+```
+
+**Why this stack (2026 trends):** RAG dominates hiring over fine-tuning; MCP (Anthropic standard, Spring AI is official Java SDK contributor) standardizes tool/resource interop; agentic workflows are the #1 GenAI portfolio signal. Spring AI 1.0 GA (May 2025) provides `ChatClient`, `QuestionAnswerAdvisor`, `VectorStore`, `ChatMemory`, and MCP starters on Spring Boot 3.4. Ollama runs `llama3.2` + `nomic-embed-text` locally — zero API cost, fully reproducible via `docker-compose up`.
+
+**Flow:**
+- **Ingest:** Kafka `product-events` → embed via Ollama → `RedisVectorStore` (reuses Redis 7, no new DB)
+- **RAG:** `POST /ai/chat` → `QuestionAnswerAdvisor` retrieves top-K vectors → LLM answers with source citations (anti-hallucination)
+- **Agents:** `@Tool` / MCP tools expose `getProductById`, `searchByCategory`, `getInvoiceStatus` as callable functions
+- **Memory & Streaming:** `ChatMemory` advisors + `/ai/chat/stream` (SSE), Zipkin traces cover `ai-service` as well
+
+See `ai-service/` and `docs/AI_INTEGRATION.md` (Phase 8).
+
 ---
 
 ## Tech Stack
@@ -253,7 +305,8 @@ Spring Cloud Gateway and Spring Kafka auto-instrument — no custom Observation 
 | API Gateway       | Spring Cloud Gateway                      |
 | Database          | MongoDB 8.0                               |
 | Event Streaming   | Apache Kafka 3.9.2 (gzip compression)     |
-| Cache             | Redis 7                                   |
+| Cache / Vectors   | Redis 7 + Redis Vector Store (Spring AI)  |
+| AI / LLM          | Spring AI 1.0 + Ollama (llama3.2, nomic-embed-text) + MCP |
 | Secrets           | HashiCorp Vault                           |
 | Tracing           | Zipkin · Micrometer Tracing Bridge Brave  |
 | Kafka Tools       | Kafdrop · Kafka UI                        |
